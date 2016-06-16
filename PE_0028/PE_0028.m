@@ -1,16 +1,21 @@
 function [ SumX ] = PE_0028( n )
-%SPIRAL_DIAG_SUM Summary of this function goes here
-    
+
+% PE_0028
+ 
+% Number spiral diagonals
+
+% What is the sum of the numbers on the diagonal
+% in a 1001 by 1001 spiral matrix?
+
 %   gives the sum of the two diagonals of a spiral
 %   n x n matrix, where n is an odd positive integer.
 
 tic
-if n==1
-    sumX=1
+sumX=1;
+if n==1   
     return
 end
 
-sumX=1;
 for ni=3:2:n
     mult=0;
     j=0;

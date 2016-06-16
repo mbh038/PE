@@ -1,6 +1,10 @@
 function [ lcm ] = PE_0005( n )
-%SMALLEST_MULTIPLE Summary of this function goes here
-%   Detailed explanation goes here
+% PE_0005
+
+% Smallest multiple
+
+% What is the smallest positive number that is evenly divisible
+% by all of the numbers from 1 to 20?
 
 %check that n is a positive integer scalar
 if ~isscalar(n) || n < 1 || n ~= floor(n)
@@ -21,12 +25,12 @@ end
    
 pplist=uint64(plist) .^uint64(powers) ;   
 
-prod=uint64(1)
+prod=uint64(1);
 for i=1:length(pplist)
-    prod=prod*pplist(i)
+    prod=prod*pplist(i);
 end
 
-lcm=prod
+lcm=prod;
 
 if lcm >= maxval
     lcm=uint64(0);

@@ -1,8 +1,11 @@
-
 function nlet=PE_0017()
-    
-    % find all the letters required to write down the number 1-1000 inclusive
-    % use "and" where normally used, as per the British usage.
+
+% PE_0019
+
+% Number letter counts
+
+% find all the letters required to write down the number 1-1000 inclusive
+% use "and" where normally used, as per the British usage.
     
     nlet=0;
     for n=1:999

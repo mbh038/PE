@@ -1,5 +1,8 @@
 function [ n,count ] = PE_0007( target )
-%PE_0007 Summary of this function goes here
+%   PE_0007
+
+%   10001st prime
+
 %   find the 10 001st prime number
 
     huge=1e6;

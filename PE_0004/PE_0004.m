@@ -1,6 +1,9 @@
 function [ n ] = PE_0004( dig,lim )
-%PALIN_PRODUCT Summary of this function goes here
-%   Detailed explanation goes here
+%   PE_0004
+
+%   Largest palindrome product
+
+%   Find the largest palindrome made from the product of two 3-digit numbers.
 
 nums=10^dig-1:-1:10^(dig-1);
 

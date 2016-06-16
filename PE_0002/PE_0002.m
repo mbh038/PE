@@ -1,5 +1,8 @@
 function [ sumeven ] = PE_0002( maxf )
-%PE_0002 Summary of this function goes here
+%   PE_0002
+
+%   Even Fibonacci numbers
+
 %   sum of all even valued members of the Fibonacci sequence that are less than 4 million
 
     terms=[];
@@ -10,7 +13,7 @@ function [ sumeven ] = PE_0002( maxf )
         f = fibo(n);
         terms=[terms,f];
         sumeven=sum(terms(mod(terms,2)==0)) ;
-        n=n+1
+        n=n+1;
     end
 end
    

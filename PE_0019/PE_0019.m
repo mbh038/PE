@@ -1,5 +1,11 @@
 function [ output_args ] = PE_0019( dow,year_begin,year_end )
-%PE_0019 Summary of this function goes here
+% PE_0019
+
+% Counting Sundays
+
+% How many Sundays fell on the first of the month during the twentieth century
+% (1 Jan 1901 to 31 Dec 2000)?
+
 %   day: day of week (1 - Sunday through to 7 - Saturday): positive integer 1-7
 %   year_begin: 01-01 of beginning year: positive integer
 %   year_end:: 31-12 ofend year: positive integer > year_begin

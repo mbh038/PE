@@ -1,7 +1,12 @@
 function [ mpcoords,prod ] = PE_0011( filename,n )
-%PE_0011 Summary of this function goes here
-%   Detailed explanation goes here
+% PE_0011 
 
+% Largest product in a grid
+
+% What is the greatest product of four adjacent numbers in the same direction
+% (up, down, left, right, or diagonally) in the 20×20 grid?
+
+% get the grid from file  'A.txt'
 fid = fopen(filename,'rt');
 if fid < 0
     fprintf('error opening file\n');

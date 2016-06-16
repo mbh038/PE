@@ -1,5 +1,9 @@
 function [ digits,mp ] = PE_0008( filename,n )
-%PE_0008 Summary of this function goes here
+    
+%   PE_0008 
+
+%   Largest product in a series
+
 %   Find the thirteen adjacent digits in the 1000-digit number
 %   that have the greatest product. 
 %   What is the value of this product?

@@ -1,5 +1,7 @@
 function [ a,b,c,psum,product ] = PE_0009()
-%PE_0009 
+% PE_0009 
+
+% Special Pythagorean triplet
 
 % A Pythagorean triplet is a set of three natural numbers, a < b < c, for which,
 %
@@ -9,28 +11,32 @@ function [ a,b,c,psum,product ] = PE_0009()
 % Find the product abc.
 
 
-k=1;
-n=0;
-while n<1000
+k=0;
 
-    m=n+1:1000; % m>n
-    n=n+1;
-    m=m(iscoprime([m,n]) == 1 & mod(m-n,2)~=0); %m,n coprime, m-n odd
-
-    fprintf('n: %d, there are %d ms\n',n,length(m)) 
-
-    as=k*( m.^2-n^2);
-    bs=k*(2*m*n);
-    cs=k*(m.^2+n^2);
-
-    for i=1:length(as)        
-        if as(i)+bs(i)+cs(i) == 1000
-            a=as(i);
-            b=bs(i);
-            c=cs(i);           
-            psum=as(i)+bs(i)+cs(i);
-            product=as(i)*bs(i)*cs(i);
-            return
+while k> -1
+    k=k+1;
+    n=0;
+    while n<10
+    
+        m=n+1:1000; % m>n
+        n=n+1;
+        m=m(iscoprime([m,n]) == 1 & mod(m-n,2)~=0); %m,n coprime, m-n odd
+    
+        fprintf('n: %d, there are %d ms\n',n,length(m)) 
+    
+        as=k*( m.^2-n^2);
+        bs=k*(2*m*n);
+        cs=k*(m.^2+n^2);
+    
+        for i=1:length(as)        
+            if as(i)+bs(i)+cs(i) == 1000
+                a=as(i);
+                b=bs(i);
+                c=cs(i);           
+                psum=as(i)+bs(i)+cs(i);
+                product=as(i)*bs(i)*cs(i);
+                return
+            end
         end
     end
 end
