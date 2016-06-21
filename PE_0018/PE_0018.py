@@ -98,6 +98,18 @@ class Node(object):
         self.name = name
     def getName(self):
         return self.name
+    def setValue(self,value):
+        self.value=value
+    def getValue(self):
+        return self.value
+    def setLine(self,line):
+        self.line=line
+    def getLine(self):
+        return self.line
+    def setNumber(self,number):
+        self.number=number
+    def getNumber(self):
+        return self.number
     def __str__(self):
         return self.name
 
@@ -165,33 +177,42 @@ class Graph(Digraph):
 #Page 248, Figure 17.8
 def printPath(path):
     """Assumes path is a list of nodes"""
-    result = ''
+    result = ''    
     for i in range(len(path)):
         result = result + str(path[i])
         if i != len(path) - 1:
             result = result + '->'
     return result 
 
+def sumPath(path):
+    sumpath=0
+    for n in path:
+        sumpath += n.getValue()
+    return sumpath
+        
 def DFS(graph, start, end, path, shortest):
     """Assumes graph is a Digraph; start and end are nodes;
           path and shortest are lists of nodes
        Returns a shortest path from start to end in graph"""
-    path = path + [start]
-    print 'Current DFS path:', printPath(path)
+    path = path + [start]  
+    print 'Current DFS path:', printPath(path),'path sum: ',sumPath(path)
     if start == end:
         return path
     for node in graph.childrenOf(start):
         if node not in path: #avoid cycles
-            if shortest == None or len(path) < len(shortest):
+#            print 'Current DFS path:', printPath(path),'path sum: ',sumPath(path)
+#            if shortest == None or sumPath(path) > sumPath(shortest):
+            if shortest == None or len(path) <= len(shortest):
                 newPath = DFS(graph, node, end, path, shortest)
                 if newPath != None:
-                    shortest = newPath
+                    shortest = newPath  
     return shortest
 
 def search(graph, start, end):
     """Assumes graph is a Digraph; start and end are nodes
        Returns a shortest path from start to end in graph"""
     return DFS(graph, start, end, [], None)
+#    return BFS(graph, start, end)
 
 #Page 248, Figure 17.9
 def testSP():
@@ -233,35 +254,45 @@ def BFS(graph, start, end):
                 pathQueue.append(newPath)
     return None
     
-def PE_0018():
+def PE_0018(filename):
     
     #lines=[]
     nodes=[]
     #nnodes=0
-    triangle = readcsv('PE_0018.txt')
+    n=0
+    g = Digraph()
+    triangle = readcsv(filename)
     for line in range(len(triangle)):
         for number in range(len(triangle[line])):
-            nodelist=[line,number,triangle[line][number]]
-            nodes.append(Node(nodelist))
-
-    #return nodes
+            nodes.append(Node(str(n)))
+            nodes[n].setLine(line)
+            nodes[n].setNumber(number)
+            nodes[n].setValue(triangle[line][number])
+            n=n+1
+                     
     g = Digraph()
     for n in nodes:
         g.addNode(n)
-
+        
     for line in range(len(triangle)-1): 
         for number in range(len(triangle[line])):
-            parent = [nodes[t] for t in range(len(nodes)) if nodes[t].getName()[0] == line and nodes[t].getName()[1]==number]
-#            print len(parent)
-            child1 = [nodes[t] for t in range(len(nodes)) if nodes[t].getName()[0] == line+1 and nodes[t].getName()[1]==number]
-#            print child1
-            child2 = [nodes[t] for t in range(len(nodes)) if nodes[t].getName()[0] == line+1 and nodes[t].getName()[1]==number+1]
-#            print child2
+            parent = [nodes[t] for t in range(len(nodes)) if nodes[t].getLine() == line and nodes[t].getNumber()==number]
+            child1 = [nodes[t] for t in range(len(nodes)) if nodes[t].getLine() == line+1 and nodes[t].getNumber()==number]
+            child2 = [nodes[t] for t in range(len(nodes)) if nodes[t].getLine() == line+1 and nodes[t].getNumber()==number+1]
+#            print parent[0].getLine(),parent[0].getNumber()
+#            print child1[0].getLine(),child1[0].getNumber(),child2[0].getLine(),child2[0].getNumber()
             g.addEdge(Edge(parent[0],child1[0]))
             g.addEdge(Edge(parent[0],child2[0]))
-#    sp = search(g, nodes[0], nodes[1])
-    return g
+    
+    pathsum=[]
+    for n in [x+0.5*len(triangle)*(len(triangle)-1) for x in range(len(triangle))]:
+       sp = search(g, nodes[0], nodes[int(n)])
+       pathsum.append(sumPath(sp))
+       print 'Shortest path found by DFS:', printPath(sp)
+#    sp = search(g, nodes[0], nodes[8])
+#    pathsum.append(sumPath(sp))
 #    print 'Shortest path found by DFS:', printPath(sp)
+    return g,pathsum
     
     
     
