@@ -1,4 +1,4 @@
-function [ nfact ] = PE_0020( n )
+function [ dsum ] = PE_0020( n )
 
 % PE_0020 
 
@@ -7,59 +7,66 @@ function [ nfact ] = PE_0020( n )
 % Find the sum of the digits in the number n!
 
 % n is a  positive integer
-% digits is a cell array containing the digits of n!, in base 10.
 % dsum is the sum of these digits
 
 % get the digits of n?
 
-nfact='1'
-nstring=num2str(n);
+    nfact='1'
+    nstring=num2str(n);
 
-if length(nstring)==1
-    for i=2:n
-      nfact=smult(num2str(i),nfact);
-    end
-end
-
-if length(nstring)==2
-    for i=2:9
-      nfact=smult(num2str(i),nfact);
+    if length(nstring)==1
+        for i=2:n
+          nfact=smult(num2str(i),nfact);
+        end
     end
 
-    for i=10:n
-       istring=num2str(i); 
-       units=istring(2);
-       tens=istring(1);
-       unitsmult=smult(units,nfact);
-       tensmult=dpshift(smult(tens,nfact),1);
-       nfact=sadd(unitsmult,tensmult);
-    end
-end
+    if length(nstring)==2
+        for i=2:9
+          nfact=smult(num2str(i),nfact);
+        end
 
-if length(nstring)==3
-    for i=2:9
-      nfact=smult(num2str(i),nfact);
+        for i=10:n
+           istring=num2str(i); 
+           units=istring(2);
+           tens=istring(1);
+           unitsmult=smult(units,nfact);
+           tensmult=dpshift(smult(tens,nfact),1);
+           nfact=sadd(unitsmult,tensmult);
+        end
     end
 
-    for i=10:99
-       istring=num2str(i); 
-       units=istring(2);
-       tens=istring(1);
-       unitsmult=smult(units,nfact);
-       tensmult=dpshift(smult(tens,nfact),1);
-       nfact=sadd(unitsmult,tensmult);
-    end
-    
-    for i=100:n
-       istring=num2str(i); 
-       units=istring(2);
-       tens=istring(1);
-       unitsmult=smult(units,nfact);
-       tensmult=dpshift(smult(tens,nfact),1);
-       nfact=sadd(unitsmult,tensmult);
-    end
-end
+    if length(nstring)==3
+        for i=2:9
+          nfact=smult(num2str(i),nfact);
+        end
 
+        for i=10:99
+           istring=num2str(i); 
+           units=istring(2);
+           tens=istring(1);
+           unitsmult=smult(units,nfact);
+           tensmult=dpshift(smult(tens,nfact),1);
+           nfact=sadd(unitsmult,tensmult);
+        end
+
+        for i=100:n
+           istring=num2str(i); 
+           units=istring(3);
+           tens=istring(2);
+           hundreds=istring(1);
+           unitsmult=smult(units,nfact);
+           tensmult=dpshift(smult(tens,nfact),1);
+           hundredssmult=dpshift(smult(hundreds,nfact),2);
+           nfact=sadd(unitsmult,tensmult);
+           nfact=sadd(nfact,hundredssmult);
+        end
+    end
+
+    % sum the digits
+    dsum=0
+    for i=1:length(nfact)
+      dsum=dsum+str2num(nfact(i))  
+    end
 end
 
 function smult=smult (digit,number)
