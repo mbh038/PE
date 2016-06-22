@@ -1,95 +1,23 @@
 import pylab, random
 from rcParamsSettings import *
 import operator
+import time
 
-#Page 236, Figure 17.2
-class Item(object):
-    def __init__(self, n, v, w):
-        self.name = n
-        self.value = float(v)
-        self.weight = float(w)
-    def getName(self):
-        return self.name
-    def getValue(self):
-        return self.value
-    def getWeight(self):
-        return self.weight
-    def __str__(self):
-        result = '<' + self.name + ', ' + str(self.value)\
-                 + ', ' + str(self.weight) + '>'
-        return result
+def PE_0018(filename):
+    start_time = time.time()
+    triangle = readcsv(filename)
+    print triangle
+    frontier=triangle[-1]
+    for line in range(len(triangle)-2,-1,-1):
+        newFrontier=[]
+        for number in range(len(triangle[line])):
+            newFrontier.append(triangle[line][number]+max(frontier[number],frontier[number+1]))           
+        frontier=newFrontier
+    print ' Maximum sum=: ',frontier[0] 
+    print("--- %s seconds ---" % (time.time() - start_time))        
+    return frontier
 
-def value(item):
-    return item.getValue()
-
-def weightInverse(item):
-    return 1.0/item.getWeight()
-
-def density(item):
-    return item.getValue()/item.getWeight()
-
-def buildItems():
-    names = ['clock', 'painting', 'radio', 'vase', 'book', 'computer']
-    values = [175,90,20,50,10,200]
-    weights = [10,9,4,2,1,20]
-    Items = []
-    for i in range(len(values)):
-        Items.append(Item(names[i], values[i], weights[i]))
-    return Items
-
-#Page 237, Figure 17.3
-def greedy(items, maxWeight, keyFunction):
-    """Assumes Items a list, maxWeight >= 0,
-         keyFunction maps elements of Items to floats"""
-    itemsCopy = sorted(items, key=keyFunction, reverse = True)
-    result = []
-    totalValue = 0.0
-    totalWeight = 0.0
-    for i in range(len(itemsCopy)):
-        if (totalWeight + itemsCopy[i].getWeight()) <= maxWeight:
-            result.append(itemsCopy[i])
-            totalWeight += itemsCopy[i].getWeight()
-            totalValue += itemsCopy[i].getValue()
-    return (result, totalValue)
-
-def testGreedy(items, constraint, keyFunction):
-    taken, val = greedy(items, constraint, keyFunction)
-    print 'Total value of items taken = ', val
-    for item in taken:
-        print '   ', item
-
-def testGreedys(maxWeight = 20):
-    items = buildItems()
-    print 'Use greedy by value to fill knapsack of size', maxWeight
-    testGreedy(items, maxWeight, value)
-    print '\nUse greedy by weight to fill knapsack of size', maxWeight
-    testGreedy(items, maxWeight, weightInverse)
-    print '\nUse greedy by density to fill knapsack of size', maxWeight
-    testGreedy(items, maxWeight, density)
-
-#Page 239, Figure 17.4
-def chooseBest(pset, maxWeight, getVal, getWeight):
-    bestVal = 0.0
-    bestSet = None
-    for items in pset:
-        itemsVal = 0.0
-        itemsWeight = 0.0
-        for item in items:
-            itemsVal += getVal(item)
-            itemsWeight += getWeight(item)
-        if itemsWeight <= maxWeight and itemsVal > bestVal:
-            bestVal = itemsVal
-            bestSet = items
-    return (bestSet, bestVal)
-
-def testBest(maxWeight = 20):
-    items = buildItems()
-    pset = genPowerset(items)
-    taken, val = chooseBest(pset, maxWeight, Item.getValue,
-                            Item.getWeight)
-    print 'Total value of items taken =', val
-    for item in taken:
-        print item
+# Attempt at DFS OOP - but it does not work!!
 
 #Page 242, Figure 17.5
 class Node(object):
@@ -156,6 +84,14 @@ class Digraph(object):
         if not(src in self.nodes and dest in self.nodes):
             raise ValueError('Node not in graph')
         self.edges[src].append(dest)
+#    def addWeightedEdge(self, weightededge):
+#        src = weightededge.getSource()
+#        dest = weightededge.getDestination()
+#        weight = weightededge.getWeight()
+#        if not(src in self.nodes and dest in self.nodes):
+#            raise ValueError('Node not in graph')
+#        self.edges[src].append(dest)
+#        self.edges[src].append(weight)
     def childrenOf(self, node):
         return self.edges[node]
     def hasNode(self, node):
@@ -185,10 +121,18 @@ def printPath(path):
     return result 
 
 def sumPath(path):
+    """Assumes path is a list of nodes"""
     sumpath=0
     for n in path:
         sumpath += n.getValue()
     return sumpath
+    
+#def sumEdge(path):
+#    """Assumes path is a list of nodes"""
+#    sumedge=0
+#    for n in path:
+#        sumedge += n.getValue()
+#    return sumedge
         
 def DFS(graph, start, end, path, shortest):
     """Assumes graph is a Digraph; start and end are nodes;
@@ -201,8 +145,11 @@ def DFS(graph, start, end, path, shortest):
     for node in graph.childrenOf(start):
         if node not in path: #avoid cycles
 #            print 'Current DFS path:', printPath(path),'path sum: ',sumPath(path)
-#            if shortest == None or sumPath(path) > sumPath(shortest):
-            if shortest == None or len(path) <= len(shortest):
+            if shortest == None or sumPath(path) > sumPath(shortest):
+                if shortest != None:
+                    print 'Current DFS path:', printPath(path),'path sum: ',sumPath(path)
+                    print 'Current shortest path:', printPath(shortest),'path sum: ',sumPath(shortest)
+#            if shortest == None or len(path) < len(shortest):
                 newPath = DFS(graph, node, end, path, shortest)
                 if newPath != None:
                     shortest = newPath  
@@ -214,47 +161,8 @@ def search(graph, start, end):
     return DFS(graph, start, end, [], None)
 #    return BFS(graph, start, end)
 
-#Page 248, Figure 17.9
-def testSP():
-    nodes = []
-    for name in range(6): #Create 6 nodes
-        nodes.append(Node(str(name)))
-    g = Digraph()
-    for n in nodes:
-        g.addNode(n)
-    g.addEdge(Edge(nodes[0],nodes[1]))
-    g.addEdge(Edge(nodes[1],nodes[2]))
-    g.addEdge(Edge(nodes[2],nodes[3]))
-    g.addEdge(Edge(nodes[2],nodes[4]))
-    g.addEdge(Edge(nodes[3],nodes[4]))
-    g.addEdge(Edge(nodes[3],nodes[5]))
-    g.addEdge(Edge(nodes[0],nodes[2]))
-    g.addEdge(Edge(nodes[1],nodes[0]))
-    g.addEdge(Edge(nodes[3],nodes[1]))
-    g.addEdge(Edge(nodes[4],nodes[0]))
-    sp = search(g, nodes[0], nodes[5])
-    print 'Shortest path found by DFS:', printPath(sp)
 
-#Page 250, Figure 17.10
-def BFS(graph, start, end):
-    """Assumes graph is a Digraph; start and end are nodes
-       Returns a shortest path from start to end in graph"""
-    initPath = [start]
-    pathQueue = [initPath]
-    while len(pathQueue) != 0:
-        #Get and remove oldest element in pathQueue
-        tmpPath = pathQueue.pop(0)
-        print 'Current BFS path:', printPath(tmpPath)
-        lastNode = tmpPath[-1]
-        if lastNode == end:
-            return tmpPath
-        for nextNode in graph.childrenOf(lastNode):
-            if nextNode not in tmpPath:
-                newPath = tmpPath + [nextNode]
-                pathQueue.append(newPath)
-    return None
-    
-def PE_0018(filename):
+def PE_0018DFS(filename):
     
     #lines=[]
     nodes=[]
@@ -283,12 +191,15 @@ def PE_0018(filename):
 #            print child1[0].getLine(),child1[0].getNumber(),child2[0].getLine(),child2[0].getNumber()
             g.addEdge(Edge(parent[0],child1[0]))
             g.addEdge(Edge(parent[0],child2[0]))
+#            g.addWeightedEdge(WeightedEdge(parent[0],child1[0],child1[0].getValue()))
+#            g.addWeightedEdge(WeightedEdge(parent[0],child2[0],child2[0].getValue()))
     
     pathsum=[]
     for n in [x+0.5*len(triangle)*(len(triangle)-1) for x in range(len(triangle))]:
        sp = search(g, nodes[0], nodes[int(n)])
        pathsum.append(sumPath(sp))
        print 'Shortest path found by DFS:', printPath(sp)
+       print
 #    sp = search(g, nodes[0], nodes[8])
 #    pathsum.append(sumPath(sp))
 #    print 'Shortest path found by DFS:', printPath(sp)
@@ -336,22 +247,4 @@ def readcsv (filename):
     # Close the input data file.
     dataFile.close()
     return numbers
-    
-    # 2) Uses the string function split to line from the file
-    # into a list of substrings
-#    numbers = list()
-#    dataFile = open('C:\\PythonCourse\\unit3\\numbers.txt', 'r')
-#    
-#    for eachLine in dataFile:
-#        # Simplify the script by using a python inbuilt
-#        # function to separate the tokens 
-#        substrs = eachLine.split(',',eachLine.count(','))
-#        # Iterate throught the output and check that they 
-#        # are numbers before adding to the numbers list
-#        for strVar in substrs:
-#            if strVar.isdigit():
-#                numbers.append(int(strVar))
-#    
-#    print numbers
-#    
-#    dataFile.close()
+ 

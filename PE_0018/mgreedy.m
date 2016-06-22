@@ -1,4 +1,4 @@
-function [ mroute,msum ] = mgreedy( M )
+function [ mroute,gsum ] = mgreedy( M )
 
 % PE_0018
 
@@ -25,5 +25,7 @@ function [ mroute,msum ] = mgreedy( M )
        msum(i)=msum(i-1) +M(i,col);
        mroute(i)=M(i,col);
     end
+    
+    gsum=msum(end);
 end
 
