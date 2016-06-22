@@ -1,61 +1,42 @@
 # -*- coding: utf-8 -*-
 """
+Problem Euler 81
+
+Path sum: two ways
+
+Find the minimal path sum, in matrix.txt (right click and
+ "Save Link/Target As..."), a 31K text file containing a 80 by 80 matrix,
+from the top left to the bottom right by only moving right and down.
+
 Created on Wed Jun 22 04:25:27 2016
 
 @author: Mike
 """
 import time
-import numpy as np
-def PE_0081(filename):
-    start_time = time.time()
-    matrix = np.array(readcsv(filename))  
-#    print triangle
-    frontier=matrix[:,len(matrix)-1]
-    for column in range(len(matrix)-2,-1,-1):
-        newFrontier=matrix[:,column]
+from numpy import matrix
+from numpy import genfromtxt
 
-        newFrontier.append(matrix[number,column]+min(frontier[number],frontier[number-1]))           
-        frontier=newFrontier
-    print ' Minimum sum=: ',frontier[0]  
-    print("--- %s seconds ---" % (time.time() - start_time))      
-    return frontier
+def PE_0081(filename):
     
-def readcsv (filename):
-    #Import the string functions from python
-    import string
+    start_time = time.time()
+      
+    M = genfromtxt(filename, delimiter=',')
+
+    rows=M.shape[0]
+    cols=M.shape[1]
+
+    LSMrows = [[] for x in xrange(cols)]
+  
+    LSMrows[0].append(M[0,0])
+    for col in range(1,cols):
+        LSMrows[0].append(LSMrows[0][col-1]+M[0,col])
+    for row in range(1,rows):
+        LSMrows[row].append(LSMrows[0][row-1]+M[0,row]) 
+
+    for row in range(1,rows):
+        for col in range(1,cols):
+            LSMrows[row].append(M[row,col]+min(LSMrows[row-1][col],LSMrows[row][col-1]))
     
-    # 1) Splits the text file into individual characters
-    # to identify the commas and parsing the individual 
-    # tokens.
+    print("--- %s seconds ---" % (time.time() - start_time)) 
+    return int(LSMrows[-1][-1])
     
-    # create a list to store the inputted numbers
-    numbers = list()
-    # Open the input text file for reading
-    dataFile = open(filename, 'r')
-    
-    # Loop through each line of the input data file
-    for eachLine in dataFile:
-        numbersline=list()
-    # setup a temporay variable
-        tmpStr = ''
-        # loop through each character in the line
-        for char in eachLine:
-            # check whether the char is a number
-            if char.isdigit():
-                # if it is a number add it to the tmpStr
-                tmpStr += char
-                # if a comma is identified and tmpStr has a 
-                # value then append it to the numbers list
-            elif char == ',' and tmpStr != '':
-                numbersline.append(int(tmpStr))
-                tmpStr = ''
-        # if the tmpStr contains a number add it to the 
-        # numbers list.
-        if tmpStr.isdigit():
-            numbersline.append(int(tmpStr))
-        numbers.append(numbersline)
-    # Print the number list
-    #print numbers
-    # Close the input data file.
-    dataFile.close()
-    return numbers

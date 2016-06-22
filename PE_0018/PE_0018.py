@@ -6,7 +6,7 @@ import time
 def PE_0018(filename):
     start_time = time.time()
     triangle = readcsv(filename)
-    print triangle
+    #print triangle
     frontier=triangle[-1]
     for line in range(len(triangle)-2,-1,-1):
         newFrontier=[]
