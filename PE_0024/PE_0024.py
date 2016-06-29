@@ -98,3 +98,28 @@ print 'Brute force'
 lxperms([0,1,2,3,4,5,6,7,8,9],1000000)
 print 'faster...'
 fastlx([0,1,2,3,4,5,6,7,8,9],1000000)
+
+
+
+# someopne elsee
+from math import factorial as fac
+from time import time
+
+goal,total_number = 1000000,10
+
+#to calculate the time to repeat 10000times
+t = time()
+for counter in range(10000):
+    
+    rest,num_set,result_l = goal,set(range(total_number)),list()
+    for i in range(1,total_number+1):
+        p = fac(total_number-i)
+        for j in range(len(num_set)):
+            if rest-(j+1)*p <= 0:
+                result_l.append(sorted(num_set)[j])
+                num_set.remove(result_l[-1])
+                rest -= j*p
+                break
+
+
+print('result:%s'%''.join(map(str,result_l)),"time:%.3f"%(time()-t))
