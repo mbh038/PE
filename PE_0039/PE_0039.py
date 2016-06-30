@@ -1,46 +1,32 @@
 # -*- coding: utf-8 -*-
 """
+Integer right triangles
 
-PE_0039
+If p is the perimeter of a right angle triangle with integral length sides,
+ {a,b,c}, there are exactly three solutions for p = 120.
 
-Pandigital multiples
+{20,48,52}, {24,45,51}, {30,40,50}
 
-What is the largest 1 to 9 pandigital 9-digit number that can be formed as the
- concatenated product of an integer with (1,2, ... , n) where n > 1?
-Created on Thu Jun 30 04:48:10 2016
+For which value of p ≤ 1000, is the number of solutions maximised?
 
-@author: Mike
+
+Created on Thu Jun 30 09:31:24 2016
+
+@author: michael.hunt
 """
 import time
-import itertools
-def panmult(n):
+def irt(): 
     start_time = time.time()
-    i=0
-    prodmax=-1
-    while i < n:
-        i+=1
-        if str(i)[0]!='9':
-            continue
-        if i%5==0 or i%10==0:
-            continue
-        istr=str(i)
-        if '0' in istr or '5' in istr:
-            continue
-        if len(istr) != len(set(istr)):
-            continue
-        prod=''    
-        for multiplier in range(1,10):
-            newprod=prod+str(multiplier*i)
-            if len(newprod)!=len(set(newprod)) or '0' in newprod:
-                break
-            prod=newprod
-            if int(prod)>prodmax and len(prod)==9:
-                imax,prodmax,multmax=i,int(prod),multiplier
-            
-#        print i,prod,range(1,multiplier)
-    print imax,range(1,multmax+1),prodmax
-        
-    print("--- %s s ---" % (time.time() - start_time))
-    
-    
+    import math as m
+    perims={}
+    for p in range(1000,1,-2):   
+        a=int(p/2)   
+        for b in range(1,int(a/m.sqrt(2))):
+            c=m.sqrt((a**2-b**2))
+            if int(c)==c:
+                perims[str(a+b+c)]=perims.get(str(a+b+c),0)+1
+    a=max(perims.iterkeys(), key=(lambda key: perims[key])) 
+    print int(float(a)),perims[a]
+    print("--- %s seconds ---" % (time.time() - start_time))
+   
     
