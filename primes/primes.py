@@ -4,6 +4,8 @@ Created on Thu Jun 30 15:37:00 2016
 
 @author: michael.hunt
 """
+
+# http://stackoverflow.com/users/88622/alexandru
 def isprime(n):
     """Returns True if n is prime."""
     if n == 2:
@@ -110,3 +112,52 @@ def gen_primes():
             del D[q]
         
         q += 1
+        
+def primesthatsumto(n):
+    '''
+    counts the primes less than n whose sum is less than n
+    '''
+    psum=0
+    count=0
+    for p in gen_primes():
+        psum+=p
+        if psum>n:
+            break
+        count+=1
+    return count
+           
+def psumN(a,n):
+    
+    '''
+    lists n prines from a, and their sum
+    '''
+    psum=0
+    count=0
+    for p in gen_primes():
+        count+=1
+        psum+=p        
+        if count>n:
+            break
+        print count,a,p,psum,isprime(psum)
+        
+def psum(n):
+    '''
+    sums all primes less than n
+    '''
+    psum=0
+    for p in gen_primes():
+        if p>=n:
+            break
+        psum +=p
+    return psum
+ 
+def howManyPrimes(n):
+    '''
+    counts the primes less than n
+    '''
+    count=0
+    for p in gen_primes():
+        if p>n:
+            break
+        count+=1
+    return count
