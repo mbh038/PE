@@ -14,19 +14,20 @@ Created on Thu Jun 30 09:31:24 2016
 
 @author: michael.hunt
 """
-import time
+import time as t
+from math import sqrt
 def irt(): 
-    start_time = time.time()
+    start_time = t.time()
     import math as m
     perims={}
     for p in range(1000,1,-2):   
         a=int(p/2)   
-        for b in range(1,int(a/m.sqrt(2))):
+        for b in range(1,int(a/sqrt(2))):
             c=m.sqrt((a**2-b**2))
             if int(c)==c:
                 perims[str(a+b+c)]=perims.get(str(a+b+c),0)+1
     a=max(perims.iterkeys(), key=(lambda key: perims[key])) 
     print int(float(a)),perims[a]
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("Elapsed time:  %s s " % (t.time() - start_time))
    
     
