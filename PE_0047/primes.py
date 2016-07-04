@@ -5,6 +5,7 @@ Created on Thu Jun 30 15:37:00 2016
 @author: michael.hunt
 """
 
+
 # http://stackoverflow.com/users/88622/alexandru
 def isprime(n):
     """Returns True if n is prime."""

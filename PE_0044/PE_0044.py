@@ -20,61 +20,109 @@ Created on Sat Jul 02 09:48:49 2016
 
 @author: Mike
 """
+
 #stevem1191
 from timeit import default_timer as timer
-def pp():
-
-    start = timer()
-    
-    pents = {}
-    for n in range(1,2500+1):
-      pents[(n*(3*n-1)/2)] = True
-    
-    candidates = [(j,k) for j in pents for k in pents if j+k in pents and abs(j-k) in pents]
-    
-    print "Minimum D =",candidates[0][1]-candidates[0][0]
-    
-    print "Elapsed time:", timer() - start,"s"
-
-
-import time
-from math import sqrt
-from itertools import count,permutations
 def pentpair():
-    n=0
-    top=2200
+    from timeit import default_timer as timer
+    start = timer()    
+    ps={}
+    for n in range(1,2500+1):
+    ps[n*(3*n-1)/2] =True       
+    candidates=[(m,n) for m in ps for n in ps if m+n in ps and abs(n-m) in ps]
+    print candidates[0][1]-candidates[0][0]    
+    print 'Elapsed time: ',timer()-start
+    
+    start = timer()    
+    ps=set()
+    for n in range(1,2500+1):
+    ps.add(n*(3*n-1)/2)      
+    candidates=[(m,n) for m in ps for n in ps if m+n in ps and abs(n-m) in ps]
+    print candidates[0][1]-candidates[0][0]    
+    print 'Elapsed time: ',timer()-start
+    
+    start = timer()    
     ps=[]
-
-    for n in range(1,2*top+1):
-        ps.append(n*(3*n-1)/2) 
-
-    for m,n in permutations(range(1,top),2):
-        if m<n:
-            if ps[m+n-1]<2*ps[n-1]:
-                continue
-            if 3*m*(n-m)+ps[n-m-1] in ps[n-m:6*n*(n-m)]:
-                print 'diff',m,n,is_pentagonal(ps[n-1]-ps[m-1])
-                if ps[m+n-1]-3*m*n in ps[:n+m]:
-                    print 'sum',m,n,is_pentagonal(ps[m-1]+ps[n-1])
-                    print m,n,ps[m-1],ps[n-1],is_pentagonal(ps[n-1]-ps[m-1])
-                    break
-        
+    for n in range(1,2500+1):
+    ps.append(n*(3*n-1)/2)      
+    candidates=[(m,n) for m in ps for n in ps if m+n in ps and abs(n-m) in ps]
+    print candidates[0][1]-candidates[0][0]    
+    print 'Elapsed time: ',timer()-start
+       
     
 def pentagonal (n):
     return n*(3*n-1)/2
 
+#from timeit import default_timer as timer
+import random
+def test(myguess=5,size=1000,nloop=1000):
+    print
+    r_size=random.sample(xrange(size), size)
+    
+    mylist_ascending=range(1,size)
+    mylist_descending=range(size,1,-1)
+    mylist_randoms = r_size
+    
+    myset_ascending=set(range(size))
+    myset_descending=set(range(size,1,-1))
+    myset_randoms = set(r_size)
+    
+    mydict_ascending={}
+    for i in range(size):
+        mydict_ascending[i]=i
+        
+    mydict_descending={}
+    for i in range(size):
+        mydict_descending[i]=size-i
+        
+    mydict_random={}
+    for i in range(size):
+        mydict_random[i]=r_size[i]
+        
+    start=timer() 
+    for i in range(nloop):
+        myguess in mylist_ascending
+    print 'mylist_ascending',timer()-start
+    
+    start=timer() 
+    for i in range(nloop):
+        myguess in mylist_descending
+    print 'mylist_descending',timer()-start
+ 
+    start=timer() 
+    for i in range(nloop):
+        myguess in mylist_randoms
+    print 'mylist_randoms',timer()-start
+    print
+    start=timer() 
+    for i in range(nloop):
+        myguess in myset_ascending
+    print 'myset_ascending',timer()-start
+    
+    start=timer() 
+    for i in range(nloop):
+        myguess in myset_descending
+    print 'myset_descending',timer()-start
+    
+    start=timer() 
+    for i in range(nloop):
+        myguess in myset_randoms
+    print 'myset_randoms',timer()-start
+    print
+    start=timer() 
+    for i in range(nloop):
+        myguess in mydict_ascending
+    print 'mydict_ascending',timer()-start
 
-def test(top):
-    g,l=0,0
-    for m,n in permutations(range(1,top),2):
-        if m<n:
-#            print m,n,pentagonal(m)+pentagonal(n),pentagonal(n)-pentagonal(m),
-            if 6*n*(n-m)>top:
-                g+=1
-            else:
-                l +=1
-    print g,l
-
+    start=timer() 
+    for i in range(nloop):
+        myguess in mydict_descending
+    print 'mydict_decending',timer()-start
+    
+    start=timer() 
+    for i in range(nloop):
+        myguess in mydict_random
+    print 'mydict_random',timer()-start
 
 
 def is_pentagonal(num):
