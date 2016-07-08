@@ -24,31 +24,7 @@ Created on Sun Jul 03 18:53:00 2016
 
 @author: Mike
 """
-from primes import gen_primes,primesfrom2to
-from timeit import default_timer as timer
-from math import sqrt
-def goc(lim=1000):
-
-    start=timer()   
-    
-    ps=set([x for x in primesfrom2to(lim) if x%2>0])
-    print ps
-    comps=set(range(3,lim,2)).difference(ps)
-    print comps
-    sqs=set([i**2 for i in range(1,int(sqrt(lim)))])
-    print sqs
-    for i in comps:
-#        print i
-        counti=0
-        for p in [x for x in ps if x < i]:
-            for sq in [y for y in sqs if 2*y<=i-p]:
-                if p +2 *sq == i:
-                    counti+=1
-#                    print p+2*sq,i
-        if counti==0:
-            print 'Goldbach exception: ',i
-#                    print'Goldbach was wrong',i,p,sq
-    print 'Elapsed time: ',timer()-start
+from primes import gen_primes
                     
 #achampion Sat, 6 Feb 2016, 05:05 
 import itertools as it
@@ -68,3 +44,4 @@ def ac():
         else:
             break
     print c
+
