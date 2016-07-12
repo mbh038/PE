@@ -5,7 +5,7 @@ Created on Thu Jun 30 16:27:52 2016
 @author: michael.hunt
 """
 
-from primes import gen_primes,isprime,primesfrom2to
+from primes import is_prime1,primesfrom2to,erat2a,primesthatsumto
 import time
            
 def cp(n):
@@ -18,14 +18,14 @@ def cp(n):
             break
         psums={}
         psums[startFrom],count,countmax=0,0,-1
-        for p in gen_primes():
+        for p in erat2a():
             if p<startFrom:
                 continue
             count+=1         
             psums[startFrom]+=p
             if psums[startFrom]>n:
                 break
-            if isprime(psums[startFrom]):
+            if is_prime1(psums[startFrom]):
                 if count>countmax:
                     pmax=p
                     nmax=psums[startFrom]
@@ -38,45 +38,45 @@ def cp(n):
             ntries=0
     print("--- %s seconds ---" % (time.time() - start_time))
 
-def primesthatsumto(n):
-    psum=0
-    count=0
-    for p in gen_primes():
-        psum+=p
-        if psum>n:
-            break
-        count+=1
-    return count
-           
-def psumN(a,n):
-    psum=0
-    count=0
-    for p in gen_primes():
-        count+=1
-        psum+=p        
-        if count>n:
-            break
-        print count,a,p,psum,isprime(psum)
-        
-def psum(n):
-    '''
-    sums all primes less than n
-    '''
-    psum=0
-    for p in gen_primes():
-        if p>=n:
-            break
-        psum +=p
-    return psum
- 
-def howManyPrimes(n):
-    '''
-    counts the primes less than n
-    '''
-    count=0
-    for p in gen_primes():
-        if p>n:
-            break
-        count+=1
-    return count
-    
+#def primesthatsumto(n):
+#    psum=0
+#    count=0
+#    for p in gen_primes():
+#        psum+=p
+#        if psum>n:
+#            break
+#        count+=1
+#    return count
+#           
+#def psumN(a,n):
+#    psum=0
+#    count=0
+#    for p in gen_primes():
+#        count+=1
+#        psum+=p        
+#        if count>n:
+#            break
+#        print count,a,p,psum,isprime(psum)
+#        
+#def psum(n):
+#    '''
+#    sums all primes less than n
+#    '''
+#    psum=0
+#    for p in gen_primes():
+#        if p>=n:
+#            break
+#        psum +=p
+#    return psum
+# 
+#def howManyPrimes(n):
+#    '''
+#    counts the primes less than n
+#    '''
+#    count=0
+#    for p in gen_primes():
+#        if p>n:
+#            break
+#        count+=1
+#    return count
+#    
