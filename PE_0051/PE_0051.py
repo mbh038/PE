@@ -17,7 +17,7 @@ def PE_0051():
     
     start=timer()
 
-    s= howManyPrimes(100000)
+    s= howManyPrimes(50000)
     f= howManyPrimes(150000)
     print 'Elapsed time: ',timer()-start,'s'    
 
@@ -44,3 +44,14 @@ def PE_0051():
 
     
 
+def v2():
+    start=timer()
+    ps=primesfrom2to(1000000)
+    
+    triples=[]
+    for prime in ps:
+        if len(str(prime))-len(set(str(prime)))==2:
+            triples.append(prime)
+    print len(triples)
+    print 'Elapsed time: ',timer()-start,'s'
+        

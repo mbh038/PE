@@ -35,16 +35,35 @@ def sp5(limit):
     start=timer()
     fraction=1
     diagonalprimes=0
-    n=1   
+    n=1
     while fraction>limit:
         n+=2
-        if is_prime1(n**2-n+1): diagonalprimes+=1
-        if is_prime1(n**2-2*n+2): diagonalprimes+=1
-        if is_prime1(n**2-3*n+3): diagonalprimes+=1
+        if is_prime3(n**2-n+1): diagonalprimes+=1
+        if is_prime3(n**2-2*n+2): diagonalprimes+=1
+        if is_prime3(n**2-3*n+3): diagonalprimes+=1
         fraction=float(diagonalprimes)/(2*n-1)
     print n
     print 'Elapsed time: ',timer()-start,'s'
    
+#version that uses only addition - is slower than sp5()!
+def sp6(limit):
+    start=timer()
+    fraction=1
+    diagonalprimes=0
+    side=0
+    n=1
+    total=1
+    while fraction>limit:
+        side+=2
+        for i in range(4):           
+            n+=side
+            if is_prime1(n): diagonalprimes+=1
+        total+=4
+        fraction=float(diagonalprimes)/total
+    print side+1
+    print 'Elapsed time: ',timer()-start,'s'
+
+
 def gen_curveprimes(a=1,b=1,c=1):
     
     """ Generate an infinite sequence of prime numbers along a curve.
