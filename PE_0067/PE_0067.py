@@ -4,25 +4,33 @@ Created on Wed Jun 22 04:25:27 2016
 
 @author: Mike
 """
-import time
+from timeit import default_timer as timer
 def PE_0067(filename):
-    start_time = time.time()
-    triangle = readcsv(filename)
-#    print triangle
+    triangle=[]    
+    with open(filename, 'r') as fh:
+        for line in fh:
+            triangle.append([int(x) for x in line.split(',')] )  
+    
     frontier=triangle[-1]
     for line in range(len(triangle)-2,-1,-1):
         newFrontier=[]
         for number in range(len(triangle[line])):
             newFrontier.append(triangle[line][number]+max(frontier[number],frontier[number+1]))           
         frontier=newFrontier
-    print ' Maximum sum=: ',frontier[0]  
-    print("--- %s seconds ---" % (time.time() - start_time))      
-    return frontier
+    print ' Maximum sum=: ',frontier[0]
     
+
+#not used
+def readTriangle(filename):
+    numbers=list()
+    fh = open(filename, 'r')
+    for line in fh:
+        numbers.append([int(x) for x in line.split(',')])
+    fh.close()
+    return numbers
+
+# not used
 def readcsv (filename):
-    #Import the string functions from python
-    import string
-    
     # 1) Splits the text file into individual characters
     # to identify the commas and parsing the individual 
     # tokens.
@@ -53,8 +61,5 @@ def readcsv (filename):
         if tmpStr.isdigit():
             numbersline.append(int(tmpStr))
         numbers.append(numbersline)
-    # Print the number list
-    #print numbers
-    # Close the input data file.
     dataFile.close()
     return numbers

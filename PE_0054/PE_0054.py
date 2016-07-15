@@ -35,11 +35,7 @@ def poker():
             
             #Flushes
             if len(set(suits[i]))==1:
-                #Royal Flush
-                if set(values[i])==set([8,9,10,11,12]):
-                    score[i]=10
-                    continue
-                #Straight Flush
+                #Royal or Straight Flush
                 if max(values[i])-min(values[i])==4:
                     score[i]=9
                     continue
@@ -92,7 +88,7 @@ def poker():
         
         #Decide winner for tied hands:
         
-        #Royal Flush - noone would win - there cannot be any of these.
+        #Royal Flush - noone would win.
         
         #Straight Flush or Straight or High card
         if score[0]==9 or score[0]==5 or score[0]==1:
@@ -145,7 +141,7 @@ def poker():
             continue
 
         #One pair or one trio 
-        if score[0]==2 or score[0]==4:
+        if score[0]==2 or score[0]==4 or score==[3]:
             pairvals=[list(set([x for x in values[i] if values[i].count(x) ==2 or values[i].count(x) ==3])) for i in [0,1]]
             if pairvals[1]>pairvals[0]:
                 wins[1]+=1
