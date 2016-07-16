@@ -49,6 +49,8 @@ def myMain():
     print sum([1 for x in range(2,10000) if isLychrel(x)])
     print 'Elaspsed time: ',timer()-start,'s'
 
+
+
 #############################################################################
 #user leirad
 #If you start with 9999 and go your way down you know a number x is lyrchel 
