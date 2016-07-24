@@ -31,12 +31,12 @@ def check6npm1(n):
     while i*i<n:
         if i not in primes:
             notprime+=1
-            print i
+            print (i)
         if (i+1) %6 !=0 and (i-1) %6 !=0:
-            print i,'is not 6n+-1'
+            print (i,'is not 6n+-1')
         i+=w
         w=6-w
-    print 'Found ',notprime,' non-primes out of', len(primes)
+    print ('Found ',notprime,' non-primes out of', len(primes))
   
 #check that all these primes are in fact 6n+-1 and that the method in is_primes1
 # finds all the primes up to 1000.
@@ -62,10 +62,10 @@ def check_is_prime1():
         if i in primes:
             found+=1
         if (i+1) %6 !=0 and (i-1) %6 !=0:
-            print i,'is not 6n+-1'
+            print (i,'is not 6n+-1')
         i+=w
         w=6-w
-    print 'Found ',found,' primes out of', len(primes)
+    print ('Found ',found,' primes out of', len(primes))
 
         
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
@@ -194,12 +194,12 @@ def is_prime4(n):
 
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = numpy.ones(n/3 + (n%6==2), dtype=numpy.bool)
-    for i in xrange(1,int(n**0.5)/3+1):
+    sieve = numpy.ones(n//3 + (n%6==2), dtype=numpy.bool)
+    for i in range(1,int(n**0.5/3)+1):
         if sieve[i]:
             k=3*i+1|1
-            sieve[       k*k/3     ::2*k] = False
-            sieve[k*(k-2*(i&1)+4)/3::2*k] = False
+            sieve[       k*k//3   ::2*k] = False
+            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
     
 def primes (n): 
@@ -207,7 +207,7 @@ def primes (n):
     Use sieve of Eratosthenes to find all the primes less than or equal to n
     """
     bools=np.ones(n+1,dtype=bool)
-    for i in range(2, int(m.sqrt(len(bools)))+1):
+    for i in range(2, int(sqrt(len(bools)))+1):
         if bools[i] == True:
             jcount=1
             while True:
@@ -249,7 +249,7 @@ def psumN(a,n):
         psum+=p        
         if count>n:
             break
-        print count,a,p,psum,isprime(psum)
+        print (count,a,p,psum,isprime(psum))
         
 def psum(n):
     '''
@@ -365,20 +365,20 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
     
     while True:
         while n<=q:
-            print 'next loop'
+#            print 'next loop'
             if n not in D:
-                print 'not in q',q
+#                print 'not in q',q
                 if q==n:
                  yield q
                 D[n*n] = [n]
-                print 'not in q,D',q,D
+#                print 'not in q,D',q,D
             else:
-                print 'in q',q
+#                print 'in q',q
                 for p in D[n]:
                     D.setdefault(p + n, []).append(p)
                 del D[n]
-                print 'in',D
-            print 'here'    
+#                print 'in',D
+#            print 'here'    
             n += 1
         nq+=1
         q = a*nq**2+b*nq+c
@@ -390,7 +390,7 @@ def test(n):
     start=timer()
     for i in range(n):
         is_prime1(i)
-    print 'Elasped time for 1: ',timer()-start
+    print ('Elasped time for 1: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime2(i)
@@ -405,5 +405,5 @@ def test(n):
 #    print 'Elasped time for 4: ',timer()-start  
     start=timer()
     primesfrom2to(n)
-    print 'Elasped time for primesfrom2to: ',timer()-start 
+    print ('Elasped time for primesfrom2to: ',timer()-start )
         

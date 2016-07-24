@@ -12,20 +12,20 @@ Created on Wed Jun 22 04:25:27 2016
 
 @author: Mike
 """
-import time
+from timeit import default_timer as timer
 from numpy import matrix
 from numpy import genfromtxt
 
 def PE_0081(filename):
     
-    start_time = time.time()
+    start=timer()
       
     M = genfromtxt(filename, delimiter=',')
 
     rows=M.shape[0]
     cols=M.shape[1]
 
-    LSMrows = [[] for x in xrange(cols)]
+    LSMrows = [[] for x in range(cols)]
   
     LSMrows[0].append(M[0,0])
     for col in range(1,cols):
@@ -37,6 +37,6 @@ def PE_0081(filename):
         for col in range(1,cols):
             LSMrows[row].append(M[row,col]+min(LSMrows[row-1][col],LSMrows[row][col-1]))
     
-    print("--- %s seconds ---" % (time.time() - start_time)) 
+    print('Elapsed time: ',timer()-start,'s') 
     return int(LSMrows[-1][-1])
     

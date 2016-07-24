@@ -14,7 +14,7 @@ Created on Wed Jul 20 11:53:23 2016
 """
 
 from fractions import gcd,Fraction
-a=max([Fraction((3000000-i)/7,1000000)for i in range(1,100)])
-print max([Fraction(x,y) for x in range(a.numerator-3,a.numerator+3) for y in range (a.denominator-3,a.denominator+1) if float(x)/y<float(3)/7])
+a=max([Fraction(int((3000000-i)/7),1000000)for i in range(1,100)])
+print (max([Fraction(x,y) for x in range(a.numerator-3,a.numerator+3) for y in range (a.denominator-3,a.denominator+1) if float(x)/y<float(3)/7]))
 
     

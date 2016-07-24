@@ -12,8 +12,9 @@ Created on Wed Jul 20 12:55:25 2016
 @author: mbh
 """
 
-from fractions import Fraction
+from fractions import Fraction #very slow
         
+# very slow -O(N2) and uses fractions
 def FareyNext(n,lim,memo={}):
     """returns nth numerator in convergents for e
     2,3,8,11,19,87....

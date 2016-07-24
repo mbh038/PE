@@ -18,8 +18,7 @@ from math import sqrt
 def prime_factors(n):
     '''
     returns the prime factors of n
-    '''
-    
+    '''   
     i = 2
     factors = []
     while i * i <= n:
@@ -32,47 +31,57 @@ def prime_factors(n):
         factors.append(n)
     return factors
     
-def ets(n):
-    '''
-    returns distinct prime factors of all integers1:n
-    '''
-    start=timer()
-    pfdict={}
-    for i in range(1,n+1):
-        pfdict[i]=et(i)
-#    print("Elapsed time: ",timer()-start,'s')
-    return pfdict
-    
-
-
-
 def et(n):
     """
     returns Euler totient (phi) of n
-    """
-    
-    
+    """   
     phi=n
     pfs=set(prime_factors(n))
     for pf in pfs:
         phi*=(1-1/pf)
     return int(phi)
     
+def ets(n):
+    '''
+    returns a dict with number of distinct prime factors of all integers 1:n
+    '''
+    pfdict={}
+    for i in range(1,n+1):
+        pfdict[i]=et(i) 
+    return pfdict
+    
+def F2(n):
+    """returns length of Farey sequence of order n, by summing Euler totients"""
+    print( sum(x for x in ets(n).values())-1)
+
+    
+    
+
+
+    
 from sys import setrecursionlimit
 setrecursionlimit(10**6)
-def F(n,memo={}):
+def F(n,etdict,memo={}):
     """
     returns length of Farey sequence of order n
     """
-    test=ets(n)
     if n==1:
         return 0
     try:
         return memo[n]
     except KeyError:
-        result= F(n-1,memo)+test[n]
+        result= F(n-1,etdict,memo)+etdict[n]
         memo[n]=result
         return result
+        
+def Fmain(n):
+    """
+    wrapper for F
+    """
+    start=timer()
+    etdict=ets(n)
+    print(F(n,etdict))
+    print('Elapsed time: ',timer()-start,'s')
         
 # for limits 1/3 to 1/2
 #def F(n):
