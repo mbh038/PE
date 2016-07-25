@@ -48,24 +48,20 @@ def p2(n,memo={}):
         result=sum([(-1)**(k-1)*(p2(n-k*(3*k-1)//2,memo)+p2(n-k*(3*k+1)//2,memo)) for k in range(1,int(sqrt(n)+1))])
         memo[n]=result
         return result
-        
-#Hardy-Ramanujan asymptotic formula
-from math import sqrt,exp,pi
-def p3as(n):
-    return (1/(4*n*sqrt(3)))*exp(pi*sqrt(2*n/3))
-
-
-    
+            
 def PE_0078(ll,ul,divisor):
-    start=timer()
     for n in range(ll+4,ul+4,5):
         a=p2(n)
         if a%divisor==0:
             print (n,a)
-            print('Elapsed time: ',timer()-start,'s')
             break
             
-def pl():
+#Hardy-Ramanujan asymptotic formula
+from math import sqrt,exp,pi
+def p3as(n):
+    return (1/(4*n*sqrt(3)))*exp(pi*sqrt(2*n/3))
+    
+    def pl():
     for n in range (1,50):
         print (n,p1(n))            
 
