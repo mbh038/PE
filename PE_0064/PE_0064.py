@@ -74,7 +74,5 @@ def srcf2(n):
     while a[-1] != 2*a[0]:
         count+=1
         r.append(Decimal(1/(r[-1]-a[-1])))
-#        print (r[-1])
         a.append(floor(r[-1]))
-#        print (n,count,r[-1],a[-1])
     return a
