@@ -15,13 +15,11 @@ However, in 2004 there was found a massive non-Mersenne prime which contains
 
 Find the last ten digits of this prime number.
 
-Created on Thu Jul 28 08:37:50 2016
+Created on Thu Jul 28 08:37:50 2016w
 @author: mbh
 """
 
-from math import log2,log10
-
-print (log2(2))
+from math import log10
 
 a=28433
 
