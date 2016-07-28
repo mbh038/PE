@@ -51,8 +51,10 @@ def ets(n):
     return pfdict
     
 def F2(n):
+    start=timer()
     """returns length of Farey sequence of order n, by summing Euler totients"""
     print( sum(x for x in ets(n).values())-1)
+    print (timer()-start)
 
     
     
@@ -139,3 +141,21 @@ def mainfast(N):
     count = rlarge[0]
     print (count)
     print('Elapsed time: ',timer()-start)
+    
+#from Connor Mclaud - uses a memo: 7x faster than my F2
+from math import floor
+def length(n):
+    if n in length.memo:
+        return length.memo[n]
+    prefix = (n + 3) * n // 2
+    other_sum = sum(length(floor(n / d)) for d in range(2, n + 1))
+    result = prefix - other_sum
+    length.memo[n] = result
+    return result
+
+
+def connor():
+    start=timer()
+    length.memo = dict()
+    print(length(10 ** 6) - 2)
+    print(timer()-start)

@@ -25,7 +25,7 @@ def binarygcd(a,b):
     
     return int(g*2**d)
             
-#Euler algorithm
+#Euclid algorithm for gcd
 def gcd(a, b):
     r = a % b
     while r!=0:
@@ -34,8 +34,41 @@ def gcd(a, b):
         r = a % b
     return b
    
+   
+#find sqrt by continued frations
+def sqcf(n):
+
+    m=isqrt(n)
+    
+        
+ #Newton-Raphson to find m = isqrt(n) - : m^2<n<(m+1)^2
+def isqrt(n): 
+    x0=n   
+    x1=(1/2)*(x0+n/x0)   
+    while (abs(x1-x0)>=1):
+        x0=x1
+        x1=(1/2)*(x0+n/x0)
+    print (int(x1))
+  
 
 
+
+
+
+
+
+
+
+#Newton-Raphson square root
+def sqnr(x,sd):    
+    xn=x-(x**2-x)/(2*x)
+    while True:
+        xnew=xn-(xn**2-x)/(2*xn)
+#        print(xn,xnew)
+        if abs(xnew-xn)<10**(-sd)*(xnew):
+            break
+        xn=xnew
+    print(round(xnew,sd))
 
 # lecture 3.6, slide 2
 # bisection search for square root

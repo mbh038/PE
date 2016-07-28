@@ -42,10 +42,10 @@ def pell(n,memo={}):
 def root2(n):
     start=timer()
     count=0
-    for i in xrange(1,n+2):
+    for i in range(1,n+2):
         num=pell(i-1)+pell(i)
         den=pell(i)
         if(len(str(num)))>(len(str(den))): count+=1
-    print count
-    print 'Elapsed time: ',timer()-start,'s'
+    print (count)
+    print ('Elapsed time: ',timer()-start,'s')
     
