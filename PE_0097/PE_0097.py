@@ -21,8 +21,6 @@ Created on Thu Jul 28 08:37:50 2016
 
 from math import log2,log10
 
-print (log2(2))
-
 a=28433
 
 b=7830457
