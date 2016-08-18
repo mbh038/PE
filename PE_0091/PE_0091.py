@@ -58,33 +58,22 @@ def bf2(n):
     
 #10x quicker
 def bf3(n):
-    start=timer()
-    count=0
-    for x1 in range(0,n+1):
-        for y1 in range(1,n+1):
-            if x1==0 and y1==0:
-                continue
-#            v1=np.array([x1,y1])
-            print(x1,y1)
-            dx2=y1/gcd(x1,y1)
-            dy2=x1/gcd(x1,y1)
-            
-            x2,y2=x1,y1
-            while x2>=0 and y2<=n+1:
-                x2-=dx2
-                y2+=dy2
-                count+=1
-    print (count)
-                
-#            while x2<=n and y2>=0:
-#                x2+=dx2
-#                y2-=dy2
-##                if y2==0:
-#                count+=1
 
+    count=0    
+    for x1 in range(1,n+1):
+        for y1 in range(1,n):
+            dx2=y1/gcd(x1,y1)
+            dy2=x1/gcd(x1,y1)           
+            x2,y2=x1-dx2,y1+dy2
+            while x2>=0 and y2<=n:               
+                count+=1
+                x2-=dx2
+                y2+=dy2   
+                           
+    count*=2
     count+=3*n**2
+    
     print('Count: ',count)
-    print('Elapsed time: ',timer()-start,'s')
 
 def gcd(a, b):
     r = a % b
