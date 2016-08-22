@@ -28,208 +28,117 @@ Created on Tue Aug  9 20:10:15 2016
 """
 
 import numpy as np
-import copy
+
 from timeit import default_timer as timer 
 
-def pythTrip(nmax,L={3:[[3,4,5]]},tripgen=[[3,4,5]]):
+import copy
+def pythTrip(nmax,tripgen=[[3,4,5]]):
     """
-    returns dictionary L {k:v} where k are the shortest side a of primitive
-    Pythagorean triangles of side a<n, a < b <= n and v is a list of primitive
-    triples that have hypotenuse that shortest side a
+    returns set of tuples (a,b) and (b,a) for a<=nmax, where a<b,b are the two smallest
+    elements of all the Pythagorean triples for a<=nmax
     """
-#    print (tripgen)
-#    if n<=3:
-#        L={3:[[3,4,5]]}
-#        tripgen=[[3,4,5]] 
-#        memo=(L,tripgen)
-#        print ('memo3:',memo)
-#        return ({3:[[3,4,5]]},[[3,4,5]])
  
     #generating matrices
     A = np.array( [[1,-2,2], [2,-1,2],[2,-2,3]] )
     B = np.array( [[1,2,2], [2,1,2],[2,2,3]] )
     C = np.array( [[-1,2,2], [-2,1,2],[-2,2,3]] )
        
-#    try:
-#        return memo 
-#    except len (memo)==0: 
-#    print ('n',n,memo)
-#    L={3:[[3,4,5]]}
-#    tripgen=[[3,4,5]] 
-#    L,tripgen=primitives(n-1,memo)
-#    print (L)
-#    print (tripgen)
-    while True:
-        nextgen=[]
-#        print(len(tripgen))
-        for triplet in tripgen:
-#            print(triplet)
-            for matrix in [A,B,C]:
-                c=sorted(list(np.dot(matrix,np.array(triplet)))) 
-#                print(c)
-                
-                if c[0]<=nmax and c[1]<=2*nmax:
-                    nextgen.append(c)
-#                    print (c)
-#                    print(nextgen)
-                    L.setdefault(c[0],[]).append(c)
-                    i=1
-                    while True:
-                        i+=1
-                        newv=[i*x for x in c ]
-#                        print(c[0],newv)
-                        if newv[0]>nmax:
-                            break
-                        if newv[1]<=2*nmax:
-                            L.setdefault(newv[0],[]).append(newv)
-#                    print(L)
-#        print(ok)
-        if len(nextgen)==0:
-            break
-        tripgen=copy.deepcopy(nextgen)
-#        print(tripgen)
+    setL=set([(3,4),(4,3)]) 
+    
     i=1
     while True:
         i+=1
         newv=[i*x for x in [3,4,5] ]
-#        print(c[0],newv)
         if newv[0]>nmax:
             break
-        if newv[1]<=2*nmax:
-            L.setdefault(newv[0],[]).append(newv)
-                        
-                        
-    p=(sum([len(y) for x,y in L.items()]))
-#    q=({x:len(y) for x,y in L.items()})
-    print(p,'Pythagorean triangles') 
-#    print(q)
-#    memo=(L,tripgen)
-#        print ('memo,n',memo,n)
-#    print(L)
-    return L,tripgen
-    
-def allpt(L,n,allPT={}):
-    """
-    returns dictionary k:v where k are the hypotenuse of all pythagorean triangles
-    with sides up to n. L is the dictionary of all primitive pythagoren triangles
-    with sides up to n as returned by primitives(n).
-    """
-    for k,v in L.items():
-#        length=0
-        i=0
-        while True:
-            i+=1
-            length=i*k
-            if length>n:
-                break
-            for j in range(len(v)):
-                newv=[i*x for x in v[j] ]
-                if newv[1]<=2*n:
-                    allPT.setdefault(length,[]).append([i*x for x in v[j] ])
-#    total= (sum([len(y) for x,y in allPT.items()]))
-#    print(total)
-    return allPT
-    
-    # to answer Problem 39
-#    print (max(AllPT, key=AllPT.get),':',max(AllPT.values())) 
-
-def cuboid(n_ub,limit):
-    start=timer()
-#    cuboids=set()
-    n=1
-    dn=1
-    count={}
-    dc,dcc=0,0
-    L={3:[[3,4,5]]}
-    tripgen=[[3,4,5]]
-    L,tripgen=pythTrip(n_ub,L,tripgen)
-    print()
-    nmin=0
-    nmax=n_ub
-    trial=0
+        setL.add((newv[0],newv[1]))
+        setL.add((newv[1],newv[0]))
+        
     while True:
-        
-        trial+=1
-        ccbs={}
-        cuboids=set()
-        n_try=nmin+(nmax-nmin)//2
-        n_try=n_ub
-#        Ln={k:v for k,v in L.items() if k<=n_try}
-#        print((sum([len(v) for k,v in Ln.items()])))
-#        apt=allpt(L,n)   
-        for k,v in L.items():
-#            if len(v)>1: print ('k:',k)
-            for j in range(len(v)):
-                dc+=1
-                if v[j][1]<=2*k:
-                    for a in range(1,v[j][0]):
-                        dcc+=1
-                        cuboid=tuple(sorted([a,v[j][0]-a,v[j][1]]))
-                        if cuboid in cuboids:
-                            continue
-                        if checkRoutes(cuboid):
-                            cuboids.add(cuboid)
-                            ccbs[k]=ccbs.get(k,0)+1
-                            
-                    for b in range(1,v[j][1]):
-                        dcc+=1
-                        cuboid=tuple(sorted([v[j][0],b,v[j][1]-b]))
-                        if cuboid in cuboids:
-                            continue
-                        if checkRoutes(cuboid):
-                            cuboids.add(cuboid)
-                            ccbs[k]=ccbs.get(k,0)+1
-                            
-                if v[j][1]>2*k:
-                    for c in range(v[j][1]-n,n):
-                        dcc+=1
-                        cuboid=tuple(sorted([v[j][0],c,v[j][1]-c]))
-                        if cuboid in cuboids:
-                            continue
-                        if checkRoutes(cuboid):
-                            cuboids.add(cuboid)
-                            ccbs[k]=ccbs.get(k,0)+1
-
-        count[n_try]=len(cuboids)      
-        if count[n_try]>=limit:
-            nmax=n_try
-        if count[n_try]<limit:
-            nmin=n_try
-        print(n_try,count.get(n_try))
-
-        try:
+        nextgen=[]
+        for triplet in tripgen:
+            for matrix in [A,B,C]:
+                c=sorted(list(np.dot(matrix,np.array(triplet))))               
+                if c[0]<=nmax:
+                    nextgen.append(c)
+                    setL.add((c[0],c[1]))
+                    setL.add((c[1],c[0]))
+                    i=1
+                    while True:
+                        i+=1
+                        newv=[i*x for x in c ]
+                        if newv[0]>nmax:
+                            break
+                        setL.add((newv[0],newv[1]))
+                        setL.add((newv[1],newv[0]))
+        if len(nextgen)==0:
             break
-            if count[n_try]>limit and count[n_try-1]<=limit:
-                n_final=n_try
-                break
-            if count[n_try]<=limit and count[n_try+1]>limit:
-                n_final=n_try+1
-                break
-        except KeyError:
-            pass
-#        print('Elapsed time: ',timer()-start)   
-        
-#        if trial>1 and count[-1]>limit and count[-2]<=limit:
-#            break
+        tripgen=copy.deepcopy(nextgen)
+                                    
+    return setL        
+    
+def mult(x,side):
+    """
+    returns the number of combinations with replacement of a,b: 1<=a<=side,
+    1<=b<=side, that sum to x: 2<=x<=2*side
+    """
+    if x<side:
+        return (x+1)//2
+    elif x==side:
+        return (side+1)//2
+    elif x>side:
+        return (2*side-x+1)//2
 
-#    print ('n: ',n_final,'count: ',count[n_final])
-    total= (sum([y for x,y in ccbs.items()]))
-    print('ccbs:',total,len(ccbs))
+def cuboid(limit):
+    """
+    returns the smallest integer side length M such that the sum of all integer
+    minimum diagonal corner-corner distances for cubes of maximum side length
+    up to M first exceeds limit.
+    """
+    start=timer()   
+    setL=pythTrip(2000)   
+    side=0
+    routes=0    
+    while routes <=limit:        
+        side+=1
+        for a in range(2,2*side+1):
+            if (a,side) in setL:
+                routes+=mult(a-1,side)
+    print(side,routes)
     
-
-    
-    
-    print(ccbs)
-#    print(dc,dcc)
-#    print(cuboids)
-#    for c in cuboids:
-#        if not checkRoutes(c):
-#            print('Fail',c)
     print ('Elapsed time: ',round(timer()-start,3),'s')
-#    return cuboids
+
+#Below this line not used
+##############################################################################
+
+def test2(side):
+    d={}
+    e=[]
+    ll=[]
+    for  a in combinations_with_replacement(range(1,side+1),2):
+#        print (a)
+#        print(a[0]+a[1]) 
+        d[a[0]+a[1]]=d.get(a[0]+a[1],0)+1
+        
+#    print(len(d))
+#    print (d)
+    for k,v in d.items():
+        e.append(v)
+    print(e)
+#    print([(x+1)//2 for x in range(1,side)])
+#    print(e)
+#    print([(2*side-x+1)//2 for x in range(side+1,2*side)])
+    
+    for x in range(1,side):
+        ll.append((x+1)//2)
+    ll.append((side+1)//2)
+    for x in range(side+1,2*side):
+        ll.append((2*side-x+1)//2)
+    print(ll)
 
 from math import sqrt                 
 def checkRoutes(cuboid):
+    """checks that minimum route is an integer"""
     a,b,c=cuboid[0],cuboid[1],cuboid[2]
     r1=sqrt((a+b)**2+c**2)
     r2=sqrt((a+c)**2+b**2)
@@ -376,3 +285,4 @@ def plt():
     y = sorted(mydata.data02y)
 
     pyplot.plot(x,y,linestyle='dashed')
+
