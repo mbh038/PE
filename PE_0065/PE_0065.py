@@ -9,8 +9,6 @@ e = [2; 1,2,1, 1,4,1, 1,6,1 , ... , 1,2k,1, ...].
 
 2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, 1264/465, 1457/536, ...
 
-Find the sum of digits in the numerator of the 100th convergent of the
-continued fraction for e.
 
 Generally for continued fractions:
 In words, the numerator of the third convergent is formed by multiplying the
@@ -55,8 +53,8 @@ def ecfn(n,memo={}):
 def main(n):
     """return sum of digits in numerator of nth convergent to e"""
     start=timer()
-    print sum(int(x) for x in str(ecfn(n)))
-    print 'Elapsed time: ',timer()-start
+    print (sum(int(x) for x in str(ecfn(n))))
+    print ('Elapsed time: ',timer()-start)
     
 from math import log10
 def digitsum(x):

@@ -30,16 +30,24 @@ def rctgl2(target):
                 
  
 def rctgl(target):
+    
+    start=timer()
 
     deltamin=None
-    for r in range(int(sqrt(target))):
-        for c in range(int(sqrt(target))):
-            delta=abs((r/2)*(r+1)*(c/2)*(c+1)-target)
+    
+    rr=range(int(target**.5))
+    cc=range(int(target**.5))
+    for r in rr:
+            delta=abs((r/2)*(r+1)*(c/2)*(c+1)-target)           
             if deltamin==None or delta<deltamin:
                 deltamin=delta
                 abest=r*c
+                rbest=r
+                cbest=c              
                 
-    print (abest)
+    print (abest,rbest,cbest)
+    
+    print ('Elapsed time: ',timer()-start,'s')
 
     
          

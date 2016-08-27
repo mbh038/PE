@@ -10,10 +10,8 @@ Created on Sun Aug 21 13:47:52 2016
 """
 from timeit import default_timer as timer
 def asq(filename='p098_words.txt'):
-    start=timer()
     wdic=readWords(filename)   
-    ags=anagrams(wdic)    
-           
+    ags=anagrams(wdic)               
     sqs={digits:asquares(digits) for digits in range(1+max([len(k) for k,v in ags.items()]))}
     sqmax=0
     for k,v in ags.items():
@@ -24,16 +22,13 @@ def asq(filename='p098_words.txt'):
             if nstr in y and int(nstr)>sqmax:
                 sqmax=int(nstr)
     print(sqmax)  
-    print ('Elapsed time',timer()-start,'s')        
-
-
+       
 def readWords(filename='p098_words.txt'): 
     """returns dict of words in file, keyed by world length"""    
     with open(filename) as f:
         words= [word for line in f for word in line.split('","')]
         maxlen=max([len(word) for word in words])
         return {l:[word for word in words if len(word)==l ] for l in range(1,maxlen+1) }
-
             
 def anagrams(wdic):
     """returns dict of anagrams in dict wdic"""
@@ -43,7 +38,6 @@ def anagrams(wdic):
             x="".join(sorted(v[j]))
             allwords.setdefault(x,[]).append(v[j])
     return {k:v for (k,v) in allwords.items() if len(v)>1}
-
             
 def asquares(n):
     """returns dict of all anagramic integer squares with n digits, all digits being different"""
