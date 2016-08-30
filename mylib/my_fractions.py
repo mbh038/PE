@@ -5,12 +5,42 @@ Functions for fractions
 Created on Tue Jul 19 04:15:19 2016
 @author: mbh
 """
+
+import math as m
 from math import sqrt
 from timeit import default_timer as timer
 
-# not required
+def rfl(d):
+    """returns tuple (l,rf):
+    l=length of recurring fraction part of 1/d
+    rf =string of recurring fraction part of 1/d
+    """
+    ans=[]
+    rdr=[]
+    rem=1
+    while 1:
+        while rem<d:
+            rem*=10
+        ans.append(str(rem//d))
+        rem=rem%d
+        if rem==0:
+            return (0,'')
+        while rem<d:
+            rem*=10
+        if rem in rdr:
+            ans.pop()
+            return (len(ans),''.join([x for x in ans]))
+        rdr.append(rem)
+            
+#[rfl(x) for x in range(1,101) if rfl(x)[0] ==max([rfl(x)[0] for x in range(1,101)])]
+
+        
+# As n-> inf, cpell(n)/2pell(n) -> sqrt(2)
 def cpell(n,memo={}):
-    """ Returns nth companion Pell number, n is an integer"""
+    """ 
+    Returns nth companion Pell number, n is an integer
+    These are twice the numerator of the nth rational approximation to sqrt(2)
+    """
     if n==0:
         return 2
     if n==1:
@@ -23,7 +53,10 @@ def cpell(n,memo={}):
         return result
         
 def pell(n,memo={}):
-    """ Returns nth Pell number, n is an integer"""
+    """ 
+    Returns nth Pell number, n is an integer.
+    These are the denominators of the nth rational approximation to sqrt(2)
+    """
     if n==0:
         return 0
     if n==1:
@@ -63,7 +96,13 @@ def gcd(a, b):
         r = a % b
     return b
    
-
+#from utkarsh - 10% slower than gcd
+def gcd2(x,y):
+    if y == 0:
+        return x
+    else:
+        return gcd(y, x % y)
+           
 #Continued fractions
 #Generally for continued fractions:
 #In words, the numerator of the third convergent is formed by multiplying the
@@ -92,17 +131,30 @@ def Pellnk(n,k,fs,memo={}):
         memo[k]=result
         return result   
    
-def Pellfs(n):    
+from itertools import cycle
+def Pellfs(n):
     """returns fundamental solution for Pell equation x^2-ny^2 =1 for given n"""   
     if sqrt(n)==int(sqrt(n)):
         return None
-    convergents=Scfs(n,80)
-    m=-1
-    while 1:
-        m+=1
-        x,y=convergents[m]
-        if x**2-n*y**2==1:
-            return (x,y)
+    anext,repeats=sqcf(n)    
+    rps=cycle(repeats)
+    convergents=[(0,1),(1,0)]
+    nom,den=0,0
+    while nom**2-n*den**2!=1:
+        nom,den=[anext*convergents[-1][j]+convergents[-2][j] for j in range(2)]
+        convergents.append((nom,den))
+        anext=next(rps)
+    return (nom,den)
+            
+def test(n):
+    start=timer()
+    for i in range(n) : 
+        Pellfs(61)
+    print ('Elapsed time:',timer()-start)
+    start=timer()
+    for i in range(n) : 
+        Pellfs2(61)
+    print ('Elapsed time:',timer()-start)
 
 def Scfs(S,n):
     """returns first n [numerator,denominator] pairs in convergents for square root of 
@@ -116,6 +168,7 @@ def Scfs(S,n):
         convergents.append((n,d))    
     return convergents
              
+        
 def sqrtS(S,n):
     """
     returns first n terms in continued fraction for square root of S
@@ -123,30 +176,25 @@ def sqrtS(S,n):
     This is a wrapper for sqrt_cf
     """
     return [sqrt_cf(S,x)[x]['a'] for x in range(n)]
-
-        
-def sqrt_cf(S,n,memo={}):   
+    
+def sqcf(S):
     """
-    returns {a_n, d_n and m_n} in the continued fraction 
-    approximation to square root of S. Does not work if S is
-    a perfect square.
-    """    
-    a0=int(sqrt(S))#isqrt(S)    
-    d0=1
-    m0=0       
-    if n==0:
-        return {0:{'a':a0,'d':d0,'m':m0}}
-    try:
-        return memo[n]
-    except KeyError:
-        memo={}
-        n1=sqrt_cf(S,n-1,memo)[n-1]
-        m_n=n1['d']*n1['a']-n1['m']
-        d_n=int((S-m_n**2)/n1['d'])
-        a_n=int((a0+m_n)/d_n)
-        memo[n]={'a':a_n,'d':d_n,'m':m_n}
-        return memo
-        
+    S is a natural number. Must not be a perfect square
+    
+    returns (a0,[r0,..,rn]) where a0 is the stem and [r0,...,rn] is the 
+    repeating part of the square root continued fraction of S
+    """
+    a=[int(sqrt(S))]#isqrt(S)    
+    d0,d=1,1
+    m=0      
+    while 1:
+        m=d*a[-1]-m
+        d=int((S-m**2)/d)
+        a.append(int((a[0]+m)/d))
+        if d==d0:
+            return (a[0],a[1:])
+            break
+
 def isqrt(n):
     """Newton-Raphson to find integer m = isqrt(n) - : m^2<=n<=(m+1)^2"""
     x0=n   
@@ -187,17 +235,4 @@ def bi_sqrt(x):
     print(str(ans) + ' is close to square root of ' + str(x))   
 
 
-#Input: a, b positive integers
-#Output: g and d such that g is odd and gcd(a, b) = g×2d
-#    d := 0
-#    while a and b are both even do
-#        a := a/2
-#        b := b/2
-#        d := d + 1
-#    while a ≠ b do
-#        if a is even then a := a/2
-#        else if b is even then b := b/2
-#        else if a > b then a := (a – b)/2
-#        else b := (b – a)/2
-#    g := a
-#    output g, d
+

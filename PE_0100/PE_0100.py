@@ -50,8 +50,6 @@ def Pellnk(n,k,fs,memo={}):
         memo[k]=result
         return result 
 
-
-
 import math as m 
 def ap():
     
