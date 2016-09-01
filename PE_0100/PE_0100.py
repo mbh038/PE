@@ -17,8 +17,8 @@ in total, determine the number of blue discs that the box would contain.
 Created on Mon Aug 22 08:50:41 2016
 @author: mbh
 """
-
-#
+from timeit import default_timer as timer
+#how I eventually solved it: 
 def rb(n):
     
     fs=(3,1)
@@ -50,6 +50,8 @@ def Pellnk(n,k,fs,memo={}):
         memo[k]=result
         return result 
 
+
+#first explorations
 import math as m 
 def ap():
     
@@ -72,8 +74,7 @@ def ap():
                 pass
     return r,b,rb
 
-from timeit import default_timer as timer
-
+#first solution that works
 def ap2(n):
     
     """wrapper to get the answer""" 
@@ -86,13 +87,9 @@ def ap2(n):
     i=0
     while b[-1]<n/2:        
         b.append(b[-1]*(5+2*A084068(i)/A079496(i+2)))
-#        r=(r*(5+2*A079496(2*i+2)/A084068(2*i+2)))
-#        pbb=((b*(b-1))/(((b+r))*(b-1+r)))
-#        print (b,r,pbb)
-        i+=1
-    
+        i+=1    
     print (int(b[-1]))
-#    print(b)
+
     print ('Elapsed time: ',timer()-start,'s')
     
     

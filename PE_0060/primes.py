@@ -392,20 +392,20 @@ def test(n):
     start=timer()
     for i in range(n):
         is_prime1(i)
-    print ('Elasped time for 1: ',timer()-start)
+    print ('Elapsed time for 1: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime2(i)
-#    print 'Elasped time for 2: ',timer()-start
+#    print 'Elapsed time for 2: ',timer()-start
 #    start=timer()
 #    for i in range(n):
 #        is_prime3(i)
-#    print 'Elasped time for 3: ',timer()-start
+#    print 'Elapsed time for 3: ',timer()-start
 #    start=timer()
 #    for i in range(n):
 #        is_prime4(i)
-#    print 'Elasped time for 4: ',timer()-start  
+#    print 'Elapsed time for 4: ',timer()-start  
     start=timer()
     primesfrom2to(n)
-    print ('Elasped time for primesfrom2to: ',timer()-start )
+    print ('Elapsed time for primesfrom2to: ',timer()-start )
         
