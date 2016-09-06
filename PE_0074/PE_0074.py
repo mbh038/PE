@@ -16,9 +16,7 @@ from timeit import default_timer as timer
 import math
 
 def fc(n):
-
    fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
-
    chain=[n]
    i=0
    while 1:
@@ -41,27 +39,7 @@ def test(n):
         print(x)
         i+=1
     print(i)
-
-def cl2(n):       
-
-    start=timer()
-    fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
-    chainlengths={169:3,871:2,872:2,145:1,69:5,78:4,540:2}
-    fd=set()
-    i=0
-    for number in itertools.combinations_with_replacement('0123456789',len(str(n-1))):
-        number=int(''.join([x for x in number]))
-        if len(fc(number))==60:
-            fd.add(number)
-    print(fd)
-#    total=sum([math.factorial(len(x)) for x in fd])
-#    print(total)
-    print('Elapsed time',timer()-start)
-    print(i)
-
-
-
-         
+        
 def cl(n):
     start=timer()
     fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]

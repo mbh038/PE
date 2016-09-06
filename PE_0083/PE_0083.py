@@ -32,27 +32,40 @@ def readfile(filename):
         data  = file.readlines()
     return [[int(x) for x in line.split(',')] for line in data]
 
+def gm(M,rules,sn,fn): 
+    """returns a graph as a dictionary,indexed by coordinate. The values of each
+    element are a list of three components - the first is the total cost of visiting 
+    that element, along the chosen path, the second is the cost of that element and 
+    the third is a list of coordinates of the elements to which the element is 
+    directly connected as determined by the rules
+    
+    'vl','vr','vt' and 'vb are virtual nodes used to denote/finihing starting anywhere on
+    the left,right, top or bottom  edges. .
+    """
 
-def gm(M,rules,sn='vl',fn='vr'): 
     rows,cols=len(M),len(M[0])
     nodes={(r,c):[m.inf,M[r][c],[]] for r in range(rows) for c in range(cols)}    
     movedict={'u':(-1,0),'d':(1,0),'l':(0,-1),'r':(0,1)}
-    moves=[movedict[rule] for rule in [letter for letter in rules]]
-    
+    moves=[movedict[rule] for rule in [letter for letter in rules]]    
     for node in nodes:
         for n in moves:
             nodes[node][2].append(tuple(p+q for p, q in zip(node, n)))            
-
     if sn=='vl':
         nodes['vl']=[m.inf,0,[(r,0) for r in range(rows)]] 
         for r in range(rows):
-            nodes[(r,0)][2].append('vl') 
-    
+            nodes[(r,0)][2].append('vl')     
     if fn=='vr':
         nodes['vr']=[m.inf,0,[(r,cols-1) for r in range(rows)]] 
         for r in range(rows):
             nodes[(r,cols-1)][2].append('vr') 
-    
+    if fn=='vt':
+        nodes['vt']=[m.inf,0,[(0,c) for c in range(cols)]] 
+        for c in range(cols):
+            nodes[(0,c)][2].append('vt') 
+    if fn=='vb':
+        nodes['vb']=[m.inf,0,[(rows-1,c) for c in range(cols)]] 
+        for c in range(cols):
+            nodes[(rows-1,c)][2].append('vb')             
     return nodes
     
 def dijkstra(graph,sn,fn):

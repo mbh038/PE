@@ -23,9 +23,9 @@ def tlist():
     
     ratio= {int(x[0]):[int(x[1]),float(int(x[0]))/int(x[1])] for x in hands[:100000]}  
     
-    print ratio[100]
+    print (ratio[100])
     
-    print keywithmaxval(ratio),ratio[keywithmaxval(ratio)]
+    print (keywithmaxval(ratio),ratio[keywithmaxval(ratio)])
     
 def keywithmaxval(d):
      """ a) create a list of the dict's keys and values; 

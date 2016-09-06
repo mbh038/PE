@@ -35,7 +35,7 @@ def rb(n):
 def Pellnk(n,k,fs,memo={}):
     """
     returns kth solution to Pell equation x^2-ny^2 =1 for given n
-    fs is the fundamental solution, given n.
+    fs is the fundaßmental solution, given n.
     """   
     x1,y1=fs#Pellfs(n)
     if k==1:
@@ -50,7 +50,7 @@ def Pellnk(n,k,fs,memo={}):
         memo[k]=result
         return result 
 
-
+#Earlier attempts....
 #first explorations
 import math as m 
 def ap():
@@ -82,14 +82,12 @@ def ap2(n):
     start=timer()
     
     r=1
-    b=[3]
-    
+    b=[3]    
     i=0
     while b[-1]<n/2:        
         b.append(b[-1]*(5+2*A084068(i)/A079496(i+2)))
         i+=1    
     print (int(b[-1]))
-
     print ('Elapsed time: ',timer()-start,'s')
     
     

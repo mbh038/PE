@@ -68,7 +68,6 @@ def gm(M,rules,sn,fn):
     'vl','vr','vt' and 'vb are virtual nodes used to denote/finihing starting anywhere on
     the left,right, top or bottom  edges. .
     """
-
     rows,cols=len(M),len(M[0])
     nodes={(r,c):[m.inf,M[r][c],[]] for r in range(rows) for c in range(cols)}    
     movedict={'u':(-1,0),'d':(1,0),'l':(0,-1),'r':(0,1)}

@@ -73,6 +73,7 @@ def check_is_prime1():
 #See also https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11
 #fast - divides by primes i: i*i<n 
 #is_prime3 is about 10% faster.
+        
 def is_prime1(n):
     """Returns True if n is prime."""
     if n == 2:
@@ -189,8 +190,25 @@ def is_prime4(n):
     return all(n % i for i in range(3, int(n**0.5) + 1, 2))
     
 ################################################################################
-
-
+#Euclid algorithm for gcd
+def gcd(a, b):
+    r = a % b
+    while r!=0:
+        a = b
+        b = r
+        r = a % b
+    return b
+    
+def et(n):
+    """
+    returns Euler totient (phi) of n
+    """   
+    phi=n
+    pfs=set(prime_factors(n))
+    for pf in pfs:
+        phi*=(1-1/pf)
+    return int(phi)
+    
 
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
@@ -293,7 +311,22 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
-    
+
+def distinct_prime_factors(n):
+    '''
+    returns the distinct prime factors of n
+    '''   
+    i = 2
+    factors = set()
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.add(i)
+    if n > 1:
+        factors.add(n)
+    return factors    
 #Generators
 ##########################################################################
 
@@ -391,12 +424,12 @@ from timeit import default_timer as timer
 def test(n):
     start=timer()
     for i in range(n):
-        is_prime1(i)
+        et(n)
     print ('Elapsed time for 1: ',timer()-start)
-#    start=timer()
-#    for i in range(n):
-#        is_prime2(i)
-#    print 'Elapsed time for 2: ',timer()-start
+    start=timer()
+    for i in range(n):
+        et2(i)
+    print ('Elapsed time for 2: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime3(i)
@@ -405,7 +438,7 @@ def test(n):
 #    for i in range(n):
 #        is_prime4(i)
 #    print 'Elapsed time for 4: ',timer()-start  
-    start=timer()
-    primesfrom2to(n)
-    print ('Elapsed time for primesfrom2to: ',timer()-start )
+#    start=timer()
+#    primesfrom2to(n)
+#    print ('Elapsed time for primesfrom2to: ',timer()-start )
         

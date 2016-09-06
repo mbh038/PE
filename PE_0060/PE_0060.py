@@ -13,8 +13,6 @@ property.
 Find the lowest sum for a set of five primes for which any two primes 
 concatenate to produce another prime.
 
-
-
 Created on Mon Jul 18 14:58:37 2016
 @author: mbh
 """
@@ -22,10 +20,8 @@ Created on Mon Jul 18 14:58:37 2016
 
 import numpy
 import math
-
 from timeit import default_timer as timer
-
-           
+       
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     #Code by Robert William Hanks
