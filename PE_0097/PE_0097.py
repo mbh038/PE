@@ -18,12 +18,35 @@ Created on Fri Sep  2 04:04:39 2016
 @author: mbh
 """
 
-def et(n):
-    """
-    returns Euler totient (phi) of n
-    """   
-    phi=n
-    pfs=set(prime_factors(n))
-    for pf in pfs:
-        phi*=(1-1/pf)
-    return int(phi)
+from timeit import default_timer as timer
+ 
+# takes 40 ms
+def PE_0097(a=28433,b=7830457,M=10):
+    """returns a*2^b + 1 mod M"""
+    start=timer()
+    M=10**M
+    x=1
+    binb=[int(x) for x in bin(b)[2:][::-1]]
+    binb=[2**i for i in range(len(binb)) if binb[i]==1]
+    for i in binb:
+        x=(x*2**i)%M
+    print((a*x+1)%M)
+    print('Elapsed time:',timer()-start)
+
+#faster....    
+def faster(a=28433,b=7830457,M=10):
+    start=timer()
+    print ((a*int('1'+'0'*b,2)+1) % 10**M)
+    print('Elapsed time',timer()-start)
+    
+#or just try....
+#print((28433*2**7830457+1)%10**10)
+    
+def test(b):
+    x=2
+    p=0
+    while x<b:
+        p+=1
+        x=x**2
+        print(p,x)
+#    print(x**0.5,p)

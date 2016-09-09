@@ -209,7 +209,17 @@ def et(n):
         phi*=(1-1/pf)
     return int(phi)
     
-
+def Mersenne(b,M):
+    """returns last M digits of 2^b-1"""
+    M=10**M    
+    x = 1 
+    for i in range(b):
+        x=x+x #faster than x*=2
+        if x>M:
+            x-=M 
+    x-=1
+    return int(x)
+    
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     #Code by Robert William Hanks

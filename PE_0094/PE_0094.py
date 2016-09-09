@@ -19,7 +19,7 @@ Created on Sun Aug 21 06:09:04 2016
 """
 from timeit import default_timer as timer 
 import numpy as np
-import copy
+
 def aet(pmax):
     """
     returns L, a dictionary of all the right-angle triangles a<b<c, that when 
@@ -27,7 +27,6 @@ def aet(pmax):
     with perimeter less than or equal to pmax. These almost-equilateral triangles
     necessarily comprises the set of those that have integer area.
     """
-    start=timer()
     #generating matrices
     A = np.array( [[1,-2,2], [2,-1,2],[2,-2,3]] )
     B = np.array( [[1,2,2], [2,1,2],[2,2,3]] )
@@ -35,25 +34,23 @@ def aet(pmax):
        
     tripgen=[[3,4,5]]
     L={5:[3,4,5]}
-    perimsum=16
         
     while True:
         nextgen=[]
         for triplet in tripgen:
             for matrix in [A,B,C]:
                 c=sorted(list(np.dot(matrix,np.array(triplet))))
-                perim=2*(c[0]+c[2])
-                if perim<=pmax:
+                if 2*(c[0]+c[2])<=pmax:
                     if c[0]==(c[2]+1)/2 or c[0]==(c[2]-1)/2:
                         nextgen.append(c)
                         L[c[2]]=c
-                        perimsum+=perim
 
         if len(nextgen)==0:
             break
-        tripgen=copy.deepcopy(nextgen)
-                      
-    print (perimsum)
-    print ('Elapsed time: ',round(1000*(timer()-start),3),'ms')                                        
+        tripgen=nextgen[:]
+
+    print(sum([2*(v[0]+v[2]) for k,v in L.items()]))
     return L
+#    print ('Elapsed time: ',round(1000*(timer()-start),3),'ms')                                        
+    
 
