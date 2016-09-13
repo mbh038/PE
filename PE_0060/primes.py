@@ -308,8 +308,7 @@ def howManyPrimes(n):
 def prime_factors(n):
     '''
     returns the prime factors of n
-    '''
-    
+    '''   
     i = 2
     factors = []
     while i * i <= n:
@@ -336,7 +335,47 @@ def distinct_prime_factors(n):
             factors.add(i)
     if n > 1:
         factors.add(n)
-    return factors    
+    return factors 
+    
+def ndivisors(n):
+    """find number of divisors of n"""
+    
+    i = 2
+    factors = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+        
+    divisors=1
+    for k,v in factors.items():
+        divisors*=(v+1)
+        
+    return divisors
+    
+def ndivisors_sq(n):
+    """find number of divisors of n**2"""
+    
+    i = 2
+    factors = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+        
+    divisors=1
+    for k,v in factors.items():
+        divisors*=(2*v+1)
+        
+    return divisors    
 #Generators
 ##########################################################################
 
@@ -452,3 +491,21 @@ def test(n):
 #    primesfrom2to(n)
 #    print ('Elapsed time for primesfrom2to: ',timer()-start )
         
+#from problem 21 - much (x100) faster
+def findDivisors(n,proper=False):
+    """
+    returns a list of the divisors of n (numbers less than or equal to n which 
+    divide evenly into n)
+    n is a positive integer
+    If proper is set True, only the proper divisors are returned - all divisors 
+    of n that are less than n
+    """
+    factors=[]
+    for i in range(1,int(math.floor(math.sqrt(n)))+1):
+        if n % i == 0:
+            factors.append(i)
+            if n//i != i:
+                factors.append(n//i)
+    if proper: factors.remove(n)
+    return factors
+#    return sorted(factors)[:-1] - use this if sorted list required

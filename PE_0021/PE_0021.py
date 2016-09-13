@@ -6,7 +6,7 @@ Amicable numbers
 
 Evaluate the sum of all the amicable numbers under 10000.
 
-If d(a) = b and d(b) = a where != b then a and b are amicable, where d(n)
+If d(a) = b and d(b) = a where a != b then a and b are amicable, where d(n)
 is the sum of the divisors of n.
 
 Created on Thu Jun 23 06:01:46 2016
@@ -21,21 +21,22 @@ def sumAmicable (n):
     n is a positive integer
     """
     start_time=time.time()
-    amicable=[]
+    amicable=set()
     
-    for i in range(n):
+    for i in range(2,n):
         if i in amicable:
             continue
-        j=d(i)
+        j=sum(findDivisors(i))
         if i == j:
             continue
-        k=d(j)
+        k=sum(findDivisors(j))
         if i==k:
-            amicable.append(i)
-            amicable.append(j)
+            amicable.add(i)
+            amicable.add(j)
     print("--- %s seconds ---" % (time.time() - start_time))
-    print sum(set(amicable))
-    
+    print (sum(amicable))
+                
+
 def d(n):
     """" 
     returns sum of divisors of n
@@ -55,6 +56,9 @@ def findDivisors(n):
             factors.append(i)
             if n//i != i:
                 factors.append(n//i)
-    return sorted(factors)[:-1]
+
+    factors.remove(n)
+    return factors
+#    return sorted(factors)[:-1]# - use this if sorted list required
     
 sumAmicable(10000)
