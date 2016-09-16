@@ -339,7 +339,7 @@ def distinct_prime_factors(n):
     
 def pfdic(n):
     '''
-    returns the distinct prime factors of n
+    returns the distinct prime factors of n as {prime1:exponent1,...}
     '''   
     i = 2
     factors = {}
@@ -457,7 +457,6 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
         Based on gen_prime
         a*n**2+b*n+c defines the curve
     """
-
     D = {}
     n = 2
     nq = 0
@@ -483,8 +482,6 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
         nq+=1
         q = a*nq**2+b*nq+c
 
-
-
 from timeit import default_timer as timer
 def test(n):
     start=timer()
@@ -507,21 +504,70 @@ def test(n):
 #    primesfrom2to(n)
 #    print ('Elapsed time for primesfrom2to: ',timer()-start )
         
-#from problem 21 - much (x100) faster
-def findDivisors(n,proper=False):
-    """
-    returns a list of the divisors of n (numbers less than or equal to n which 
-    divide evenly into n)
-    n is a positive integer
-    If proper is set True, only the proper divisors are returned - all divisors 
-    of n that are less than n
-    """
-    factors=[]
-    for i in range(1,int(math.floor(math.sqrt(n)))+1):
-        if n % i == 0:
-            factors.append(i)
-            if n//i != i:
-                factors.append(n//i)
-    if proper: factors.remove(n)
-    return factors
-#    return sorted(factors)[:-1] - use this if sorted list required
+#slow for large numbers       
+def divisors(n):
+    d=[]
+    for i in range(1,int(math.sqrt(n))+1):
+        if n%i==0:
+            if n/i==i:
+                d.append(i)
+            else:
+                d.append(i)
+                d.append(n/i)
+    return d
+    
+#much faster
+import numpy as np
+def divisorGen(n):
+    #first get the prime factors
+    i = 2
+    fs = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            fs[i]=fs.get(i,0)+1
+    if n > 1:
+        fs[n]=fs.get(n,0)+1
+        
+    ps=[k for k,v in fs.items()] #prime factors
+    es=[v for k,v in fs.items()] #exponents 
+    
+    nfactors = len(ps)
+    f = [0] * nfactors
+    while True:
+        p=1
+        pfs=[x**y for (x,y) in zip(ps,f)]
+        for i in range(len(ps)):
+            p*=pfs[i]
+        yield p
+#could use this from np, but is seveal times slower for large numbers
+#        yield ft.reduce(lambda x, y: x*y, [factors[x][0]**f[x] for x in range(nfactors)], 1)
+        i = 0
+        while True:
+            f[i] += 1
+            if f[i] <= es[i]:
+                break
+            f[i] = 0
+            i += 1
+            if i >= nfactors:
+                return
+                            
+def pftup(n):
+    '''
+    returns the distinct prime factors of n as a list of tuples
+    [(prime factor,exponent),....]
+    '''   
+    i = 2
+    factors = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+    f=[(k,v) for k,v in factors.items()]
+    return f 

@@ -68,7 +68,9 @@ def divisibility(powers):
     for x in powers:
         d*=(2*x+1)
     return d
-       
+
+#Not very Pythonic, but faster and/or more readable than any of several Pythonic one-liners
+# I have tried (reduce, np.cumprod etc)       
 def myprod(primes,exponents):
     p=1
     pfs=[x**y for (x,y) in zip(primes,exponents)]

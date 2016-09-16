@@ -1,0 +1,23 @@
+Problem:100
+Title:Arranged Probability
+Time (ms):0.05
+Tags:Diophantine,Pell,memo,recursion
+Notes:
+
+Problem:108
+Title:Diophantine Reciprocals I
+Time (ms):3
+Tags:Diophantine,prime generator
+Notes:
+
+Problem:110
+Title:Diophantine Reciprocals II
+Time (ms):6
+Tags:Diophantine
+Notes:
+
+Problem:157
+Title:
+Time (ms):200
+Tags:divisors,prime factors,Diophantine
+Notes: used fast divisor generator
