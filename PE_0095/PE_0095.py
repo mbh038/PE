@@ -15,21 +15,8 @@ from timeit import default_timer as timer
 from matplotlib import pyplot as plt
 
 import math
-
-
-
-def eulersigma(n):
-    """returns sum of divisors of n
-       """
-    factors=[]
-    for i in range(1,int(math.sqrt(n))+1):      
-        if n % i == 0:
-            factors.append(i)
-            if n//i != i:
-                factors.append(n//i)
-    return sum(factors)
                      
-def ac2(n,limit):
+def p95(n,limit):
     start=timer()
     acs={}
     nacs=set() 
@@ -38,7 +25,7 @@ def ac2(n,limit):
             continue
         chain=[number]
         while 1:
-            candidate=eulersigma(chain[-1])-chain[-1]
+            candidate=eulersigma2(chain[-1])-chain[-1]
             if candidate in nacs:
                 [nacs.add(x) for x in chain]
                 break
@@ -65,8 +52,84 @@ def ac2(n,limit):
     print (acs)
     print ([(k,v) for k,v in acs.items() if v[0]==max([v[0] for k,v in acs.items()])])
     print('Elapsed time',timer()-start)
+
+def eulersigma(n):
+    pfs=pfdic(n)
     
-#below this line not used
+    es=1
+    for p,e in pfs.items():
+        es*=(p**(e+1)-1)//(p-1)
+    return es
+
+def pfdic(n):
+    '''
+    returns the distinct prime factors of n as {prime1:exponent1,...}
+    '''   
+    i = 2
+    factors = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+    return factors
+    
+def eulersigma2(n):
+    """returns sum of divisors of n"""
+    return sum([x for x in divisorGen(n)])
+    
+def eulersigma3(n):
+    """returns sum of divisors of n
+       """
+    factors=[]
+    for i in range(1,int(math.sqrt(n))+1):      
+        if n % i == 0:
+            factors.append(i)
+            if n//i != i:
+                factors.append(n//i)
+    return sum(factors)
+    
+def divisorGen(n):
+    """yield the divisors of n"""
+    #first get the prime factors
+    i = 2
+    fs = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            fs[i]=fs.get(i,0)+1
+    if n > 1:
+        fs[n]=fs.get(n,0)+1
+        
+    ps=[k for k,v in fs.items()] #prime factors
+    es=[v for k,v in fs.items()] #exponents 
+    
+    nfactors = len(ps)
+    f = [0] * nfactors
+    while True:
+        p=1
+        pfs=[x**y for (x,y) in zip(ps,f)]
+        for i in range(len(ps)):
+            p*=pfs[i]
+        yield p
+#could use this from np, but is several times slower for large numbers
+#        yield ft.reduce(lambda x, y: x*y, [factors[x][0]**f[x] for x in range(nfactors)], 1)
+        i = 0
+        while True:
+            f[i] += 1
+            if f[i] <= es[i]:
+                break
+            f[i] = 0
+            i += 1
+            if i >= nfactors:
+                return
+                
+#below this line not used    
 def eulersumcapped(n,limit):
     """
     returns list of numbers less than n for which the sum of the proper divisors
@@ -94,23 +157,6 @@ def oknums(nmin,nmax,limit):
 #    return okvals
     return len(okvals)/(nmax-nmin)
     
-#from problem 21 - much (x100) faster
-def findDivisors(n):
-    """
-    returns a list of the proper divisors of n (numbers less than n which 
-    divide evenly into n)
-    n is a positive integer
-    """
-    factors=[]
-    for i in range(1,int(math.floor(math.sqrt(n)))+1):
-        if n % i == 0:
-            factors.append(i)
-            if n//i != i:
-                factors.append(n//i)
-    factors.remove(n)
-    return factors
-#    return sorted(factors)[:-1] - use this if sorted list required
-
 def chain(n,limit=1e6):
     
     chain=[n]
@@ -170,8 +216,8 @@ def test(n):
         a=eulersigma(n)
     print('Elapsed time',timer()-start)
 
-#    start=timer()
-#    for i in range(n):
-#        a=properDivisors(n)
-#    print('Elapsed time',timer()-start)
+    start=timer()
+    for i in range(n):
+        a=eulersigma2(n)
+    print('Elapsed time',timer()-start)
     

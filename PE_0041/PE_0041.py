@@ -8,9 +8,11 @@ Pandigital prime
 What is the largest n-digit pandigital prime that exists?
 
 Created on Thu Jun 30 12:57:50 2016
-
 @author: michael.hunt
 """
+import numpy as np
+import time
+import itertools as it
 
 def isprime(n):
     """Returns True if n is prime."""
@@ -47,19 +49,17 @@ def is_prime(x):
             return False
     return True
   
-import numpy
-import time
-from itertools import permutations 
+ 
 
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = numpy.ones(n/3 + (n%6==2), dtype=numpy.bool)
-    for i in xrange(1,int(n**0.5)/3+1):
+    sieve = np.ones(n/3 + (n%6==2), dtype=np.bool)
+    for i in range(1,int(n**0.5)/3+1):
         if sieve[i]:
             k=3*i+1|1
             sieve[       k*k/3     ::2*k] = False
             sieve[k*(k-2*(i&1)+4)/3::2*k] = False
-    return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
+    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 
 def pd(dig):
@@ -69,12 +69,12 @@ def pd(dig):
     for i in dig:
         
         digits='987654321'[9-i:]
-        for x in permutations(digits,i):
+        for x in it.permutations(digits,i):
             if x[-1] not in '24568': 
                 xnum=int(''.join(x))
                 count+=1
                 if isprime(xnum):
-                    print 'Max pd prime is',xnum
+                    print ('Max pd prime is',xnum)
                     xmax.append(xnum)
                     break
     print("--- %s seconds ---" % (time.time() - start_time))

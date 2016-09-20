@@ -25,7 +25,7 @@ Created on Tue Jul 26 13:38:44 2016
 
 from timeit import default_timer as timer
 from itertools import permutations
-def p3():
+def p61():
     start=timer()
     p3,p4,p5,p6,p7,p8=[],[],[],[],[],[]
     for n in range (1,140):
@@ -81,6 +81,43 @@ def p3():
                                                             
             
     
+#######################
+#code from Sandamnit
+    
+def Sandamnit():
+    start=timer()
+
+    def recurse(levels, cycle):
+       # base case to check the desired cycle condition
+       if len(levels) == 6 and cycle[0] == cycle[-1]:
+          print(sum(cycle[:6]) * 101)
+          return
+    
+       # only check those levels not already listed in `levels'
+       for level in [ x for x in range(6) if not x in levels ]:
+          for n in nums[level]:
+             # skip those numbers which invalidate the required condition
+             if int(str(n)[:2]) != cycle[-1]: continue
+    
+             # condition satisfied, add level and append cycle
+             recurse(levels+[level], cycle+[int(str(n)[2:])])
+         
+    # build lists of 4-digit numbers of each type
+    nums = [
+       [ n*(n+1)//2 for n in range(44,140) ], #triangle
+       [ n*n for n in range(31,99) ],         #square
+       [ n*(3*n-1)//2 for n in range(25,81) ],#pentagonal
+       [ n*(2*n-1) for n in range(22,70) ],   #hexagonal
+       [ n*(5*n-3)//2 for n in range(20,63) ],#heptagonal
+       [ n*(3*n-2) for n in range(18,58) ] ]  #octagonal
+    
+    # loop over all valid triangle numbers / initialize the recursion
+    for n in nums[0]:
+       recurse([0], [int(str(n)[:2]), int(str(n)[2:])])
+    print('Elapsed time: ',timer()-start)
+   
+
+
 
 
 

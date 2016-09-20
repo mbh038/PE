@@ -1,4 +1,3 @@
-U# -*- coding: utf-8 -*-
 """
 
 PE_0038
@@ -11,10 +10,10 @@ Created on Thu Jun 30 04:48:10 2016
 
 @author: Mike
 """
-import time
+from timeit import default_timer as timer
 import itertools
-def panmult(n):
-    start_time = time.time()
+def p38(n):
+    start = timer()
     prodmax=-1    
     basenums=[]
     for digits in range(1,4):
@@ -29,14 +28,13 @@ def panmult(n):
                 break
             prod=newprod
             if int(prod)>prodmax and len(prod)==9:
-                imax,prodmax,multmax=i,int(prod),multiplier
-            
-    print imax,range(1,multmax+1),prodmax
+                prodmax=int(prod)            
+    print (prodmax)
         
-    print("--- %s s ---" % (time.time() - start_time))
+    print('Elapsed time:',timer()-start)
     
-for i in itertools.combinations('1234678',3):
-   i='9'+''.join(i)
-   print i
+#for i in itertools.combinations('1234678',3):
+#   i='9'+''.join(i)
+#   print (i)
    
     

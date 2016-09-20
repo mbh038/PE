@@ -6,7 +6,7 @@ Created on Tue Jul 19 04:15:19 2016
 @author: mbh
 """
 
-import math as m
+import math
 from math import sqrt
 from timeit import default_timer as timer
 
@@ -95,14 +95,7 @@ def gcd(a, b):
         b = r
         r = a % b
     return b
-   
-#from utkarsh - 10% slower than gcd
-def gcd2(x,y):
-    if y == 0:
-        return x
-    else:
-        return gcd(y, x % y)
-           
+             
 #Continued fractions
 #Generally for continued fractions:
 #In words, the numerator of the third convergent is formed by multiplying the

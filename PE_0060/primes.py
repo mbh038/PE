@@ -219,18 +219,34 @@ def Mersenne(b,M):
             x-=M 
     x-=1
     return int(x)
+
+def prime_factors(n):
+    '''
+    returns the prime factors of n
+    '''   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors
     
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     #Code by Robert William Hanks
     #http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n/3035188#3035188
-    sieve = numpy.ones(n//3 + (n%6==2), dtype=numpy.bool)
+    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
     for i in range(1,int(n**0.5/3)+1):
         if sieve[i]:
             k=3*i+1|1
             sieve[       k*k//3   ::2*k] = False
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
-    return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
+    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 def primes (n): 
     """
@@ -251,9 +267,7 @@ def primes (n):
         if bools[i]==True: 
             count+=1
             yield i
-            
-
-        
+                    
 def primesthatsumto(n):
     '''
     counts the primes less than n whose sum is less than n
@@ -267,19 +281,18 @@ def primesthatsumto(n):
         count+=1
     return count
            
-def psumN(a,n):
-    
+def psumN(a,n):    
     '''
-    lists n prines from a, and their sum
+    lists n primes from a, and their sum
     '''
     psum=0
     count=0
-    for p in gen_primes():
+    for p in erat2a():
         count+=1
         psum+=p        
         if count>n:
             break
-        print (count,a,p,psum,isprime(psum))
+        print (count,a,p,psum,is_prime1(psum))
         
 def psum(n):
     '''
@@ -302,96 +315,8 @@ def howManyPrimes(n):
             break
         count+=1
     return count
-    
-
-# code bystefan  http://stackoverflow.com/users/1209253/stefan
-def prime_factors(n):
-    '''
-    returns the prime factors of n
-    '''   
-    i = 2
-    factors = []
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors.append(i)
-    if n > 1:
-        factors.append(n)
-    return factors
-
-def distinct_prime_factors(n):
-    '''
-    returns the distinct prime factors of n
-    '''   
-    i = 2
-    factors = set()
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors.add(i)
-    if n > 1:
-        factors.add(n)
-    return factors 
-    
-def pfdic(n):
-    '''
-    returns the distinct prime factors of n as {prime1:exponent1,...}
-    '''   
-    i = 2
-    factors = {}
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors[i]=factors.get(i,0)+1
-    if n > 1:
-        factors[n]=factors.get(n,0)+1
-    return factors   
-    
-def ndivisors(n):
-    """find number of divisors of n"""
-    
-    i = 2
-    factors = {}
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors[i]=factors.get(i,0)+1
-    if n > 1:
-        factors[n]=factors.get(n,0)+1
-        
-    divisors=1
-    for k,v in factors.items():
-        divisors*=(v+1)
-        
-    return divisors
-    
-def ndivisors_sq(n):
-    """find number of divisors of n**2"""
-    
-    i = 2
-    factors = {}
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors[i]=factors.get(i,0)+1
-    if n > 1:
-        factors[n]=factors.get(n,0)+1
-        
-    divisors=1
-    for k,v in factors.items():
-        divisors*=(2*v+1)
-        
-    return divisors    
+       
+   
 #Generators
 ##########################################################################
 
@@ -486,11 +411,12 @@ from timeit import default_timer as timer
 def test(n):
     start=timer()
     for i in range(n):
-        et(n)
+        is_prime1(i)
     print ('Elapsed time for 1: ',timer()-start)
     start=timer()
+    a=primesfrom2to(n)
     for i in range(n):
-        et2(i)
+        b== i in a
     print ('Elapsed time for 2: ',timer()-start)
 #    start=timer()
 #    for i in range(n):

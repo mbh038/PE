@@ -87,3 +87,15 @@ def p102v2(filename='p102_triangles.txt'):
         if len(signs)==1:
             contains+=1
     print(contains)
+    
+
+#neater code using cross-product idea
+#FJ_Sevilla
+f = open('p102_triangles.txt')
+cont = 0
+for line in f:
+    t=[int(p) for p in line.split(",")]
+    print (t)
+    cont += (t[0]*t[3]-t[2]*t[1] >0) == (t[2]*t[5]-t[4]*t[3]>0) == (t[4]*t[1]-t[0]*t[5]>0)
+f.close()
+print(cont)

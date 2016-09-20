@@ -28,8 +28,9 @@ Created on Sat Jul 02 04:45:28 2016
 """
 
 from itertools import permutations
-from time import time
+from timeit import default_timer as timer
 def pd1():
+    start=timer()
     panOK=[]
     for x in permutations(range(10)):
         if x[3]%2>0:
@@ -48,7 +49,8 @@ def pd1():
             continue
         panOK.append(int(''.join(str(digit) for digit in x )))
     print(panOK)
-    print len(panOK),sum(panOK)
+    print (len(panOK),sum(panOK))
+    print('Elapsed time:',timer()-start,'s')
        
 def check(x,n):
     divisors=[2,3,5,7,11,13,17]
@@ -73,7 +75,7 @@ def pd():
 #                 print 'hello'
                  flag=False
                  break
-        if flag: print x
+        if flag: print (x)
                  
             
 

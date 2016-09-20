@@ -1,23 +1,173 @@
+
+
+Problem:
+Title:
+Date:
+Answer:
+Time (ms):
+Languages:Python
+Tags:
+References:
+Notes:
+
+#################################
+
+Problem:13
+Title:Large sum
+Date:Fri, 17 Jun 2016, 06:51
+Answer:5537376230
+Time (ms):
+Languages:Python
+Tags:big numbers;addition
+References:
+Notes:
+
+Problem:38
+Title:Pandigital Multiples
+Date:Thu, 30 Jun 2016, 05:20
+Answer:932718654
+Time (ms):1
+Languages:Python
+Tags:it.permutations()
+References:
+Notes:
+
+Problem:39
+Title:Integer Right Triangles
+Date:Thu, 30 Jun 2016, 09:59
+Answer:840
+Time (ms):86
+Languages:Python
+Tags:
+References:
+Notes:
+
+Problem:61
+Title:Cyclical figurate numbers
+Date:Wed, 27 Jul 2016, 11:35
+Answer:28684
+Time (ms):158
+Languages:Python
+Tags:
+References:
+Notes:
+
+Problem:66
+Title:Diophantine equation
+Date:Fri, 26 Aug 2016, 07:24
+Answer:661
+Time (ms):39
+Languages:Python
+Tags:Diophantine,Pell,continued fraction,it.cycle()
+References:
+Notes:
+
+Problem:77
+Title:Prime summations
+Date:Mon, 25 Jul 2016, 12:24
+Answer:71
+Time (ms):0.06
+Languages:Python
+Tags:primes,Euler transform formula
+References:http://mathworld.wolfram.com/PrimePartition.html and http://mathworld.wolfram.com/EulerTransform.html
+Notes:
+
+
+Problem:81
+Title:Path sum: two ways
+Date:Wed, 22 Jun 2016, 13:12
+Answer:427337
+Time (ms):11
+Languages:Python,Matlab
+Tags:graph,path,Dijkstra
+References:
+Notes:Same code for 82,83.
+
+Problem:82
+Title:Path sum: three ways
+Date:Wed, Thu, 25 Aug 2016, 10:11
+Answer:260324
+Time (ms):160
+Languages:Python
+Tags:graph,path,Dijkstra,virtual node
+References:
+Notes:Same code for 81,83.
+
+Problem:95
+Title:Amicable chains
+Date:Fri, 9 Sep 2016, 17:11
+Answer:14316
+Time (ms):2000
+Languages:Python
+Tags:euler sigma
+References:
+Notes:
+
+Problem:97
+Title:Large non-Mersenne prime
+Date:Wed, 7 Sep 2016, 08:20
+Answer:8739992577
+Time (ms):40
+Languages:Python
+Tags:modular
+Notes:
+
+Problem:98
+Title:Anagramic squares
+Date:Mon, 22 Aug 2016, 03:39
+Answer:18769
+Time (ms):51
+Languages:Python
+Tags:io
+References:
+Notes:
+
 Problem:100
 Title:Arranged Probability
+Date:Tue, 23 Aug 2016, 06:34
+Answer:756872327473
 Time (ms):0.05
+Languages:Python
 Tags:Diophantine,Pell,memo,recursion
+References:
 Notes:
+
+Problem:102
+Title:Triangle containment
+Date:Thu, 8 Sep 2016, 20:03
+Answer:228
+Time (ms):5.5
+Languages:Python
+Tags:cross product;ray tracing;np.cross(),io
+References:
+Notes:cross product simpler; What about complex integral along the boundary?
 
 Problem:108
 Title:Diophantine Reciprocals I
+Date:Sun, 11 Sep 2016, 17:29
+Answer:180180
 Time (ms):3
+Languages:Python
 Tags:Diophantine,prime generator
+References:
 Notes:
 
 Problem:110
 Title:Diophantine Reciprocals II
+Date:Tue, 13 Sep 2016, 12:02
+Answer:9350130049860600
 Time (ms):6
+Languages:Python
 Tags:Diophantine
+References:
 Notes:
 
 Problem:157
-Title:
-Time (ms):200
+Title:Solving the Diophantine equation 1/a+1/b= p/10^n
+Date:Thu, 15 Sep 2016, 06:39
+Answer:53490
+Time (ms):48
+Languages:Python
 Tags:divisors,prime factors,Diophantine
-Notes: used fast divisor generator
+References:
+Notes: find common prime factors - no need to find actual divisors

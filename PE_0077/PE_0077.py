@@ -21,6 +21,16 @@ Created on Sun Jul 24 18:15:54 2016
 """
 from timeit import default_timer as timer
 
+def PE_0077(limit):
+    start=timer()
+    n=0
+    while True: 
+        n+=1
+        if b(n)>limit:
+            print (n,b(n))
+            print ('Elapsed time: ',timer()-start,'s')
+            break
+        
 def b(n,memo={}):
     """
     n is a positive integer
@@ -42,62 +52,29 @@ def b(n,memo={}):
     try:
         return memo[n]
     except:
-        cn=sum(set(pf1(n))) # sum of distinct prime factors of n           
-        result= (cn+sum([sum(set(pf1(k)))*b(n-k,memo) for k in range(1,n)]))//n
+        cn=sum([pf for pf,exponent in pfdic(n).items()]) # sum of distinct prime factors of n           
+        result= (cn+sum([sum([pf for pf,exponent in pfdic(k).items()])*b(n-k,memo) for k in range(1,n)]))//n
         memo[n]=result
         return result
         
-        
-def pf1(n):
+def pfdic(n):
     '''
-    returns the prime factors of n
-    '''    
+    returns the distinct prime factors of n as {prime1:exponent1,...}
+    '''   
     i = 2
-    factors = []
+    factors = {}
     while i * i <= n:
         if n % i:
             i += 1
         else:
             n //= i
-            factors.append(i)
+            factors[i]=factors.get(i,0)+1
     if n > 1:
-        factors.append(n)
-    return factors
+        factors[n]=factors.get(n,0)+1
+    return factors 
 
 
-def PE_0078(limit):
-    start=timer()
-    n=0
-    while True: 
-        n+=1
-        if b(n)>limit:
-            print (n,b(n))
-            print ('Elapsed time: ',timer()-start,'s')
-            break
  
-    
-#currently incorect!
-def pf2(n):
-    '''
-    returns the prime factors of n
-    
-    ''' 
-    i = 2
-    factors = []   
-    if n % i:
-        i+=1
-    else:
-        n//=i
-        factors.append(i)
-    while i * i <= n:
-        if n % i:
-            i += 2
-        else:
-            n //= i
-            factors.append(i)
-    if n > 1:
-        factors.append(n)
-    return factors
     
 def test(limit):
     start=timer()

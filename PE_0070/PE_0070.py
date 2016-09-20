@@ -24,8 +24,9 @@ def primesfrom2to(n):
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
       
-def p70(n):   
-    primes=set(primesfrom2to(int(math.sqrt(n)*3))).difference(set(primesfrom2to(int(math.sqrt(n)/3))))
+def p70(n):
+    start=timer()
+    primes=set(primesfrom2to(int(math.sqrt(n)*2))).difference(set(primesfrom2to(int(math.sqrt(n)/2))))
     minratio=10
     for p1 in primes:
         for p2 in primes.difference([p1]):
@@ -35,7 +36,8 @@ def p70(n):
                 if pp/phi<minratio:
                     if sorted(str(phi))==sorted(str(pp)):
                         minratio=pp/phi
-                        print (pp,phi,pp/phi,p1,p2)    
+                        print (pp,phi,pp/phi,p1,p2) 
+    print('Elapsed time:',timer()-start)
 
 
 

@@ -130,3 +130,37 @@ def primesfrom2to(n):
             sieve[       k*k//3   ::2*k] = False
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
+    
+##############
+#code from Sandamnit
+def Sandamnit():
+    dn2 = 8000001
+    while True:
+       pdivs = prime_factors(dn2)
+       if sorted(pdivs) == primes[1:len(pdivs)+1]:
+          num = 1
+          ind = 0
+          for p in sorted(pdivs, reverse=True):
+             for m in range(pdivs[p]):
+                power = (p-1)//2
+                num *= primes[ind]**power
+                ind += 1
+          print(num)
+          break
+       dn2 += 2
+       
+def prime_factors(n):
+    '''
+    returns the prime factors of n
+    '''   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors 

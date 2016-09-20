@@ -9,7 +9,8 @@ Created on Sun Aug 21 13:47:52 2016
 @author: mbh
 """
 from timeit import default_timer as timer
-def asq(filename='p098_words.txt'):
+def p98(filename='p098_words.txt'):
+    start=timer()
     wdic=readWords(filename)   
     ags=anagrams(wdic)               
     sqs={digits:asquares(digits) for digits in range(1+max([len(k) for k,v in ags.items()]))}
@@ -21,7 +22,8 @@ def asq(filename='p098_words.txt'):
             nstr=''.join([w.get(v[j][kk],'X')for j in range(1,len(v)) for kk in range (len(v[j]))])
             if nstr in y and int(nstr)>sqmax:
                 sqmax=int(nstr)
-    print(sqmax)  
+    print(sqmax) 
+    print('Elapsed time:',timer()-start)
        
 def readWords(filename='p098_words.txt'): 
     """returns dict of words in file, keyed by world length"""    

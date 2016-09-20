@@ -31,7 +31,42 @@ What is the sum of all the minimal product-sum numbers for 2≤k≤12000?
 Created on Fri Sep  2 04:06:27 2016
 @author: mbh
 """
+import numpy as np
 
+def p88(n):
+    """returns sum of all the minimal product-sum numbers for 2≤k≤12000?"""
+    primes=primesfrom2to(nmax)
+    print(len(primes))
+    
+    psns={x:np.inf for x in range(2,nmax+1)}
+    print(psns[n])
+    
+    for n in range (2,nmax+1):
+        
+        if n-1 in primes:
+            psns[n]=2*n
+            
+         
+
+
+def listprod(numbers):
+    p=1
+    for i in range(len(numbers)):
+        p*=numbers[i]
+    return p
+    
+def primesfrom2to(n):
+    """ Input n>=6, Returns a array of primes, 2 <= p < n """
+    #Code by Robert William Hanks
+    #http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n/3035188#3035188
+    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
+    for i in range(1,int(n**0.5/3)+1):
+        if sieve[i]:
+            k=3*i+1|1
+            sieve[ k*k//3   ::2*k] = False
+            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
+    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
+    
 def prime_factors(n):
     '''
     returns the prime factors of n

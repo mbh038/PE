@@ -28,7 +28,7 @@ def magicNgon(n):
         ns.add(perm[-1]+perm[0])
         if len(ns)==len(perm):
             #remove duplicates eg (1,2,3,4,5) is the same ring as (2,3,4,5,1)
-            plist=cycle(perm)
+            plist=recycle(perm)
             rings.add(tuple(plist)) 
     rowcatmax=-1
     for ring in rings:
@@ -46,7 +46,7 @@ def magicNgon(n):
                 continue
             #otherwise find the integer value of the clockwise concatenated row values,
             #with the rows cycled until that with the minimum spur value is first
-            rows=cycle([int(''.join(str(x) for x in row)) for row in rows])
+            rows=recycle([int(''.join(str(x) for x in row)) for row in rows])
             rowcat=''.join(str(row) for row in rows)
             #we only want 16 digit values - ie solutions with '10' in a spur.
             if len(rowcat)==17:
@@ -58,17 +58,15 @@ def magicNgon(n):
     print (rowcatmax)
     print ('Elapsed time:',timer()-start,'s')
                    
-def cycle(mylist):
-    """cycles a list of numerical values until list[0]=min(list)"""
-    pmin=min(mylist)
-    while 1:
-        plist=[mylist[-1]]
-        for j in range (len(mylist)-1):
-            plist.append(mylist[j])                    
-        if plist[0]==pmin:
-            break
-        mylist=plist
-    return plist
+def recycle(mylist):
+    """cycles a list of numerical values until list[0]=min(list)"""    
+    minval=mylist.index(min(mylist))   
+    return [mylist[(x+minval)%len(mylist)] for x in range(len(mylist))]
 
+        
+
+
+
+    
     
 

@@ -20,7 +20,7 @@ Created on Mon Aug 22 08:50:41 2016
 from timeit import default_timer as timer
 #how I eventually solved it: 
 def rb(n):
-    
+    start=timer()
     fs=(3,1)
     x=1
     while True:
@@ -31,7 +31,8 @@ def rb(n):
                 break
         x+=1
     print (b)  
-  
+    print('Elapsed time',timer()-start,'s')
+    
 def Pellnk(n,k,fs,memo={}):
     """
     returns kth solution to Pell equation x^2-ny^2 =1 for given n
@@ -50,6 +51,35 @@ def Pellnk(n,k,fs,memo={}):
         memo[k]=result
         return result 
 
+#but see...
+
+#from poster Sandamnit
+def sandamnit(): 
+    start=timer()
+    x,y = 3,1
+    while True:
+       x,y = 3*x+8*y, 3*y+x
+       b = (1+2*y+x)//2
+       if b+y > 1000000000000: break
+    print(b)
+    print('Elapsed time',timer()-start,'s')
+
+
+#from poster DFHD
+def dFHD():
+    start=timer()
+    r = [0, 1]
+    b = [1, 3]
+    
+    d = r[-1] + b[-1]
+    
+    while d < 10**12:
+        r.append(6 * r[-1] - r[-2])
+        b.append(6 * b[-1] - b[-2] - 2)
+        d = r[-1] + b[-1]
+    print(r[-1], b[-1], d) 
+    print('Elapsed time',timer()-start,'s')
+        
 #Earlier attempts....
 #first explorations
 import math as m 
@@ -74,6 +104,7 @@ def ap():
                 pass
     return r,b,rb
 
+    
 #first solution that works
 def ap2(n):
     
@@ -118,5 +149,4 @@ def A084068(n,memo={}):
             result=4*A084068(n-1,memo)-A084068(n-2,memo)
         memo[n]=result
         return result
-    
-    
+

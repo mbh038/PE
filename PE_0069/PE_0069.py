@@ -19,12 +19,9 @@ def tlist():
     hands=[]
     fhand = open('et100000.txt')
     for line in fhand.read().split('\n'):
-        hands.append(line.split(' '))
-    
-    ratio= {int(x[0]):[int(x[1]),float(int(x[0]))/int(x[1])] for x in hands[:100000]}  
-    
-    print (ratio[100])
-    
+        hands.append(line.split(' '))   
+    ratio= {int(x[0]):[int(x[1]),float(int(x[0]))/int(x[1])] for x in hands[:100000]}      
+    print (ratio[100])    
     print (keywithmaxval(ratio),ratio[keywithmaxval(ratio)])
     
 def keywithmaxval(d):
@@ -34,7 +31,7 @@ def keywithmaxval(d):
      k=list(d.keys())
      return k[v.index(max(v))]
 
-def PE_0069(n):
+def p69(n):
     
     start=timer()
     
@@ -54,8 +51,8 @@ def PE_0069(n):
     k=list(phis.keys())
     kmax= k[v.index(max(v))]
        
-    print kmax,phis[kmax]
-    print 'Elapsed time: ',timer()-start,'s'
+    print (kmax,phis[kmax])
+    print ('Elapsed time: ',timer()-start,'s')
 
 
 def primorial(n):
