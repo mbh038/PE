@@ -11,7 +11,7 @@ fractions for d ≤ 12,000?
 Created on Wed Jul 20 12:55:25 2016
 @author: mbh
 """
-
+from timeit import default_timer as timer
 from fractions import Fraction #very slow
         
 # very slow -O(N2) and uses fractions
@@ -38,7 +38,7 @@ def FareyNext(n,lim,memo={}):
         memo[n]=result
         return result
 
-from timeit import default_timer as timer
+
 def main(lim):
     start=timer()
     count=1
@@ -76,7 +76,7 @@ def myfarey(n):
     c=c0+a*(n-d0)/b
     d=d0+b*(n-d0)/b
     count=0
-    while d>2*c:
+    while d>=2*c:
         k=int((n+b)/d)
         a,b,c,d=c,d,k*c-a,k*d-b
         count+=1   

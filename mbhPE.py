@@ -11,11 +11,11 @@ Created on Mon Sep 19 13:35:35 2016
 import re
 import sqlite3
 
-def pe():
+def penew():
     conn = sqlite3.connect('mbhPE.sqlite3')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS peProblems ')
-    cur.execute('CREATE TABLE peProblems (problem INTEGER, title TEXT, date TEXT, answer INTEGER, time INTEGER, languages TEXT, tags TEXT, refs TEXT, notes TEXT)')
+    cur.execute('CREATE TABLE peProblems (problem TEXT, title TEXT, date TEXT, answer TEXT, time TEXT, languages TEXT, tags TEXT, refs TEXT, notes TEXT)')
 
     hand = open('ProjectEuler.txt')
     count=0
@@ -26,7 +26,7 @@ def pe():
         problem = re.findall('^Problem:+([0-9]*[0-9])', line)
         if len(problem)>0:
             count+=1
-            problem=int(problem[0])
+            problem=problem[0]
             print()
             print (problem)
             title = re.findall('^Title:+(\S.*)', next(hand))
@@ -41,9 +41,9 @@ def pe():
             if len(answer)>0:
                 answer=int(answer[0])
             else: answer=0
-            time = re.findall('^Time.*:([0-9]*[0-9])', next(hand))
+            time = re.findall('^Time.*:([0-9].*[0-9])', next(hand))
             if len(time)>0:
-                time=int(time[0])
+                time=time[0]
                 print(time)
             else:
                 time=0
@@ -71,7 +71,53 @@ def pe():
             conn.commit()
     print(count)
 
+def penew():
+    problem = input('Problem number?\n')
+    title = input('Title?\n')
+    date=input('Date?\n')
+    answer=input('Answer?\n')
+    time=input('Running time?\n')
+    languages=input('Languages?\n')
+    tags=input('Tags?\n')
+    refs=input('References?\n')
+    notes=input('Notes?\n')
+    
+    
+    fields=[problem,title,date,answer,time,languages,tags,refs,notes]
+    
+    for field in fields:
+        if len(field)==0: field=''
+        print (len(field))
+        
+    
+    
+    conn = sqlite3.connect('mbhPE.sqlite3')
+    cur = conn.cursor()
+    
+    cur.execute('INSERT INTO peProblems (problem,title,date,answer,time,languages,tags,refs,notes) VALUES (?,?,?,?,?,?,?)',(problem,title,date,answer,time,languages,tags,refs,notes,))
+    conn.commit()
 
+def petags(term):
+    conn = sqlite3.connect('mbhPE.sqlite3')
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM peProblems WHERE tags LIKE ?',('%'+term+'%',))
+    cur.execute('SELECT * FROM peProblems WHERE tags LIKE ?',(term,))
+    for row in cur:
+        print(row)
+        print(row[0],row[1],row[6])
+    cur.close()
+
+def petime(value,gt=True):
+    conn = sqlite3.connect('mbhPE.sqlite3')
+    cur = conn.cursor()
+    if gt:
+        cur.execute('SELECT * FROM peProblems WHERE time >= ?',(value,))
+    else:
+        cur.execute('SELECT * FROM peProblems WHERE time < ?',(value,))
+    for row in cur:
+        print(row[0],row[4],row[1])
+    cur.close()
+    
 
 def db():
     conn = sqlite3.connect('mbhPE.sqlite3')

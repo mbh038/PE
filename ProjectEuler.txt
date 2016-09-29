@@ -16,8 +16,8 @@ Problem:13
 Title:Large sum
 Date:Fri, 17 Jun 2016, 06:51
 Answer:5537376230
-Time (ms):
-Languages:Python
+Time (ms):0.5
+Languages:Python,Matlab
 Tags:big numbers;addition
 References:
 Notes:
@@ -92,6 +92,16 @@ Languages:Python
 Tags:graph,path,Dijkstra,virtual node
 References:
 Notes:Same code for 81,83.
+
+Problem:94
+Title:Almost equilateral triangles
+Date:Sun, 21 Aug 2016, 08:00
+Answer:518408346
+Time (ms):1.3
+Languages:Python
+Tags:pythagorean triples
+References:http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/contactron.html
+Notes:
 
 Problem:95
 Title:Amicable chains

@@ -49,19 +49,21 @@ def p2(n,memo={}):
         memo[n]=result
         return result
             
-def PE_0078(ll,ul,divisor):
+def p78(ll,ul,divisor):
+    start=timer()
     for n in range(ll+4,ul+4,5):
         a=p2(n)
         if a%divisor==0:
             print (n,a)
             break
+    print('Elapsed time:',timer()-start)
             
 #Hardy-Ramanujan asymptotic formula
 from math import sqrt,exp,pi
 def p3as(n):
     return (1/(4*n*sqrt(3)))*exp(pi*sqrt(2*n/3))
     
-    def pl():
+def pl():
     for n in range (1,50):
         print (n,p1(n))            
 

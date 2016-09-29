@@ -12,6 +12,7 @@ Created on Thu Jun 30 04:48:10 2016
 """
 from timeit import default_timer as timer
 import itertools
+
 def p38(n):
     start = timer()
     prodmax=-1    
@@ -38,3 +39,11 @@ def p38(n):
 #   print (i)
    
     
+def psycho():
+    start=timer()
+    e = []
+    for i in range(9234,9387):
+        b = str(i)+str(i*2)
+        if len(set(b))==9 and '0' not in b: e.append(b)
+    print (max(e))
+    print('Elapsed time:',timer()-start)

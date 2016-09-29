@@ -56,8 +56,11 @@ def bf2(n):
     print('Elapsed time: ',timer()-start,'s')
     
     
-#10x quicker
-def bf3(n):
+#1 about 4 ms
+def p91(n):
+    """gives number of right angle triangles that can be formed in an nxn grid"""
+    
+    start=timer()
 
     count=0    
     for x1 in range(1,n+1):
@@ -74,6 +77,7 @@ def bf3(n):
     count+=3*n**2
     
     print('Count: ',count)
+    print('Elapsed time: ',timer()-start,'s')
 
 def gcd(a, b):
     r = a % b
@@ -81,4 +85,26 @@ def gcd(a, b):
         a = b
         b = r
         r = a % b
-    return b    
+    return b  
+    
+import itertools as it
+#slow brute force by user archeuclid. But elegant code...11s
+def check(x, y, z):
+    ls = sorted([eucliddistsqr(x, y), eucliddistsqr(y, z), eucliddistsqr(z, x)])
+    return ls[2] == ls[0] + ls[1]
+
+
+def eucliddistsqr(x, y):
+    return (y[0] - x[0])**2 + (y[1] - x[1])**2
+
+def archeuclid():
+    start=timer()
+    POINTS = it.product(range(0, 51), repeat=2)
+    next(POINTS)
+    TRIPLES = it.combinations(POINTS, 2)
+    res = 0
+    for x, y in TRIPLES:
+        if check(x, y, (0,0)):
+            res += 1
+    print(res)
+    print('Elapsed time: ',timer()-start,'s')

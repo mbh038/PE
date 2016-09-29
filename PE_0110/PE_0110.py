@@ -33,7 +33,7 @@ def dr(m):
         for pmax in range(1,4):
             powers=pfpowers(primes[:i],pmax)
             for a in powers:
-                if listprod([2*a[x]+1 for x in range(i)])>2*m-1:
+                if np.array([2*a[x]+1 for x in range(i)]).prod()>2*m-1:
                         csol=myprod(primes[:i],a)
                         if csol<minsol:
                             minsol=csol
@@ -131,6 +131,23 @@ def primesfrom2to(n):
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
     
+def test2(n):
+    a=[1,2,3,4,5,6,7,8,9]
+    b=[3]*1000
+    start=timer()
+    for i in range(n):
+        np.prod(b)
+    print('Elapsed time',timer()-start)
+    start=timer()
+    for i in range(n):
+        listprod(b)
+    print('Elapsed time',timer()-start)
+    start=timer()
+    for i in range(n):
+        np.array(b).prod()
+    print('Elapsed time',timer()-start)
+
+
 ##############
 #code from Sandamnit
 def Sandamnit():

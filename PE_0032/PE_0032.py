@@ -13,11 +13,12 @@ Created on Tue Jun 28 09:24:17 2016
 
 @author: Mike
 """
-def main():
-    import time
-    start_time = time.time()
     
-    from itertools import permutations
+from itertools import permutations
+from time import time
+
+def p32():
+    t0=time()
     digits='123456789'
     sums=set()
     
@@ -60,14 +61,35 @@ def main():
                         sums.add(product)
     #                print multiplicand,multiplier,product
     
-    print count,sums          
-    print sum(sums)
+#    print (count,sums)          
+    print (sum(sums))
     
-    print("--- %s seconds ---" % (time.time() - start_time))
-
-main()
+    print('Elapsed time:',time()-t0)
 
 
+#from FJ_Sevilla
+def prob32():
+    res=set()
+    for n in range(2,99):
+        sn = str(n)
+        for dig in sn:
+            if dig=='0' or sn.count(dig)!=1: break
+        else:
+            for m in range(1234//n,9876//n+1):
+                    r=n*m
+                    st=sn+str(m)+str(r)
+                    if len(st)==9:
+                        for dig in st:
+                            if dig=='0' or st.count(dig)!=1: break
+                        else: res.add(r)
+    print ('Sol:',sum(res))
+
+#if __name__=='__main__':
+def FJSevilla():
+    t0=time()
+    prob32()
+    print('Elapsed time:',time()-t0)
+#    input()
 
 
 def alligator():
@@ -96,7 +118,7 @@ def alligator():
                                     set_of_products.add(z)
                                     product_sum = product_sum + z
     
-    print "The sum of the pandigital products is: ", product_sum
+    print ("The sum of the pandigital products is: ", product_sum)
     print("--- %s seconds ---" % (time.time() - start_time))
     
 #alligator()
@@ -115,6 +137,5 @@ def tzaman():
         for j in range(123,988):
             if pan(str(i)+str(j)+str(i*j)): prod.add(i*j)
     
-    print sum(prod)
+    print (sum(prod))
     print("--- %s seconds ---" % (time.time() - start_time))
-tzaman()
