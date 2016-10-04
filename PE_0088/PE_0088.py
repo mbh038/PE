@@ -36,18 +36,80 @@ import itertools as it
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 
+#chain = it.chain.from_iterable([[1,2],[3],[5,89],[],[6]])
+#print(list(chain))
+
+import re
+def readsp(filename='A104173full.txt'):
+    ns,az,gs=[],[],[]
+    hand = open(filename) 
+    for line in hand:
+        line = line.rstrip()
+        if len(line)>0:
+            n=re.findall('\(\s*([0-9]+)', line)
+            if len(n)>0:
+                ns.append(int(n[0]))
+                gs.append(int(re.findall('=\s*([0-9]*)\s*=', line)[0]))
+#                g=int(g[0])
+                az.append([int(x) for x in re.findall('([0-9]*)\+', line)])
+#                print (ns[-1],gs[-1],az[-1])
+                
+#lengths
+    lengths={}                
+    for a in az:
+        lengths[len(a)-1]=lengths.get(len(a)-1,0)+1
+    print (lengths)
+    
+#values
+    values={}
+    for a in az:
+        for i in range(len(a)):
+            values.setdefault(i,[]).append(a[i])
+    for k,v in values.items():
+        print ('pos,#,max,min',k,len(set(v)),max(v),min(v))
+
+#gs
+    print('#gs,max,min',len(set(gs)),max(gs),min(gs))
+    print('g(',gs[1000-2],')')
+    print(len([a for a in az if a[0]>20]))
+    
+#az
+    azeros={}
+    for a in az:
+        azeros.setdefault(a[0],[]).append(a[1])
+    print ([(k,set(v)) for k,v in azeros.items() if k>20])
+    
+    return (ns,gs,az)
+
 def pgen(r,xm,memo={}):
+
     if r==1:
-        return [x for x in range(2,xm+1)]
-    if xm==2:
-        return [2]*r
+        return [[x] for x in range(2,xm+1)]
+    if xm<=2:
+        return [[2]*r]
     try:
         return memo[(r,xm)]    
     except KeyError:
-        result=[[x]+[xm] for x in pgen(r-1,xm,memo)]+[pgen(r,xm-1,memo)]
-        print(result)
-        memo=result
-        return result
+        result=[[x] +[xm] for x in pgen(r-1,xm,memo)]
+        for x in [pgen(r,xm-1,memo)]:
+            if x[-1]==2:
+                result+=[x]
+            else:
+                for y in x:
+                    result+=[y]
+        newresult=[]
+        for item in result:
+            newitem=[]
+            for element in item:
+                if type(element)==list:
+                    for x in element:
+                        newitem.append(x)
+                else:
+                    newitem.append(element)
+            newresult.append(newitem)
+        result=[x for x in newresult]
+        memo[(r,xm)]=result
+        return sorted(result)
 
    
 import sys
@@ -64,12 +126,7 @@ def p2(n,memo={}):
         result=sum([(-1)**(k-1)*(p2(n-k*(3*k-1)//2,memo)+p2(n-k*(3*k+1)//2,memo) ) for k in range(1,int(np.sqrt(n))+1)])
         memo[n]=result
         return result
-        
-from itertools import chain, combinations
-S={1,2,3,4}
-def mpS():
-    """find all the subsets of S"""
-    return list(chain(*(list(combinations(S, n)) for n in range(1, len(S)+1))))
+    
     
 #see alexis on Stack Exchange May 8 2015
 def partition(collection):
@@ -86,14 +143,34 @@ def partition(collection):
         #put 'first' in its own subset
         yield [[first]]+smaller
     
-def test2(nmin,nmax):
-    start=timer()
-    for n in range(nmin,nmax):
-        ps4(n)
-    print('Elapsed time:',timer()-start)
+def test2(amax,rmax,n):    
+    for a in range(2,amax+1):
+        start=timer()
+        pgen(rmax,a)
+#        sortedks(a,rmax,n)
+        print('a:',a,'Elapsed time:',timer()-start)
+
+def ps6(nmax):
+    ns={}
+    for p in range(2,2*nmax):
+        az=mp(p)
+        for a in az:
+            s=sum(a)
+            n=p-s+len(a)
+            if n>=2 and n<=nmax:
+                try:
+                    ns[n]=min(ns[n],p)
+                except KeyError:
+                    ns[n]=p
+                    
+    print(sum(set(ns.values())))
+    return ns                
+
+
+        
 
 def mp(n):
-    """return multiplcative partitions of n"""
+    """return multiplicative partitions of n"""
 #    mps={}
     mps=[]
     pfs=prime_factors(n)
@@ -106,12 +183,7 @@ def mp(n):
 
 def test3(nmin,nmax):
     start=timer()
-#    for n in range(nmin,nmax+1):
-#        for n,p in enumerate(partition(prime_factors(n)),1):
-#            pass
-#    print(n,timer()-start)
-#    return
-     
+
     ps=set()
     nx=0
     hmax=0
@@ -124,8 +196,8 @@ def test3(nmin,nmax):
     for n in range(nmin,nmax+1):
         if n%1000==0:print(n,timer()-start)
         sp,h,a,v,p=ps4(n)
-        if a==4:
-            print(n,sp,h,a,v,p)
+        if a==3:
+            print(n,h,a,p,sp,v)
             ns.append(n)
             hs.append(h)
             sps.append(sp)
@@ -143,7 +215,7 @@ def test3(nmin,nmax):
     plt.plot(ns,az)
     
     plt.subplot(212)
-    plt.plot(ns,pz)
+    plt.plot(ns,sps)
     plt.show()
     
     print(sum(ps))
@@ -151,35 +223,98 @@ def test3(nmin,nmax):
     
     print (sum([x%10==3 for x in sps]))
     
-def ps5(n):
-    ns=set()
-    gs=set()
-    ncomplete=set(list(range(1,n+1)))
-    a=1
-    while a<=n:
-        a+=1
-        print (a,len(ns))
-        rmax=int(1+(np.log(n)-np.log(a))//np.log(2))
-        for r in range(1,rmax+1):
-            for ks in it.combinations_with_replacement(list(range(a+1,1,-1)),r):
-                p=listprod(ks)
-                s=sum(ks)
-                newn=(a*(p-1)-s+r+1)
-                if newn<=n and newn not in ns:
-                    ns.add(newn)
-                    gs.add(a*p)
-                    if len(ns)==n-1:
-                        break
+from operator import itemgetter
+def sortedks(a,rmax,n):
+    ks=[]
+    for r in range(1,rmax+1):
+        for k in pgen(r,a):
+            if a*listprod(k)<=2*n:
+                ks.append(k)
+    ranks=[]
+#    ks=ks[::-1]
+    ranks=sorted([(i,listprod(ks[i])) for i in range(len(ks))],key=itemgetter(1))
+    i=0
+    rks=[]
+    for i in range(len(ranks)):
+        rks.append(ks[ranks[i][0]])
+    return rks
 
-    print(len(ns))
-    print(gs)
-    print(ncomplete)
-    print (sum(gs))
-                
-        
-
-
+#solved with arguments(20,7,12000)
+def ps5(amax,rmax,nmax):
+    ns={}    
+    for a in range(2,amax+1):
+        ks=sortedks(a,rmax,nmax)
+        for k in ks:
+            p=listprod(k)
+            s=sum(k)
+            r=len(k)
+            g=a*p
+            newn=(a*(p-1)-s+r+1)
+            if newn>nmax:
+                continue
+            try:
+                ns[newn]=min(ns[newn],g)
+            except KeyError:
+                ns[newn]=g
+#            print(newn,a,k,s,p,g)
+#    print(ns)
     
+        for k in ks:
+            for biga in range(k[-1],1000):
+                for twos in range(5):
+                    kx=k+[2]*twos
+                    p=listprod(kx)
+                    s=sum(kx)
+                    r=len(kx)
+                    g=biga*p
+                    newn=(biga*(p-1)-s+r+1)
+                    if newn>nmax:
+                        continue
+                    try:
+                        ns[newn]=min(ns[newn],g)
+                    except KeyError:
+                        ns[newn]=g
+        for k in ks:
+            for biga in range(20,110):
+                for k0 in range(20,biga+1):
+                    kx=k+[k0]
+#                    if k0==32 and biga==37:
+#                        print('a,k',biga,kx)
+                    p=listprod(kx)
+                    s=sum(kx)
+                    r=len(kx)
+                    g=biga*p
+                    if g>2*nmax:
+                        continue
+                    newn=(biga*(p-1)-s+r+1)
+    #                if newn==2300:
+    #                    print (newn,biga,k)
+                    if newn>nmax:
+                        continue
+                    try:
+                        ns[newn]=min(ns[newn],g)
+                    except KeyError:
+                        ns[newn]=g
+                    #            print(newn,a,k,s,p,g)
+#    print(ns)
+                    
+    for a in range(amax+1,2000):
+        for k in range(2,a+1):
+            p=k
+            s=k
+            r=1
+            g=a*k
+            newn=(a*(p-1)-s+r+1)
+            if newn>nmax:
+                continue
+            try:
+                ns[newn]=min(ns[newn],g)
+            except KeyError:
+                ns[newn]=g
+    print(sum(set(ns.values())))
+    return ns
+    
+
 def ps4(n):
     okts=[]
     if n in [2, 3, 4, 6, 24, 114, 174, 444]:
@@ -244,20 +379,6 @@ def ps4(n):
 #    print(okts)
     return best[5],best[6],best[0],best[4],best[3]
 #    return min([x[5] for x in okts]),h
-
-def psnmin2(a,b,c,m):
-    """returns n,product-sum number for given m,""" 
-    return (a*b*c**(m-2)-(a+b)-c*(m-2)+m,c**(m-2)*a*b,[c]*(m-2)+[a,b])
-
-def n2(a,b,c,nmax):
-    m=2
-    n=m+a*b*c**(m-2)-(a+b+c*(m-2))
-    yield (n)
-    while n<nmax:
-        m+=1
-        n+=(c-1)*(a*b*c**(m-3)-1)
-        yield n
-    return
     
 def psnmin3(nmax):
     psns={}
@@ -283,9 +404,6 @@ def psnmin3(nmax):
                     if p<psns[newn]:
                         psns[newn]=p
                 
-                
-                
-            
     for x in range(2,1201):
         if x in psns:
             count+=1
