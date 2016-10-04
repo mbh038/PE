@@ -40,6 +40,24 @@ from timeit import default_timer as timer
 #print(list(chain))
 
 import re
+
+def whatisgfor(nmax):
+    ns,az,gs=[],[],[]
+    hand = open('A104173full.txt') 
+    for line in hand:
+        line = line.rstrip()
+        if len(line)>0:
+            n=re.findall('\(\s*([0-9]+)', line)
+            if len(n)>0:
+                ns.append(int(n[0]))
+                gs.append(int(re.findall('=\s*([0-9]*)\s*=', line)[0]))
+#                g=int(g[0])
+                az.append([int(x) for x in re.findall('([0-9]*)\+', line)])
+#                print (ns[-1],gs[-1],az[-1])
+    ng=[(ns[i],gs[i]) for i in range(len(ns))]
+    print(sum(set([x[1] for x in ng if x[0]<=nmax])))
+    
+                
 def readsp(filename='A104173full.txt'):
     ns,az,gs=[],[],[]
     hand = open(filename) 
@@ -151,24 +169,27 @@ def test2(amax,rmax,n):
         print('a:',a,'Elapsed time:',timer()-start)
 
 def ps6(nmax):
+    start=timer()
     ns={}
-    for p in range(2,2*nmax):
+    sns=set()
+    for p in range (2,2*nmax+1):
         az=mp(p)
-        for a in az:
-            s=sum(a)
-            n=p-s+len(a)
-            if n>=2 and n<=nmax:
-                try:
-                    ns[n]=min(ns[n],p)
-                except KeyError:
-                    ns[n]=p
-                    
+        ts=[(p,sum(x)-len(x)) for x in az]
+        for t in ts:
+            sns.add(t)
+    print('Elapsed time:',timer()-start)
+    return                 
+    for sn in sns:
+        p,sm=sn[0],sn[1]
+        n=p-sm
+        if n>=2 and n<=nmax:
+            try:
+                ns[n]=min(ns[n],p)
+            except KeyError:
+                ns[n]=p              
     print(sum(set(ns.values())))
-    return ns                
-
-
-        
-
+#    return ns                
+      
 def mp(n):
     """return multiplicative partitions of n"""
 #    mps={}
@@ -179,7 +200,16 @@ def mp(n):
         mps.append(tuple([listprod(x) for x in p]))
     mps=list(set(mps))
     return mps
-           
+
+def dmps(nmax):
+    sns=set()
+    for p in range (2,2*nmax+1):
+        az=mp(p)
+        ts=[(p,sum(x)-len(x)) for x in az]
+        for t in ts:
+            sns.add(t)
+    return sns
+              
 
 def test3(nmin,nmax):
     start=timer()
@@ -256,9 +286,6 @@ def ps5(amax,rmax,nmax):
                 ns[newn]=min(ns[newn],g)
             except KeyError:
                 ns[newn]=g
-#            print(newn,a,k,s,p,g)
-#    print(ns)
-    
         for k in ks:
             for biga in range(k[-1],1000):
                 for twos in range(5):
@@ -278,8 +305,6 @@ def ps5(amax,rmax,nmax):
             for biga in range(20,110):
                 for k0 in range(20,biga+1):
                     kx=k+[k0]
-#                    if k0==32 and biga==37:
-#                        print('a,k',biga,kx)
                     p=listprod(kx)
                     s=sum(kx)
                     r=len(kx)
@@ -287,16 +312,12 @@ def ps5(amax,rmax,nmax):
                     if g>2*nmax:
                         continue
                     newn=(biga*(p-1)-s+r+1)
-    #                if newn==2300:
-    #                    print (newn,biga,k)
                     if newn>nmax:
                         continue
                     try:
                         ns[newn]=min(ns[newn],g)
                     except KeyError:
                         ns[newn]=g
-                    #            print(newn,a,k,s,p,g)
-#    print(ns)
                     
     for a in range(amax+1,2000):
         for k in range(2,a+1):
