@@ -17,6 +17,7 @@ Created on Tue Jun 28 09:24:17 2016
 from itertools import permutations
 from time import time
 
+#33 ms
 def p32():
     t0=time()
     digits='123456789'
@@ -67,8 +68,9 @@ def p32():
     print('Elapsed time:',time()-t0)
 
 
-#from FJ_Sevilla
+#from FJ_Sevilla 34 ms
 def prob32():
+    t0=time()
     res=set()
     for n in range(2,99):
         sn = str(n)
@@ -83,6 +85,7 @@ def prob32():
                             if dig=='0' or st.count(dig)!=1: break
                         else: res.add(r)
     print ('Sol:',sum(res))
+    print('Elapsed time:',time()-t0)
 
 #if __name__=='__main__':
 def FJSevilla():
@@ -91,7 +94,7 @@ def FJSevilla():
     print('Elapsed time:',time()-t0)
 #    input()
 
-
+1.7s
 def alligator():
 
     import time
@@ -125,6 +128,7 @@ def alligator():
     
 def pan(n): return len(n)==9 and "123456789".strip(n)==""
 
+# 160 ms
 def tzaman():
     import time
     start_time = time.time()

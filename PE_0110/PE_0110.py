@@ -78,7 +78,7 @@ def myprod(primes,exponents):
         p*=pfs[i]
     return p
     
-#avoids overlow problems of np.prod for large numbers, and is faster than 
+#avoids overflow problems of np.prod for large numbers, and is faster than 
 # reduce(mul,list,1)
 def listprod(numbers):
     p=1

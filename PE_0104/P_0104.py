@@ -11,67 +11,50 @@ Created on Mon Sep 26 15:50:18 2016
 
 @author: mbh
 """
-from timeit import default_timer as timer
+import time
+import numpy as np
 
-def Fib(n, memo = {}):
-    """Assumes n is an int >= 0, memo used only by recursive calls
-       Returns Fibonacci of n"""
-    if n == 1 or n == 2:
-        return 1
-    try:
-        return memo[n]
-    except KeyError:
-        result = Fib(n-1, memo) + Fib(n-2, memo)
-        memo[n] = result
-        return result
-        
 def p104():
-    k=1
+    t=time.clock()
     digits=set('123456789')
-    ks=[]
-    kf=[]
-    while 1:
-        k+=1
-        f=fib(k)
-        sf=str(f)
-#        print(k,len(sf))
-        if len(sf)<9:
+    n=0
+    last,b=0,1 
+    logphi=np.log10((1+np.sqrt(5))/2)
+    logroot5=0.5*np.log10(5)
+    while 1:       
+        n+=1
+        last,b=(last+b)%1000000000,last
+        if last%9 !=0:
             continue
-        if set(''.join((sf[0:9])))==digits and set(''.join((sf[-9:])))==digits:
+        if set(str(last))==digits:
+            c=10**((n*logphi-logroot5)%1)
+            first=str(c)[0]+str(c)[2:11]
+            if set(first)==digits:
+                break
+    print(n,time.clock()-t)
+   
+#from aolea
+def F():
+    a,b = 0,1
+    yield a
+    yield b
+    while True:
+        a, b = b, a + b
+        yield b
+
+def aolea():
+    t=time.clock()
+    n = 0
+    target = ['1','2','3','4','5','6','7','8','9']
+    
+    for i in F():
+        a = list(str(i))
+        a1 = a[:9]
+        a2 = a[-9:]
+        a1 = sorted(a1)
+        a2 = sorted(a2)
+#        print(n,a1,a2,len(a))
+        if a1 == target and a2 == target:
+            print(n,a1,a2,time.clock()-t)
             break
-#            ks.append(k)
-#        if ''.join(sorted(sf[-9:])) ==digits:
-#            kf.append(k)
-#            print (k,f)
-#    print (ks)
-#    print (kf)
-    print (k)
-        
- 
-## Example 5: Using memoization as decorator
-class Memoize:
-    def __init__(self, fn):
-        self.fn = fn
-        self.memo = {}
-    def __call__(self, arg):
-        if arg not in self.memo:
-            self.memo[arg] = self.fn(arg)
-            return self.memo[arg]
-
-@Memoize
-def fib(n):
-     a,b = 1,1
-     for i in range(n-1):
-          a,b = b,a+b
-     return a
-     
-
-def test(n):
-    start=timer()
-    for i in range(n):
-        Fib(234)
-    print('Elapsed time',timer()-start)
-    start=timer()
-    for i in range(n):
-        fib(234)
-    print('Elapsed time',timer()-start)     
+        n = n + 1

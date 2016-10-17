@@ -28,7 +28,7 @@ Created on Thu Jul 07 15:26:07 2016
 
 @author: Mike
 """
-from timeit import default_timer as timer
+import time
 
 # not required
 def cpell(n,memo={}):
@@ -57,13 +57,13 @@ def pell(n,memo={}):
         memo[n]=result
         return result
         
-def root2(n):
-    start=timer()
+def p57(n=1000):
+    start=time.clock()
     count=0
     for i in range(1,n+2):
         num=pell(i-1)+pell(i)
         den=pell(i)
         if(len(str(num)))>(len(str(den))): count+=1
     print (count)
-    print ('Elapsed time: ',timer()-start,'s')
+    print ('Elapsed time: ',round(1000*(time.clock()-start),3),'ms')
     

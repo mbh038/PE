@@ -11,7 +11,7 @@ Created on Mon Sep 19 13:35:35 2016
 import re
 import sqlite3
 
-def penew():
+def penew1():
     conn = sqlite3.connect('mbhPE.sqlite3')
     cur = conn.cursor()
     cur.execute('DROP TABLE IF EXISTS peProblems ')
@@ -97,14 +97,26 @@ def penew():
     cur.execute('INSERT INTO peProblems (problem,title,date,answer,time,languages,tags,refs,notes) VALUES (?,?,?,?,?,?,?)',(problem,title,date,answer,time,languages,tags,refs,notes,))
     conn.commit()
 
+def pethere(number):
+    number=str(number)
+    conn = sqlite3.connect('mbhPE.sqlite3')
+    cur = conn.cursor()
+    cur.execute('select count(*) from peProblems where problem = ?',(number,))
+    for row in cur:
+        if row[0]==0:
+            print ('Not in database')
+        else:
+            print('Already in database')
+    cur.close()
+    
 def petags(term):
     conn = sqlite3.connect('mbhPE.sqlite3')
     cur = conn.cursor()
     cur.execute('SELECT * FROM peProblems WHERE tags LIKE ?',('%'+term+'%',))
-    cur.execute('SELECT * FROM peProblems WHERE tags LIKE ?',(term,))
+#    cur.execute('SELECT * FROM peProblems WHERE tags LIKE ?',(term,))
     for row in cur:
-        print(row)
-        print(row[0],row[1],row[6])
+#        print(row)
+        print(row[0],row[1],row[4],'ms',row[6])
     cur.close()
 
 def petime(value,gt=True):

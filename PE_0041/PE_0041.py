@@ -24,46 +24,17 @@ def isprime(n):
         return False
     if n % 3 == 0:
         return False
-
     i = 5
     w = 2
-
     while i * i <= n:
         if n % i == 0:
             return False
-
         i += w
         w = 6 - w
-
     return True
     
-def is_prime(x):
-    """Returns True if a given number is prime. False otherwise. """
-    if x<2:
-        return False
-    if x==2 or x==3:
-        return True
-    import math
-    for case in range(3,int(math.sqrt(x))+1,2):
-        if x%case==0:
-            return False
-    return True
-  
- 
-
-def primesfrom2to(n):
-    """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = np.ones(n/3 + (n%6==2), dtype=np.bool)
-    for i in range(1,int(n**0.5)/3+1):
-        if sieve[i]:
-            k=3*i+1|1
-            sieve[       k*k/3     ::2*k] = False
-            sieve[k*(k-2*(i&1)+4)/3::2*k] = False
-    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
-    
-
-def pd(dig):
-    start_time = time.time()
+def p41(dig):
+    t = time.clock()
     count=0 
     xmax=[]       
     for i in dig:
@@ -77,5 +48,5 @@ def pd(dig):
                     print ('Max pd prime is',xnum)
                     xmax.append(xnum)
                     break
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(time.clock() - t)
 

@@ -6,11 +6,10 @@ Created on Thu Jun 30 15:37:00 2016
 """
 import math
 from math import log,sqrt
-import numpy
+import numpy as np
 import time
 from itertools import permutations,islice,count 
-#Primality checkers
-##############################################################################
+
 def check6npm1(n):
     primes=[  2,   3,   5,   7,  11,  13,  17,  19,  23,  29,  31,  37,  41,
         43,  47,  53,  59,  61,  67,  71,  73,  79,  83,  89,  97, 101,
@@ -67,7 +66,9 @@ def check_is_prime1():
         w=6-w
     print ('Found ',found,' primes out of', len(primes))
 
-        
+#Tests for primality
+##############################################################################
+       
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
 # http://stackoverflow.com/users/88622/alexandru
 #See also https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11
@@ -187,19 +188,30 @@ def is_prime4(n):
     if n % 2 == 0 and n > 2: 
         return False
     return all(n % i for i in range(3, int(n**0.5) + 1, 2))
-    
-################################################################################
 
+#Primes generators    
+################################################################################
+#About 0.3 ms for n=100000
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = numpy.ones(n//3 + (n%6==2), dtype=numpy.bool)
+    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
     for i in range(1,int(n**0.5/3)+1):
         if sieve[i]:
             k=3*i+1|1
             sieve[       k*k//3   ::2*k] = False
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
-    return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]
+    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
+#mine - about 0.4 ms for n=10000
+def mysieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]    
+    
+#1slow sieve I found: 45 ms for n=100000
 def primes (n): 
     """
     Use sieve of Eratosthenes to find all the primes less than or equal to n
@@ -220,8 +232,16 @@ def primes (n):
             count+=1
             yield i
             
+#mine - about 0.4 ms for n=10000
+def mysieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
 
-        
+                
 def primesthatsumto(n):
     '''
     counts the primes less than n whose sum is less than n
@@ -242,19 +262,19 @@ def psumN(a,n):
     '''
     psum=0
     count=0
-    for p in gen_primes():
+    for p in erat2a():
         count+=1
         psum+=p        
         if count>n:
             break
-        print (count,a,p,psum,isprime(psum))
+        print (count,a,p,psum,is_prime1(psum))
         
 def psum(n):
     '''
     sums all primes less than n
     '''
     psum=0
-    for p in gen_primes():
+    for p in erat2a():
         if p>=n:
             break
         psum +=p
@@ -265,7 +285,7 @@ def howManyPrimes(n):
     counts the primes less than n
     '''
     count=0
-    for p in gen_primes():
+    for p in erat2a():
         if p>n:
             break
         count+=1
@@ -387,21 +407,22 @@ from timeit import default_timer as timer
 def test(n):
     start=timer()
     for i in range(n):
-        is_prime1(i)
-    print ('Elasped time for 1: ',timer()-start)
+        mysieve(100000)
+    print ('Elapsed time for mysieve: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
-#        is_prime2(i)
-#    print 'Elasped time for 2: ',timer()-start
+#        [x for x in primes(100000)]
+#    print ('Elapsed time for primes: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime3(i)
-#    print 'Elasped time for 3: ',timer()-start
+#    print ('Elapsed time for 3: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime4(i)
-#    print 'Elasped time for 4: ',timer()-start  
+#    print ('Elapsed time for 4: ',timer()-start ) 
     start=timer()
-    primesfrom2to(n)
-    print ('Elasped time for primesfrom2to: ',timer()-start )
+    for i in range(n):
+        primesfrom2to(100000)
+    print ('Elapsed time for primesfrom2to: ',timer()-start )
         

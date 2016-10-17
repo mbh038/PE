@@ -13,6 +13,7 @@ Created on Wed Jun 22 14:27:43 2016
 @author: michael.hunt
 """
 from timeit import default_timer as timer
+import time
 
 #Guttag p 254
 def fastFib(n, memo = {}):

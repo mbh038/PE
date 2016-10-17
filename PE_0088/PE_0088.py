@@ -32,6 +32,7 @@ Created on Fri Sep  2 04:06:27 2016
 @author: mbh
 """
 import numpy as np
+import sympy as sp
 import itertools as it
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
@@ -42,6 +43,7 @@ from timeit import default_timer as timer
 import re
 
 def whatisgfor(nmax):
+    """find g, given n, from Louis Marmets file of solutions for n<10000"""
     ns,az,gs=[],[],[]
     hand = open('A104173full.txt') 
     for line in hand:
@@ -59,6 +61,7 @@ def whatisgfor(nmax):
     
                 
 def readsp(filename='A104173full.txt'):
+    "read and investigate Louis Marmet's file of solutions for n<100000"""
     ns,az,gs=[],[],[]
     hand = open(filename) 
     for line in hand:
@@ -99,8 +102,84 @@ def readsp(filename='A104173full.txt'):
     
     return (ns,gs,az)
 
+#solved with arguments(20,7,12000) - but takes 430 s!
+def p88(amax,rmax,nmax):
+    start=timer()
+    count=0
+    ns={}    
+    for a in range(2,amax+1):
+        ks=sortedks(a,rmax,nmax)
+        for k in ks:
+            p=listprod(k)
+            s=sum(k)
+            r=len(k)
+            g=a*p
+            newn=(a*(p-1)-s+r+1)
+            if newn>nmax:
+                count+=1
+                continue
+            try:
+                ns[newn]=min(ns[newn],g)
+            except KeyError:
+                ns[newn]=g
+        for k in ks:
+            for biga in range(k[-1],1000):
+                for twos in range(5):
+                    kx=k+[2]*twos
+                    p=listprod(kx)
+                    s=sum(kx)
+                    r=len(kx)
+                    g=biga*p
+                    newn=(biga*(p-1)-s+r+1)
+                    if newn>nmax:
+                        count+=1
+                        continue
+                    try:
+                        ns[newn]=min(ns[newn],g)
+                    except KeyError:
+                        ns[newn]=g
+        for k in ks:
+            for biga in range(20,110):
+                for k0 in range(20,biga+1):
+                    kx=k+[k0]
+                    p=listprod(kx)
+                    s=sum(kx)
+                    r=len(kx)
+                    g=biga*p
+                    if g>2*nmax:
+                        continue
+                    newn=(biga*(p-1)-s+r+1)
+                    if newn>nmax:
+                        count+=1
+                        continue
+                    try:
+                        ns[newn]=min(ns[newn],g)
+                    except KeyError:
+                        ns[newn]=g
+                    
+    for a in range(amax+1,2000):
+        for k in range(2,a+1):
+            p=k
+            s=k
+            r=1
+            g=a*k
+            newn=(a*(p-1)-s+r+1)
+            if newn>nmax:
+                count+=1
+                continue
+            try:
+                ns[newn]=min(ns[newn],g)
+            except KeyError:
+                ns[newn]=g
+    print(sum(set(ns.values())))
+    print (len(ns),count)
+    print('a:',a,'Elapsed time:',timer()-start)
+    
 def pgen(r,xm,memo={}):
-
+    """
+    returns list of all possible multiplicative factors up x0....xr-1 for
+    2<=xi<=xm
+    """
     if r==1:
         return [[x] for x in range(2,xm+1)]
     if xm<=2:
@@ -127,9 +206,32 @@ def pgen(r,xm,memo={}):
             newresult.append(newitem)
         result=[x for x in newresult]
         memo[(r,xm)]=result
-        return sorted(result)
+        return result
+#        return sorted(result)
 
-   
+from operator import itemgetter
+def sortedks(a,rmax,n):
+    """returns list [2]....[a]*rmax"""
+    ks=[]
+    for r in range(1,rmax+1):
+        for k in pgen(r,a):
+            if a*listprod(k)<=2*n:
+                ks.append(k)
+    ranks=[]
+    ranks=sorted([(i,listprod(ks[i])) for i in range(len(ks))],key=itemgetter(1))
+    i=0
+    rks=[]
+    for i in range(len(ranks)):
+        rks.append(ks[ranks[i][0]])
+    return rks
+    
+def listprod(numbers):
+    """returns product of a list of numbers"""
+    p=1
+    for i in range(len(numbers)):
+        p*=numbers[i]
+    return p
+    
 import sys
 sys.setrecursionlimit(1000000)
 def p2(n,memo={}):
@@ -144,6 +246,32 @@ def p2(n,memo={}):
         result=sum([(-1)**(k-1)*(p2(n-k*(3*k-1)//2,memo)+p2(n-k*(3*k+1)//2,memo) ) for k in range(1,int(np.sqrt(n))+1)])
         memo[n]=result
         return result
+    
+ 
+def mypartition(n):
+    """return multiplicative partitions of n"""
+    mps=[]
+    pfs=prime_factors(n)
+    mp[0]=pfs
+    
+def mps(pfs):
+    if len(pfs)==1:
+        result=pfs
+        print (result)
+        return result
+    if len(pfs)==2:
+        result = [[listprod(pfs)],pfs]
+        print (result)
+        return result
+    npfs=pfs[1:]
+#    print (npfs)
+    result=[[[pfs[0]*x[i]]+x[j] for i in range(len(x)) for j in range(len(x)) if j!=i] for x in mps(pfs[1:])]
+    
+    print (result)
+    return result
+    
+    
+    
     
     
 #see alexis on Stack Exchange May 8 2015
@@ -161,24 +289,31 @@ def partition(collection):
         #put 'first' in its own subset
         yield [[first]]+smaller
     
-def test2(amax,rmax,n):    
-    for a in range(2,amax+1):
-        start=timer()
-        pgen(rmax,a)
-#        sortedks(a,rmax,n)
-        print('a:',a,'Elapsed time:',timer()-start)
-
-def ps6(nmax):
+import sympy as sp
+def test2(n):
+    start=timer()    
+    for a in range(2,n):        
+        divisors(n)
+    print('a:',a,'Elapsed time:',timer()-start)
     start=timer()
+    for a in range(2,n):
+        sp.divisors(n)
+    print('a:',a,'Elapsed time:',timer()-start)
+
+
+#using multiplicative factors. Using def UniqueFactors() from lalitp
+import primehelp as ph
+import time
+def ps6(nmax):
+    start=time.clock()
     ns={}
     sns=set()
+    primes =ph.PrimeList(nmax)
     for p in range (2,2*nmax+1):
-        az=mp(p)
+        az=[x for x in ph.factorizations(p,primes)]
         ts=[(p,sum(x)-len(x)) for x in az]
         for t in ts:
-            sns.add(t)
-    print('Elapsed time:',timer()-start)
-    return                 
+            sns.add(t)               
     for sn in sns:
         p,sm=sn[0],sn[1]
         n=p-sm
@@ -187,8 +322,9 @@ def ps6(nmax):
                 ns[n]=min(ns[n],p)
             except KeyError:
                 ns[n]=p              
-    print(sum(set(ns.values())))
-#    return ns                
+    print(sum(set(ns.values())),time.clock()-start)
+    
+             
       
 def mp(n):
     """return multiplicative partitions of n"""
@@ -209,133 +345,7 @@ def dmps(nmax):
         for t in ts:
             sns.add(t)
     return sns
-              
-
-def test3(nmin,nmax):
-    start=timer()
-
-    ps=set()
-    nx=0
-    hmax=0
-    hs=[]
-    ns=[]
-    sps=[]
-    ds=[]
-    az=[]
-    pz=[]
-    for n in range(nmin,nmax+1):
-        if n%1000==0:print(n,timer()-start)
-        sp,h,a,v,p=ps4(n)
-        if a==3:
-            print(n,h,a,p,sp,v)
-            ns.append(n)
-            hs.append(h)
-            sps.append(sp)
-            az.append(a)
-            pz.append(p)
-            ds.append(len(divisors(n)))
-        if h>hmax:
-            hmax=h
-            nx=n
-        ps.add(sp)
-
-#    plt.plot(ns,sps)
-    plt.figure(1)
-    plt.subplot(211)
-    plt.plot(ns,az)
-    
-    plt.subplot(212)
-    plt.plot(ns,sps)
-    plt.show()
-    
-    print(sum(ps))
-    print(nx,hmax)
-    
-    print (sum([x%10==3 for x in sps]))
-    
-from operator import itemgetter
-def sortedks(a,rmax,n):
-    ks=[]
-    for r in range(1,rmax+1):
-        for k in pgen(r,a):
-            if a*listprod(k)<=2*n:
-                ks.append(k)
-    ranks=[]
-#    ks=ks[::-1]
-    ranks=sorted([(i,listprod(ks[i])) for i in range(len(ks))],key=itemgetter(1))
-    i=0
-    rks=[]
-    for i in range(len(ranks)):
-        rks.append(ks[ranks[i][0]])
-    return rks
-
-#solved with arguments(20,7,12000)
-def ps5(amax,rmax,nmax):
-    ns={}    
-    for a in range(2,amax+1):
-        ks=sortedks(a,rmax,nmax)
-        for k in ks:
-            p=listprod(k)
-            s=sum(k)
-            r=len(k)
-            g=a*p
-            newn=(a*(p-1)-s+r+1)
-            if newn>nmax:
-                continue
-            try:
-                ns[newn]=min(ns[newn],g)
-            except KeyError:
-                ns[newn]=g
-        for k in ks:
-            for biga in range(k[-1],1000):
-                for twos in range(5):
-                    kx=k+[2]*twos
-                    p=listprod(kx)
-                    s=sum(kx)
-                    r=len(kx)
-                    g=biga*p
-                    newn=(biga*(p-1)-s+r+1)
-                    if newn>nmax:
-                        continue
-                    try:
-                        ns[newn]=min(ns[newn],g)
-                    except KeyError:
-                        ns[newn]=g
-        for k in ks:
-            for biga in range(20,110):
-                for k0 in range(20,biga+1):
-                    kx=k+[k0]
-                    p=listprod(kx)
-                    s=sum(kx)
-                    r=len(kx)
-                    g=biga*p
-                    if g>2*nmax:
-                        continue
-                    newn=(biga*(p-1)-s+r+1)
-                    if newn>nmax:
-                        continue
-                    try:
-                        ns[newn]=min(ns[newn],g)
-                    except KeyError:
-                        ns[newn]=g
-                    
-    for a in range(amax+1,2000):
-        for k in range(2,a+1):
-            p=k
-            s=k
-            r=1
-            g=a*k
-            newn=(a*(p-1)-s+r+1)
-            if newn>nmax:
-                continue
-            try:
-                ns[newn]=min(ns[newn],g)
-            except KeyError:
-                ns[newn]=g
-    print(sum(set(ns.values())))
-    return ns
-    
-
+                  
 def ps4(n):
     okts=[]
     if n in [2, 3, 4, 6, 24, 114, 174, 444]:
@@ -351,7 +361,7 @@ def ps4(n):
         h+=1
 #        if flag:break            
 #        print('n,h',n,h,len(okts))
-        d=divisors(n+h-1)
+        d=sp.divisors(n+h-1)
         try:
             az=[(n+h-1)//x for x in d[1:-1]]
             if min(az)>n:break
@@ -400,6 +410,48 @@ def ps4(n):
 #    print(okts)
     return best[5],best[6],best[0],best[4],best[3]
 #    return min([x[5] for x in okts]),h
+
+def test3(nmin,nmax):
+    start=timer()
+
+    ps=set()
+    nx=0
+    hmax=0
+    hs=[]
+    ns=[]
+    sps=[]
+    ds=[]
+    az=[]
+    pz=[]
+    for n in range(nmin,nmax+1):
+        if n%1000==0:print(n,timer()-start)
+        sp,h,a,v,p=ps4(n)
+        if a==3:
+            print(n,h,a,p,sp,v)
+            ns.append(n)
+            hs.append(h)
+            sps.append(sp)
+            az.append(a)
+            pz.append(p)
+            ds.append(len(sp.divisors(n)))
+        if h>hmax:
+            hmax=h
+            nx=n
+        ps.add(sp)
+
+#    plt.plot(ns,sps)
+    plt.figure(1)
+    plt.subplot(211)
+    plt.plot(ns,az)
+    
+    plt.subplot(212)
+    plt.plot(ns,sps)
+    plt.show()
+    
+    print(sum(ps))
+    print(nx,hmax)
+    
+    print (sum([x%10==3 for x in sps]))
     
 def psnmin3(nmax):
     psns={}
@@ -432,7 +484,7 @@ def psnmin3(nmax):
     return psns
     
                     
-def p88(nmax):
+def p88old(nmax):
     """returns minmal sum-product numbers up to n digits"""
     start=timer()
 #    pset=set()
@@ -484,7 +536,7 @@ def psnmin(n,primes=[]):
         solution=[2,n]
         
     if n-1 not in primes:
-        abcands=[x+1 for x in divisors(n-1)[1:-1]]
+        abcands=[x+1 for x in sp.divisors(n-1)[1:-1]]
         nf=len(abcands)
         if nf%2==1: 
             abcands=sorted(abcands+[abcands[(nf-1)//2]])                
@@ -554,13 +606,7 @@ def divisors(n):
                     
 def ndig(n):
     return int(1+np.log(n)/np.log(2))
-                    
-def listprod(numbers):
-    p=1
-    for i in range(len(numbers)):
-        p*=numbers[i]
-    return p
-    
+                        
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     #Code by Robert William Hanks
@@ -573,22 +619,22 @@ def primesfrom2to(n):
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
-def prime_factors(n):
-    '''
-    returns the prime factors of n
-    '''
-    
-    i = 2
-    factors = []
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors.append(i)
-    if n > 1:
-        factors.append(n)
-    return factors
+#def prime_factors(n):
+#    '''
+#    returns the prime factors of n
+#    '''
+#    
+#    i = 2
+#    factors = []
+#    while i * i <= n:
+#        if n % i:
+#            i += 1
+#        else:
+#            n //= i
+#            factors.append(i)
+#    if n > 1:
+#        factors.append(n)
+#    return factors
     
 def gcd(a, b):
     r = a % b
@@ -620,3 +666,77 @@ def is_prime1(n):
         w = 6 - w
 
     return True
+
+#from nanogyth - creating factors instead of factorising : 160 ms
+import time
+def find_total_sum_prod(MAX):
+    t=time.clock()
+    def update_list(s=0,p=1,factors=0,start=2,sp_list=[2*MAX]*MAX):
+        terms = p - s + factors
+        if terms < MAX and sp_list[terms] > p:
+            sp_list[terms] = p
+        stop = 2*MAX if p == 1 else (MAX+s)//(p-1)
+        for n in range(start,stop+1):
+            update_list(s+n, p*n, factors+1, n)
+        return sp_list
+
+    print( sum(set(update_list()[2:])),time.clock()-t)
+
+#from under-score - similar to Marcus Stuhr, but 25% faster. - 240 ms
+import time
+def recurse(p, s, n, start):
+    k = n + p - s
+    if k > kmax: return
+    if p < N[k]: N[k] = p
+    for x in range(start, 2*kmax//p+1):
+        recurse(p*x, s+x, n+1, x)
+
+t=time.clock()
+kmax = 12000
+N = [3*kmax] * (kmax+1)
+recurse(1, 0, 0, 2)
+print (sum(set(N[2:])),time.clock()-t)
+        
+            
+import itertools
+def Factors(N):
+    for f in itertools.count(2):
+        if N%f==0:
+            n=N/f
+            if n<f: break
+            yield [f,n]
+            for g in Factors(n):
+                yield [f]+g
+        else:
+            pass
+        f+=1
+    raise StopIteration
+
+def UniqueFactors(N):
+    flst=[]
+    for f in Factors(N):
+        f.sort()
+        if f in flst:
+            continue
+        else:
+            flst.append(f)
+            yield f          
+                
+#from Marcus Stuhr - abour 310 ms
+import time
+
+N = 12000
+arr = [2*N+1]*(N+1)
+
+def fillArr(depth,prodL,sumL,minElement):
+    numOnes = abs(sumL-prodL)
+    k = depth + numOnes
+    if k > N: return
+    arr[k] = min(arr[k], prodL)
+
+    for i in range(minElement, 2*N//prodL+1):
+        fillArr(depth+1,i*prodL,sumL+i,i)
+
+t = time.clock()
+fillArr(0,1,0,2)
+print (sum(set(arr[2:N+1])), time.clock()-t)
