@@ -25,4 +25,14 @@ def test (n):
         Bell(n)
     print(time.clock()-t)
 
-   
+ #code by Alexis, Stack Exchange, May 8 2015
+def partition(collection):
+    """return all partitions of a set"""
+    if len(collection) == 1:
+        yield [ collection ]
+        return
+    first = collection[0]
+    for smaller in partition(collection[1:]):
+        for n, subset in enumerate(smaller):
+            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
+        yield [ [ first ] ] + smaller  

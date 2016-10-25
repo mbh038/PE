@@ -231,17 +231,7 @@ def primes (n):
         if bools[i]==True: 
             count+=1
             yield i
-            
-#mine - about 0.4 ms for n=10000
-def mysieve(n):
-    """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
-    for i in range(2, int((n+1)**0.5+1)):
-        if sieve[i]:
-            sieve[2*i::i]=False
-    return np.nonzero(sieve)[0][2:]
-
-                
+                           
 def primesthatsumto(n):
     '''
     counts the primes less than n whose sum is less than n
