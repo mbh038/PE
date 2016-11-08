@@ -32,7 +32,7 @@ def Bell(n,memo={}):
 def p118():
     t=time.clock()
     count=0
-    prime_set=0
+    prime_sets=0
     digits=[x for x in range(1,10)]  
     primes=set(primesfrom2to(987654321))
     pdic={}
@@ -56,24 +56,21 @@ def p118():
                         if int(''.join([str(x) for x in perm])) in primes:
                             pdic[pset]+=1
                     pprime*=pdic[pset]
-            prime_set+=pprime
-    print(pdic)
-    print(prime_set)
-    print(count)
+            prime_sets+=pprime
+    print(prime_sets)
     print(time.clock()-t)
 
     
+#code by Alexis, Stack Exchange, May 8 2015
 def partition(collection):
+    """return all partitions of a set"""
     if len(collection) == 1:
         yield [ collection ]
         return
-
     first = collection[0]
     for smaller in partition(collection[1:]):
-        # insert `first` in each of the subpartition's subsets
         for n, subset in enumerate(smaller):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
-        # put `first` in its own subset 
         yield [ [ first ] ] + smaller
 
 def mysieve(n):
@@ -93,3 +90,26 @@ def primesfrom2to(n):
             sieve[       k*k//3   ::2*k] = False
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
+    
+def is_prime1(n):
+    """Returns True if n is prime."""
+    if n == 2:
+        return True
+    if n == 3:
+        return True
+    if n % 2 == 0:
+        return False
+    if n % 3 == 0:
+        return False
+
+    i = 5
+    w = 2
+
+    while i * i <= n:
+        if n % i == 0:
+            return False
+
+        i += w
+        w = 6 - w
+
+    return True

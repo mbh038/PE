@@ -22,8 +22,16 @@ Created on Sun Aug 21 09:24:43 2016
 """
 import itertools as it
 import numpy as np
-from timeit import default_timer as timer 
+import time
 
+def mysieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 
+    
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     #Code by Robert William Hanks
@@ -37,15 +45,23 @@ def primesfrom2to(n):
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
 
 def ppt(n):
+    
+    t=time.clock()
             
-    p2=[pa**2 for pa in primesfrom2to(int(n**(1/2)))]
-    p3=[pb**3 for pb in primesfrom2to(int(n**(1/3)))]
-    p4=[pc**4 for pc in primesfrom2to(int(n**(1/4)))]
+#    p2=[pa**2 for pa in primesfrom2to(int(n**(1/2)))]
+#    p3=[pb**3 for pb in primesfrom2to(int(n**(1/3)))]
+#    p4=[pc**4 for pc in primesfrom2to(int(n**(1/4)))]
+
+    p2=[pa**2 for pa in mysieve(int(n**(1/2)))]
+    p3=[pb**3 for pb in mysieve(int(n**(1/3)))]
+    p4=[pc**4 for pc in mysieve(int(n**(1/4)))]
+    
+    print(time.clock()-t)
       
 #    p234=set(pa+pb+pc for pa,pb,pc in it.product(p2,p3,p4) if pa+pb+pc<n) # also works   
 #    p234={pa+pb+pc for pc in p4 for pb in p3 if pc+pb<n for pa in p2 if pa+pb+pc<n} #also works
     p234=(set([x for x in np.add.outer(np.add.outer(p2,p3).ravel(),p4).ravel() if x<n])) #fastest
-#    print (len(p234))
+    print (len(p234),time.clock()-t)
     
 def test(n):
     start=timer()   

@@ -13,20 +13,18 @@ Created on Fri Jul 22 07:47:32 2016
 from timeit import default_timer as timer
 import math
 import numpy as np
-
-def primesfrom2to(n):
-    """ Input n>=6, Returns array of primes, 2 <= p < n """
-    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
-    for i in range(1,int(n**0.5/3)+1):
+    
+def mysieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
-            k=3*i+1|1
-            sieve[       k*k//3   ::2*k] = False
-            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
-    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 
       
 def p70(n):
     start=timer()
-    primes=set(primesfrom2to(int(math.sqrt(n)*2))).difference(set(primesfrom2to(int(math.sqrt(n)/2))))
+    primes=set(mysieve(int(math.sqrt(n)*2))).difference(set(mysieve(int(math.sqrt(n)/2))))
     minratio=10
     for p1 in primes:
         for p2 in primes.difference([p1]):

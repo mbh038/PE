@@ -39,6 +39,16 @@ def distinct_prime_factors(n):
     if n > 1:
         factors.add(n)
     return factors 
+    
+def et(n):
+    """
+    returns Euler totient (phi) of n
+    """   
+    phi=n
+    pfs=set(prime_factors(n))
+    for pf in pfs:
+        phi*=(1-1/pf)
+    return int(phi)
 
 #fastest
 def eulersigma(n):
@@ -64,6 +74,34 @@ def eulersigma3(n):
             if n//i != i:
                 factors.append(n//i)
     return sum(factors)
+
+#use this for finding mobius numbers of a large range
+def mobius(limit):
+    """returns mobius numbers for integers from 1 to limit"""    
+    P=mysieve(limit+1) # or any sieve
+    L = np.ones(limit+1).astype(int)
+    
+    for p in P:
+        L[::p]    *= -1
+        L[::p**2] *=  0 
+    return L
+
+#use this to find mobius number of a single integer
+def mu(n):
+    """returns mobius number of integer n"""
+    pfd=pfdic(n)
+    for k,v in pfd.items():
+        if v>=2:
+            return 0
+    if sum([v for k,v in pfd.items()])%2==0:
+        return 1
+    return -1
+    
+def reimannzeta(s,terms=10000):    
+    rzsum=0
+    for n in range(1,terms+1):
+        rzsum+=1/(n**s)
+    return rzsum
        
 def pfdic(n):
     '''
@@ -208,7 +246,8 @@ def divisors(n):
             f[i] = 0
             i += 1
             if i >= nfactors:
-                return divs       
+                return divs 
+                
 def test(n):
     start=timer()
     for i in range(1000):

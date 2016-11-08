@@ -14,6 +14,8 @@ Created on Wed Jul 27 13:50:30 2016
 """
 
 from timeit import default_timer as timer 
+import time
+import math
 
  #Newton-Raphson to find m = isqrt(n) - : m^2<n<(m+1)^2
 def isqrt(n): 
@@ -36,19 +38,35 @@ def srcf(n):
         a.append((a[0]+m[-1])//d[-1])
     return a 
    
-def main(n):
+def p64(n):
     """return how many integers <=n have odd-period continued fractions""" 
-    start=timer()
+    t=time.clock()
     c=0
     for i in range (1,n+1):
-        if  i%4==0 or int(sqrt(i))==sqrt(i):
+        if  i%4==0 or int(math.sqrt(i))==math.sqrt(i):
             continue
-        if (len(srcf2(i))-1)%2==1:
+        if len(sqcf(i)[1])%2==1:
             c+=1           
-    print (c)
-    print ('Elapsed time: ',round(timer()-start,3),'s')
+    print (c,time.clock()-t)
     
-
+def sqcf(S):
+    """
+    S is a natural number. Must not be a perfect square
+    
+    returns (a0,[r0,..,rn]) where a0 is the stem and [r0,...,rn] is the 
+    repeating part of the square root continued fraction of S
+    """
+    a=[int(math.sqrt(S))]    
+    d0,d=1,1
+    m=0      
+    while 1:
+        m=d*a[-1]-m
+        d=int((S-m**2)/d)
+        a.append(int((a[0]+m)/d))
+        if d==d0:
+            return (a[0],a[1:])
+            break
+        
 # find answer directly from table found on http://oeis.org/A013943/b013943.txt
 def per():
     sums=[]
@@ -65,14 +83,16 @@ def per():
     
 #return period of continued fraction of n
 # using algorthm of Wolfram mathworld
-from decimal import Decimal
-def srcf2(n): 
-    getcontext().prec = 300
-    r=[Decimal(n).sqrt()]
-    a=[floor(r[0])]    
-    count=0
-    while a[-1] != 2*a[0]:
-        count+=1
-        r.append(Decimal(1/(r[-1]-a[-1])))
-        a.append(floor(r[-1]))
-    return a
+#from decimal import * #import Decimal
+#def srcf2(n): 
+#    getcontext().prec = 300
+#    r=[Decimal(n).sqrt()]
+#    a=[int(r[0])]    
+#    count=0
+#    while a[-1] != 2*a[0]:
+#        count+=1
+#        r.append(Decimal(1/(r[-1]-a[-1])))
+#        a.append(int(r[-1]))
+#    return a
+    
+

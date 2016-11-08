@@ -6,6 +6,8 @@ Created on Sat Oct  8 07:28:20 2016
 """
 import scipy as sc
 import itertools as it
+import numpy as np
+import math
 import time
 
 def Bell(n,memo={}):
@@ -22,9 +24,13 @@ def Bell(n,memo={}):
 def test (n):    
     t=time.clock()
     for k in range(n):
-        Bell(n)
+        nCk(n,k)
+    print(time.clock()-t)  
+    t=time.clock()
+    for k in range(n):
+        sc.misc.comb(n,k)
     print(time.clock()-t)
-
+    
  #code by Alexis, Stack Exchange, May 8 2015
 def partition(collection):
     """return all partitions of a set"""
@@ -36,3 +42,16 @@ def partition(collection):
         for n, subset in enumerate(smaller):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller  
+        
+def pns(p,n,s):
+    """probability of score p from n s-sided dice"""    
+    P=0
+    for k in range((p-n)//s+1):
+        P+=((-1)**k)*nCk(n,k)*nCk(p-s*k-1,n-1)        
+    return P/s**n
+        
+def nCk(n,k):
+    """ n choose k"""
+    return int(math.factorial(n)/(math.factorial(n-k)*math.factorial(k)))
+    
+#sc.misc.comb(n,k) is faster

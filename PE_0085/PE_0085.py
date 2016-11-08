@@ -5,28 +5,28 @@ PE_0085
 
 Counting Rectangles
 
+By counting carefully it can be seen that a rectangular grid measuring 3 by 2 
+contains eighteen rectangles:
+
 Although there exists no rectangular grid that contains exactly two million
  rectangles, find the area of the grid with the nearest solution.
  
 Created on Tue Aug  9 09:32:21 2016
 @author: mbh
 """
-
-from math import sqrt
-from timeit import default_timer as timer
-
-def rctgls(rows,cols):
-    return int((rows*cols/4)*(rows+1)*(cols+1))
+import time
             
-def rctgl2(target):
+def p85(target):
+    t=time.clock()
     deltamin=None
-    for m in range(1,int(sqrt(target))):
-        for n in range(1,int(sqrt(target))):
-            delta=abs(target-rctgls(m,n))
+    sqrtt=int(target**0.5)
+    for m in range(1,sqrtt):
+        for n in range(1,sqrtt):
+            delta=abs(target-(m*n//4)*(m+1)*(n+1))
             if deltamin==None or delta<deltamin:
                 deltamin=delta
                 mmin,nmin=m,n
-    print(mmin,nmin,deltamin,mmin*nmin)
+    print(mmin,nmin,deltamin,mmin*nmin,time.clock()-t)
                 
  
 def rctgl(target):
@@ -36,7 +36,7 @@ def rctgl(target):
     deltamin=None
     
     rr=range(int(target**.5))
-    cc=range(int(target**.5))
+    c=range(int(target**.5))
     for r in rr:
             delta=abs((r/2)*(r+1)*(c/2)*(c+1)-target)           
             if deltamin==None or delta<deltamin:

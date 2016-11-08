@@ -68,7 +68,9 @@ def check_is_prime1():
 
 #Tests for primality
 ##############################################################################
-       
+#from sympy
+from sympy import isprime
+     
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
 # http://stackoverflow.com/users/88622/alexandru
 #See also https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11
@@ -203,7 +205,7 @@ def primesfrom2to(n):
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 #mine - about 0.4 ms for n=10000
-def mysieve(n):
+def primesieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
@@ -274,14 +276,18 @@ def howManyPrimes(n):
     '''
     counts the primes less than n
     '''
-    count=0
-    for p in erat2a():
-        if p>n:
-            break
-        count+=1
-    return count
+    return myprimepi(n)[-1]
     
-
+def myprimepi(limit):
+    """returns array of primepi(n) 2<=n<=limit"""
+    sieve=np.ones(limit+1,dtype=bool)
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return sum(sieve)
+#    return np.cumsum(sieve[2:])
+    
+    
 # code bystefan  http://stackoverflow.com/users/1209253/stefan
 def prime_factors(n):
     '''
@@ -397,7 +403,7 @@ from timeit import default_timer as timer
 def test(n):
     start=timer()
     for i in range(n):
-        mysieve(100000)
+        is_prime1(100000)
     print ('Elapsed time for mysieve: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
@@ -413,6 +419,6 @@ def test(n):
 #    print ('Elapsed time for 4: ',timer()-start ) 
     start=timer()
     for i in range(n):
-        primesfrom2to(100000)
+        isprime(100000)
     print ('Elapsed time for primesfrom2to: ',timer()-start )
         
