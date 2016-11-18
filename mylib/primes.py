@@ -193,7 +193,15 @@ def is_prime4(n):
 
 #Primes generators    
 ################################################################################
-#About 0.3 ms for n=100000
+def primorial(n):
+    """returns primorial numbers < n"""
+    p = erat2a()    
+    primorial=[1]
+    while primorial[-1]<n:
+        primorial.append(primorial[-1]*next(p))
+    return primorial[:-1]
+    
+    #About 0.3 ms for n=100000
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
@@ -211,7 +219,24 @@ def primesieve(n):
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
             sieve[2*i::i]=False
-    return np.nonzero(sieve)[0][2:]    
+    return np.nonzero(sieve)[0][2:] 
+
+#euler totient sieve
+def etsieve(n,primes):
+    """return array of euler totient(x) for x from 2 to n"""
+    sieve=np.array(range(n+1),dtype=float)
+    for i in primes:  
+        if sieve[i]==i:
+            sieve[i::i]*=(1-1/i)
+    return sieve.astype(int)    
+#returns
+def squarefree(limit):
+    """return array of square-free numbers p: 2<=p<=n"""
+    sf=np.ones(limit+1,dtype=bool)        
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=False
+    return np.nonzero(sf)[0][2:]
     
 #1slow sieve I found: 45 ms for n=100000
 def primes (n): 
@@ -287,13 +312,9 @@ def myprimepi(limit):
     return sum(sieve)
 #    return np.cumsum(sieve[2:])
     
-    
 # code bystefan  http://stackoverflow.com/users/1209253/stefan
 def prime_factors(n):
-    '''
-    returns the prime factors of n
-    '''
-    
+    """returns the prime factors of n"""    
     i = 2
     factors = []
     while i * i <= n:
@@ -305,6 +326,23 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
+        
+def squareFree(n):
+    """returns True if n is square-free, False if not"""    
+    i = 2
+    factors = set()
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            if i in factors:
+                return False
+            factors.add(i)
+    if n > 1:
+        if n in factors:
+            return False
+    return True
     
 #Generators
 ##########################################################################
@@ -402,9 +440,10 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
 from timeit import default_timer as timer
 def test(n):
     start=timer()
+    primes=set(primesieve(n))
     for i in range(n):
-        is_prime1(100000)
-    print ('Elapsed time for mysieve: ',timer()-start)
+        [x for x in primes if n%x==0]
+    print ('Elapsed time for pf: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        [x for x in primes(100000)]
@@ -419,6 +458,6 @@ def test(n):
 #    print ('Elapsed time for 4: ',timer()-start ) 
     start=timer()
     for i in range(n):
-        isprime(100000)
-    print ('Elapsed time for primesfrom2to: ',timer()-start )
+        prime_factors(n)
+    print ('Elapsed time for pf2: ',timer()-start )
         

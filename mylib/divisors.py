@@ -40,6 +40,7 @@ def distinct_prime_factors(n):
         factors.add(n)
     return factors 
     
+#Euler totient is number of integers m 1 <= m <=n that are coprime with n
 def et(n):
     """
     returns Euler totient (phi) of n
@@ -50,8 +51,18 @@ def et(n):
         phi*=(1-1/pf)
     return int(phi)
 
+def etsieve(n,primes):
+    """return array of euler totient(x) for x from 2 to n"""
+    sieve=np.array(range(n+1),dtype=float)
+    for i in primes:  
+        if sieve[i]==i:
+            sieve[i::i]*=(1-1/i)
+    return sieve.astype(int)
+    
+#Euler sigma is sum of divisors of n, inclusing 1 and n
 #fastest
 def eulersigma(n):
+    
     pfs=pfdic(n)
     es=1
     for p,e in pfs.items():

@@ -33,8 +33,8 @@ def p118():
     t=time.clock()
     count=0
     prime_sets=0
-    digits=[x for x in range(1,10)]  
-    primes=set(primesfrom2to(987654321))
+    digits=[x for x in range(1,4)]  
+    primes=set(primesfrom2to(321))
     pdic={}
     for n, p in enumerate(partition(digits), 1):
         pprime=1
@@ -46,6 +46,7 @@ def p118():
                 break            
         if flag:
             ps=[set(x) for x in p]
+            print(p,ps)
             for pset in ps:
                 pset=tuple(pset)
                 try:
@@ -113,3 +114,33 @@ def is_prime1(n):
         w = 6 - w
 
     return True
+    
+def getBinaryRep(n, numDigits):
+   """Assumes n and numDigits are non-negative ints
+      Returns a numDigits str that is a binary
+      representation of n"""
+   result = ''
+   while n > 0:
+      result = str(n%2) + result
+      n = n//2
+   if len(result) > numDigits:
+      raise ValueError('not enough digits')
+   for i in range(numDigits - len(result)):
+      result = '0' + result
+   return result
+
+def genPowerset(L):
+   """Assumes L is a list
+      Returns a list of lists that contains all possible
+      combinations of the elements of L.  E.g., if
+      L is [1, 2] it will return a list with elements
+      [], [1], [2], and [1,2]."""
+   powerset = []
+   for i in range(0, 2**len(L)):
+      binStr = getBinaryRep(i, len(L))
+      subset = []
+      for j in range(len(L)):
+         if binStr[j] == '1':
+            subset.append(L[j])
+      powerset.append(subset)
+   return powerset
