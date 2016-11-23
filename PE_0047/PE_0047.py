@@ -12,8 +12,47 @@ Created on Sun Jul 03 16:53:10 2016
 
 @author: Mike
 """
+
+import numpy as np
+#np.set_printoptions(threshold='nan')
+import time
 from timeit import default_timer as timer
 
+def p47(limit=200000):
+    t=time.clock()
+    pfs=np.zeros(limit+1,dtype=int)
+    for i in range(2, limit//24+1):
+        if not pfs[i]:
+            pfs[i::i]+=1
+    print(''.join(np.char.mod('%d', pfs)).find('4444'),time.clock()-t)
+
+def test2(n):
+
+    t=time.clock()
+    pfs=np.zeros(n+1,dtype=int)
+    for i in range(2, n//24+1):
+        if not pfs[i]:
+            pfs[i::i]+=1
+    L=[0]*(n+1)
+    print(time.clock()-t)
+    t=time.clock()
+    for i in range(2,n//24+1):
+        if L[i]==0:
+            for j in range(i,n+1,i): L[j]+=1
+    print(time.clock()-t)
+    t=time.clock()
+    ''.join(np.char.mod('%d', pfs))
+    print(time.clock()-t)
+    t=time.clock()
+    ''.join(np.char.mod('%d', L))
+    print(time.clock()-t)
+    t=time.clock()
+    ''.join(map(str,pfs))
+    print(time.clock()-t)    
+    t=time.clock()
+    ''.join(map(str,L))
+    print(time.clock()-t)
+    
 def cp1(n):
     start=timer()
     i,j=0,1
@@ -29,19 +68,20 @@ def cp1(n):
                 flag=True
         if flag:
             for k in range(n):
-               print i+k,prime_factors(i+k)
+               print (i+k,prime_factors(i+k))
             break
-    print 'Elapsed time: ',timer()-start
+    print ('Elapsed time: ',timer()-start)
  
 # very fast! based on Marcus Stuhr Tue, 26 Feb 2013, 16:27
-def cp3(lim=200000,n=2):
+def cp3(lim=200000,n=4):
     start=timer()
     L=[0]*(lim+1)
-    for i in xrange(2,lim/2+1):
+    for i in range(2,lim//24+1):
         if L[i]==0:
             for j in range(i,lim+1,i): L[j]+=1
-    print ''.join(map(str,L)).find(''.join(str(n)*n))
-    print 'Elapsed time: ',timer()-start
+    print ('Elapsed time: ',timer()-start)
+    print (''.join(map(str,L)).find(''.join(str(n)*n)))
+    print ('Elapsed time: ',timer()-start)
     
                   
 # code by stefan  http://stackoverflow.com/users/1209253/stefan
@@ -60,6 +100,15 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
+   
+def npfs(n):
+    """returns number of prime _factors of integers 2<=p<=n"""
+    sieve=np.zeros(n+1,dtype=int)
+    for i in range(2, n):
+        if sieve[i]==0:
+            sieve[i::i]+=1
+    return (sieve)
+#    return np.nonzero(sieve)[0][2:] 
 
 # Marcus Stuhr
 	
@@ -73,13 +122,13 @@ def prime_factors(n):
 def PE47(lim=200000,dpf=4):
     start=timer()
     L=[0]*(lim+1)
-    for i in xrange(2,lim/2+1):
+    for i in range(2,lim/2+1):
         if L[i]==0:
             for j in range(i,lim+1,i): L[j]+=1
-    print ''.join(map(str,L)).index(''.join(map(str,[dpf]*dpf)))
-    print 'Elapsed time: ',timer()-start
+    print (''.join(map(str,L)).index(''.join(map(str,[dpf]*dpf))))
+    print ('Elapsed time: ',timer()-start)
 
 def main():
     start=timer()
     PE47()
-    print 'Elapsed time: ',timer()-start
+    print ('Elapsed time: ',timer()-start)

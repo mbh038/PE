@@ -17,8 +17,8 @@ import numpy as np
 def p179(limit=100):
     t=time.clock()
     a1=np.ones(limit,dtype=int)
-    for pf in range(1,limit):
-        a1[pf::pf]+=1
+    for dv in range(1,limit):
+        a1[dv::dv]+=1
     print(sum([a1[i] == a1[i+1] for i in range(2,len(a1)-1)]))
     print (time.clock()-t)
         

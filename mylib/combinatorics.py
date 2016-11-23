@@ -58,7 +58,7 @@ def nCk(n,k):
     """ n choose k"""
     return int(math.factorial(n)/(math.factorial(n-k)*math.factorial(k)))
 
-#using recursion - much slower than the other two
+#using recursion - much slower than the other two - but works for larger numbers
 def nCk_2(n,k,memo={}):
     if n<k:
         return 0

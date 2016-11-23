@@ -12,6 +12,7 @@ Created on Sat Oct  8 07:08:50 2016
 @author: mbh
 """
 import scipy as sc
+import itertools as it
 def Bell(n,memo={}):
     """how many ways can a set of n things be partitioned"""
     if n==0 or n==1:
@@ -37,3 +38,27 @@ def p93(x='1234+-*/()'):
     print('#',len(vals),'max',max(vals))
     
  
+def bf():
+    count=0
+    for a in it.permutations([1,2,3,4,5,6,7,8,9],4):
+        
+        if sorted(a)==list(a):
+            count+=1
+            print(a)
+    print(count)
+
+def prime_factors(n):
+    '''
+    returns the prime factors of n
+    '''   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors     
