@@ -13,7 +13,7 @@ import numpy as np
 import itertools as it
 from timeit import default_timer as timer
 
-def PE_0051():
+def p51():
     
     start=timer()
     limit=1000000
