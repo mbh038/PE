@@ -10,6 +10,35 @@ import numpy as np
 import math
 import time
 
+
+    
+    
+  
+def solve(N, doprint=True,memoise={0:[""],1:["()"]}):
+    """returns all possible ways to parenthesise with N bracket pairs"""
+    if N in memoise:
+        return memoise[N]
+
+    memoise[N] = []
+
+    for i in range(1,N+1):
+        between = solve(i-1, False)
+        after   = solve(N-i, False)
+        for b in between:
+           for a in after:
+               memoise[N].append("("+b+")"+a)
+
+    if doprint:
+        for res in memoise[N]:
+            print (res)
+
+    return memoise[N]
+
+
+def C(n):
+    """returns nth catalan number"""
+    return nCk(2*n,n)//(n+1)
+    
 def Bell(n,memo={}):
     "how many ways can a set of n things be partitioned"""
     if n==0 or n==1:

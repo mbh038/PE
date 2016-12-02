@@ -191,6 +191,7 @@ def is_prime4(n):
         return False
     return all(n % i for i in range(3, int(n**0.5) + 1, 2))
 
+    
 #Primes generators    
 ################################################################################
 def primorial(n):
@@ -311,6 +312,15 @@ def myprimepi(limit):
             sieve[2*i::i]=False
     return sum(sieve)
 #    return np.cumsum(sieve[2:])
+
+#Euclid algorithm for gcd
+def gcd(a, b):
+    r = a % b
+    while r!=0:
+        a = b
+        b = r
+        r = a % b
+    return b
     
 # code bystefan  http://stackoverflow.com/users/1209253/stefan
 def prime_factors(n):
