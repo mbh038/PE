@@ -8,46 +8,29 @@ Repunit divisibility
 Created on Thu Dec  1 10:33:05 2016
 @author: mbh
 """
-import time
 import numpy as np
+import time
 
 def p129(limit):
     
     t=time.clock()
-    
-    ns=nsieve(10*limit)
-    
-    amax=-1
-    nmax=0
-    for n in ns:
-        newA=A(n)
-        if newA>limit:
-            print(n,newA)
-            break
-    print(time.clock()-t)        
+    n=limit-1
+    k=0
+    while k<=limit:
+        n+=2
+        if n%5==0:
+            continue
+        k=1
+        R=1
+        while R%n:
+            k+=1
+            R=(10*R+1)%n
+    print(n,k,time.clock()-t)
 
-
-def p130(limit):
-    
-    t=time.clock()
-    
-    ns=set(nsieve(10*limit))
-    ps=set(primesieve(10*limit))
-    
-    ncs=ns.difference(ps)
-    
-    results=[]
-    for n in ncs:
-        if not (n-1)%A(n):
-            results.append(n)
-        if len(results)==10:
-            break
-    print(results,sum(results)-1)
-    print(time.clock()-t)
-    
-    
+#not needed below here , in the end, but useful along the way      
+##############################################################    
 def R(k):
-    return 10**k//9
+    return (10**k)//9
 
 def A(n):
 #    if not gcd(n,10)==1:
@@ -68,29 +51,27 @@ def gcd(a, b):
         r = a % b
     return b
     
-def primesieve(n):
-    """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
-    for i in range(2, int((n+1)**0.5+1)):
-        if sieve[i]:
-            sieve[2*i::i]=False
-    return np.nonzero(sieve)[0][2:] 
-
-def etsieve(n,primes):
-    """return array of euler totient(x) for x from 2 to n"""
-    sieve=np.array(range(n+1),dtype=float)
-    for i in primes:  
-        if sieve[i]==i:
-            sieve[i::i]*=(1-1/i)
-    return sieve.astype(int) 
-    
+   
 def nsieve(n):
-    """return array of euler totient(x) for x from 2 to n"""
-    sieve=np.array(range(n+1),dtype=float)
-    for i in [2,5]:  
-        if sieve[i]==i:
-            sieve[i::i]*=False
-    return np.nonzero(sieve)[0]
+    """return array n: gcd(n,10)=1"""
+    nsieve=np.ones(n+1,dtype=bool)  
+    nsieve[2::2]=False
+    nsieve[5::5]=False
+    return np.nonzero(nsieve)[0]
+    
+def ncsieve(n):
+    """return array n: gcd(n,10)=1 and n composite"""
+    
+    nsieve=np.ones(n+1,dtype=bool)  
+    nsieve[2::2]=False
+    nsieve[5::5]=False
+            
+    psieve=np.zeros(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if not psieve[i]:
+            psieve[2*i::i]=True
+        
+    return np.nonzero(np.logical_and(nsieve, psieve))[0]
     
 def prime_factors(n):
     """returns the prime factors of n"""    
@@ -105,5 +86,4 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors    
-
 

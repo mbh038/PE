@@ -141,26 +141,26 @@ def rpn(exp):
     if len(stack)==1:
         return stack.pop()
     return "invalid expression - too many values"
-           
-        
-#twice as fast    
-def rpnv2(expression):
-    stack=[]
-    operators='+-*/'
-    
-    for val in expression.split(' '):
-        if val in operators:
-            op1 = stack.pop()
-            op2 = stack.pop()
-            if val=='-': result = op2 - op1
-            if val=='+': result = op2 + op1
-            if val=='*': result = op2 * op1
-            if val=='/': result = op2 / op1
-            stack.append(result)
+
+#using eval() - about six times slower.
+def rpnv2(exp):
+    operators='*/+-'    
+    stack = [];
+    for v in exp.split(' '):
+        if v in operators: 
+            if len(stack)<2:
+                return "Invalid Expression - too few values"
+            b = stack.pop()
+            a = stack.pop()
+#            print(a,b,v)
+            result=eval(a+v+b)
+            stack.append(str(result))
         else:
-            stack.append(int(val))
- 
-    return stack.pop()            
+            stack.append(v)
+#            print(v)
+    if len(stack)==1:
+        return float(stack.pop())
+    return "invalid expression - too many values"                   
     
 def test(n,expression):
     t=time.clock()
@@ -169,7 +169,7 @@ def test(n,expression):
     print(time.clock()-t)
     t=time.clock()
     for i in range(n):
-        myrpn(expression)
+        rpnv2(expression)
     print(time.clock()-t)
        
 
