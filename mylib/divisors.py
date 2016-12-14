@@ -9,9 +9,7 @@ import math
 import numpy as np
 
 def prime_factors(n):
-    '''
-    returns the prime factors of n
-    '''   
+    """returns the prime factors of n"""   
     i = 2
     factors = []
     while i * i <= n:
@@ -23,28 +21,98 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors    
+    
+def dpf(n):
+    """returns the distinct prime factors of n""" 
+    i=2
+    factors=set()
+    while i*i <=n:
+        if n%i:
+            i+=1
+        else:
+            n//=i
+            factors.add(i)
+    if n > 1:
+        factors.add(n)
+    return factors
 
-def distinct_prime_factors(n):
-    '''
-    returns the distinct prime factors of n
-    '''   
+def pfdic(n):
+    """returns the distinct prime factors of n as {prime1:exponent1,...}"""   
     i = 2
-    factors = set()
+    factors = {}
     while i * i <= n:
         if n % i:
             i += 1
         else:
             n //= i
-            factors.add(i)
+            factors[i]=factors.get(i,0)+1
     if n > 1:
-        factors.add(n)
-    return factors 
+        factors[n]=factors.get(n,0)+1
+    return factors
+
+def npfs(n):
+    """returns number of distinct prime _factors of integers from 2 to n"""
+    sieve=np.zeros(n+1,dtype=int)
+    for i in range(2, n):
+        if sieve[i]==0:
+            sieve[i::i]+=1
+    return (sieve)
     
+# this does the same, without numpy, and is 30% faster
+def ndpfs(limit):
+    """returns number of distinct prime factors from 2 to n"""
+#    start=timer()
+    L=[0]*(limit+1)
+    for i in range(2,limit+1):
+        if L[i]==0:
+            for j in range(i,limit+1,i): L[j]+=1 
+    return L
+
+def dpfs(limit):
+    """returns distinct prime factors of n from 2 to limit"""
+#    start=timer()
+    L=[[]]*(limit+1)
+    for i in range(2,limit+1):
+        if L[i]==[]:
+            for j in range(i,limit+1,i): L[j]=L[j]+[i] 
+    return L
+    
+#import numpy as np    
+def radicalSieve(limit):
+    """returns array of radical(n) for n<=limit"""
+    radicals=np.ones(limit+1,dtype=int)
+    for i in range(2,limit+1):
+        if radicals[i]==1:
+            radicals[i::i]*=i
+    return radicals
+    
+def squarefree(limit):
+    """return array of square-free numbers p: 2<=p<=n"""
+    sf=np.ones(limit+1,dtype=bool)     
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=False
+    return np.nonzero(sf)[0][2:]
+    
+    
+def  sqFreetoN(sf,limit):
+    """return all integers for which the distinct prime factors are those of the 
+    square free number sf, up to limit"""
+
+    """return array of square-free numbers p: 2<=p<=n"""
+    sf=np.ones(limit+1,dtype=bool)     
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=False
+    L=[[]]*(len(sf))
+    for i in sf:
+        if L[i]==[]:
+            for j in range(i,len(sf)+1,i): L[j]=L[j]+[i] 
+    return L
+      
 #Euler totient is number of integers m 1 <= m <=n that are coprime with n
 def et(n):
-    """
-    returns Euler totient (phi) of n
-    """   
+    """returns Euler totient (phi) of n """   
     phi=n
     pfs=set(prime_factors(n))
     for pf in pfs:
@@ -113,23 +181,7 @@ def reimannzeta(s,terms=10000):
     for n in range(1,terms+1):
         rzsum+=1/(n**s)
     return rzsum
-       
-def pfdic(n):
-    '''
-    returns the distinct prime factors of n as {prime1:exponent1,...}
-    '''   
-    i = 2
-    factors = {}
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors[i]=factors.get(i,0)+1
-    if n > 1:
-        factors[n]=factors.get(n,0)+1
-    return factors   
-    
+           
 def ndivisors(n):
     """find number of divisors of n from prime factor exponents"""
     
@@ -258,16 +310,11 @@ def divisors(n):
             i += 1
             if i >= nfactors:
                 return divs 
-                
-def test(n):
-    start=timer()
-    for i in range(1000):
-        eulersigma(n)
+import time                 
+def test(n=100000):
+    t=time.clock()
+    dpfs(n)
 #    print(divisors(n))
-    print('Elapsed time:',timer()-start,'s')
-    start=timer()
-    for i in range(1000):
-        eulersigma3(n)
-#    print([x for x in divisorGen(n)])
-    print('Elapsed time:',timer()-start,'s')     
+    print('Elapsed time:',time.clock()-t,'s')
+   
     

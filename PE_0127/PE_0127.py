@@ -70,9 +70,27 @@ def abchit(a,b,c):
 def radical(n):
     '''returns product of the distinct prime factors of n'''
     rx=1
-    for factor in set(prime_factors(n)):
+    for factor in dpf(n):#set(prime_factors(n)):
         rx*=factor
     return rx
+
+def rad2(n):
+    """returns radical of n"""
+    return np.prod(list(dpf(n)))
+    
+def dpf(n):
+    """returns the distinct prime factors of n""" 
+    i=2
+    factors=set()
+    while i*i <=n:
+        if n%i:
+            i+=1
+        else:
+            n//=i
+            factors.add(i)
+    if n > 1:
+        factors.add(n)
+    return factors
     
 def prime_factors(n):
     '''returns the prime factors of n'''   

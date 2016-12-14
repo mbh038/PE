@@ -25,14 +25,18 @@ def p130(limit,nvals):
     for n in ncs:
         k=1
         R=1
+        flag=True
         while R%n:
             k+=1
             R=(10*R+1)%n
         if not (n-1)%k:
             print(n,k)
             results.append(n)
-            if len(results)==nvals:
+            if len(results)>=nvals:
+                flag=False
                 break
+        if not flag:
+            break
                                 
     print(sum(results),time.clock()-t)   
 
@@ -41,6 +45,7 @@ def ncsieve(n):
     
     nsieve=np.ones(n+1,dtype=bool)  
     nsieve[2::2]=False
+    nsieve[3::3]=False
     nsieve[5::5]=False
             
     psieve=np.zeros(n+1,dtype=bool)
@@ -50,3 +55,38 @@ def ncsieve(n):
         
     return np.nonzero(np.logical_and(nsieve, psieve))[0]
 
+def p130v2(nvals):
+    
+    t=time.clock()
+    
+    results=[]
+    n=1
+    while len(results)<nvals:
+        n+=2
+        if not n%3 or not n%5 or is_prime(n):
+            continue
+        k=1
+        R=1
+        while R%n:
+            k+=1
+            R=(10*R+1)%n
+        if not (n-1)%k:
+            print(n,k)
+            results.append(n)
+                                
+    print(sum(results),time.clock()-t)
+    
+def is_prime(n):
+    """Returns True if n is prime."""
+    if n==2 or n==3:
+        return True
+    if not n%2 or not n%3:
+        return False
+    i = 5
+    w = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += w
+        w = 6 - w
+    return True

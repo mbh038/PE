@@ -68,7 +68,7 @@ def check_is_prime1():
 
 #Tests for primality
 ##############################################################################
-#from sympy
+#from sympy -seems to be 7-10x slower than is_prime1
 from sympy import isprime
      
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
@@ -78,25 +78,17 @@ from sympy import isprime
 #is_prime3 is about 10% faster.
 def is_prime1(n):
     """Returns True if n is prime."""
-    if n == 2:
+    if n==2 or n==3:
         return True
-    if n == 3:
-        return True
-    if n % 2 == 0:
+    if not n%2 or not n%3:
         return False
-    if n % 3 == 0:
-        return False
-
     i = 5
     w = 2
-
     while i * i <= n:
         if n % i == 0:
             return False
-
         i += w
         w = 6 - w
-
     return True
     
 #slow, divides by all odd numbers i: i*i<n
@@ -222,6 +214,7 @@ def primesieve(n):
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:] 
 
+    
 #euler totient sieve
 def etsieve(n,primes):
     """return array of euler totient(x) for x from 2 to n"""
@@ -230,6 +223,7 @@ def etsieve(n,primes):
         if sieve[i]==i:
             sieve[i::i]*=(1-1/i)
     return sieve.astype(int)    
+
 #returns
 def squarefree(limit):
     """return array of square-free numbers p: 2<=p<=n"""
@@ -274,10 +268,7 @@ def primesthatsumto(n):
     return count
            
 def psumN(a,n):
-    
-    '''
-    lists n prines from a, and their sum
-    '''
+    """lists n prines from a, and their sum"""
     psum=0
     count=0
     for p in erat2a():
@@ -288,9 +279,7 @@ def psumN(a,n):
         print (count,a,p,psum,is_prime1(psum))
         
 def psum(n):
-    '''
-    sums all primes less than n
-    '''
+    """sums all primes less than n"""
     psum=0
     for p in erat2a():
         if p>=n:
@@ -299,9 +288,7 @@ def psum(n):
     return psum
  
 def howManyPrimes(n):
-    '''
-    counts the primes less than n
-    '''
+    """counts the primes less than n"""
     return myprimepi(n)[-1]
     
 def myprimepi(limit):
@@ -310,8 +297,8 @@ def myprimepi(limit):
     for i in range(2, int((limit+1)**0.5+1)):
         if sieve[i]:
             sieve[2*i::i]=False
-    return sum(sieve)
-#    return np.cumsum(sieve[2:])
+#    return sum(sieve)
+    return np.cumsum(sieve[2:])
 
 #Euclid algorithm for gcd
 def gcd(a, b):
@@ -336,7 +323,8 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
-        
+
+         
 def squareFree(n):
     """returns True if n is square-free, False if not"""    
     i = 2
@@ -449,15 +437,14 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
 
 from timeit import default_timer as timer
 def test(n):
-    start=timer()
-    primes=set(primesieve(n))
-    for i in range(n):
-        [x for x in primes if n%x==0]
-    print ('Elapsed time for pf: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
-#        [x for x in primes(100000)]
-#    print ('Elapsed time for primes: ',timer()-start)
+#        is_prime1(n)
+#    print ('Elapsed time for ip1: ',timer()-start)
+#    start=timer()
+#    for i in range(n):
+#        is_prime3(n)
+#    print ('Elapsed time for ip3: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime3(i)
@@ -467,7 +454,6 @@ def test(n):
 #        is_prime4(i)
 #    print ('Elapsed time for 4: ',timer()-start ) 
     start=timer()
-    for i in range(n):
-        prime_factors(n)
-    print ('Elapsed time for pf2: ',timer()-start )
+    [prime_factors(x) for x in squarefree(n)]
+    print ('Elapsed time for squarefree: ',timer()-start )
         

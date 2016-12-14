@@ -120,13 +120,13 @@ def npfs(n):
 
 # About 0.1 seconds in Python.
 def PE47(lim=200000,dpf=4):
-    start=timer()
+#    start=timer()
     L=[0]*(lim+1)
-    for i in range(2,lim/2+1):
+    for i in range(2,lim//2+1):
         if L[i]==0:
             for j in range(i,lim+1,i): L[j]+=1
     print (''.join(map(str,L)).index(''.join(map(str,[dpf]*dpf))))
-    print ('Elapsed time: ',timer()-start)
+#    print ('Elapsed time: ',timer()-start)
 
 def main():
     start=timer()

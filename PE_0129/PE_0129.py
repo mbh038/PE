@@ -18,7 +18,7 @@ def p129(limit):
     k=0
     while k<=limit:
         n+=2
-        if n%5==0:
+        if not n%5:
             continue
         k=1
         R=1

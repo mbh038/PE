@@ -27,16 +27,41 @@ def Bell(n,memo={}):
         result =sum([sc.misc.comb(n-1,k)*Bell(k,memo) for k in range(n)])
         memo[n]=result
         return result
+
+def tr2(limit=987654321):
+    a=primesfrom2to(limit)
+    a=a[a>10**8]
+    print(a[0][:10])
+    print(len(a[0]))
+    b=a['0' not in str(a)]
+    print(len(b))
+
+    
         
-        
+def trial(limit):
+    t=time.clock()
+#    digits=set([x for x in range(1,10)]) 
+    digits='987654321'
+    primes=set()
+    for ndigits in range(1,limit+1):
+        perms= [int(''.join([y for y in x])) for x in it.permutations(digits,ndigits) if x[-1] not in '2468']
+        print(ndigits,len(perms))
+        for x in perms:
+            if is_prime(x):
+                primes.add(x)           
+    print (len(primes))
+    print(time.clock()-t)
+    return primes
+     
 def p118():
     t=time.clock()
     count=0
     prime_sets=0
-    digits=[x for x in range(1,4)]  
-    primes=set(primesfrom2to(321))
+    digits=set([x for x in range(1,10)])  
+    primes=trial(9)#set(mysieve(987654321))
+    print(time.clock()-t)
     pdic={}
-    for n, p in enumerate(partition(digits), 1):
+    for n, p in enumerate(partitions(digits), 1):
         pprime=1
         flag=True
         for x in p:
@@ -46,7 +71,7 @@ def p118():
                 break            
         if flag:
             ps=[set(x) for x in p]
-            print(p,ps)
+#            print(p,ps)
             for pset in ps:
                 pset=tuple(pset)
                 try:
@@ -61,6 +86,16 @@ def p118():
     print(prime_sets)
     print(time.clock()-t)
 
+#code by Stefan Pochmann, Stack Exchange, May 8 2015
+def partitions(A):
+    if not A:
+        yield []
+    else:
+        a, *R = A
+        for partition in partitions(R):
+            yield partition + [[a]]
+            for i, subset in enumerate(partition):
+                yield partition[:i] + [subset + [a]] + partition[i+1:]
     
 #code by Alexis, Stack Exchange, May 8 2015
 def partition(collection):
@@ -74,6 +109,8 @@ def partition(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
 
+
+                
 def mysieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
@@ -92,7 +129,7 @@ def primesfrom2to(n):
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
-def is_prime1(n):
+def is_prime(n):
     """Returns True if n is prime."""
     if n == 2:
         return True

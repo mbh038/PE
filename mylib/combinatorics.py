@@ -12,29 +12,6 @@ import time
 
 
     
-    
-  
-def solve(N, doprint=True,memoise={0:[""],1:["()"]}):
-    """returns all possible ways to parenthesise with N bracket pairs"""
-    if N in memoise:
-        return memoise[N]
-
-    memoise[N] = []
-
-    for i in range(1,N+1):
-        between = solve(i-1, False)
-        after   = solve(N-i, False)
-        for b in between:
-           for a in after:
-               memoise[N].append("("+b+")"+a)
-
-    if doprint:
-        for res in memoise[N]:
-            print (res)
-
-    return memoise[N]
-
-
 def C(n):
     """returns nth catalan number"""
     return nCk(2*n,n)//(n+1)
@@ -48,7 +25,7 @@ def Bell(n,memo={}):
     except KeyError:
         result =sum([sc.misc.comb(n-1,k)*Bell(k,memo) for k in range(n)])
         memo[n]=result
-        return result
+        return int(result)
   
 def test (n):    
     t=time.clock()
@@ -74,8 +51,28 @@ def partition(collection):
     for smaller in partition(collection[1:]):
         for n, subset in enumerate(smaller):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
-        yield [ [ first ] ] + smaller  
+        yield [ [ first ] ] + smaller 
         
+
+
+#code by Stefan Pochmann
+#http://stackoverflow.com/questions/30130053/how-find-all-groups-of-subsets-of-set-a-set-partitions-in-python
+
+#The empty set only has the empty partition.
+#For a non-empty set, take out one element and then for each partition of the 
+#remaining elements, add that element as its own subset or add it to one of the 
+#partition's subsets.
+#code by Stefan Pochmann, May 8 201
+def partitions(A):
+    if not A:
+        yield []
+    else:
+        a, *R = A
+        for partition in partitions(R):
+            yield partition + [[a]]
+            for i, subset in enumerate(partition):
+                yield partition[:i] + [subset + [a]] + partition[i+1:]
+                
 def pns(p,n,s):
     """probability of score p from n s-sided dice"""    
     P=0
