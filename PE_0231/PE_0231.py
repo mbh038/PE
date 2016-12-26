@@ -52,7 +52,7 @@ def nCk(n,k,memo={}):
     try:
         return memo[(n,k)]
     except KeyError:
-        result=nCk_2(n-1,k-1,memo)+nCk_2(n-1,k,memo)
+        result=nCk(n-1,k-1,memo)+nCk(n-1,k,memo)
         memo[(n,k)]=result
     return result
     

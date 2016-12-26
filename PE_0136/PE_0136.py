@@ -9,7 +9,7 @@ Created on Wed Dec 14 03:56:32 2016
 
 
 import time
-import matplotlib.pyplot as plt
+import numpy as np
 
 def p136v3(limit):
     
@@ -17,7 +17,6 @@ def p136v3(limit):
     primes=primesieve(limit)    
     print(len(primes[primes%4==3])+len(primes[primes<limit//4])+len(primes[primes<limit//16]))
     print(time.clock()-t)
-
     
 def primesieve(n):
     """return array of primes 2<=p<=n"""

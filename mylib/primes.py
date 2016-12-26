@@ -214,7 +214,22 @@ def primesieve(n):
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:] 
 
-    
+#Legendre's theorem
+def facpfac(n):
+    """returns prime factors of n!"""
+    ps=primesieve(n)
+    factors={}
+    for prime in ps:
+        exp=0
+        power=1
+        delta=10
+        while delta>0:
+            delta=n//prime**power
+            exp+=delta
+            power+=1
+            factors[prime]=exp
+    print(factors)        
+      
 #euler totient sieve
 def etsieve(n,primes):
     """return array of euler totient(x) for x from 2 to n"""
@@ -268,7 +283,7 @@ def primesthatsumto(n):
     return count
            
 def psumN(a,n):
-    """lists n prines from a, and their sum"""
+    """lists n primes from a, and their sum"""
     psum=0
     count=0
     for p in erat2a():

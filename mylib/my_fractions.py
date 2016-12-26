@@ -104,7 +104,32 @@ def gcd(a, b):
 
 #n: h_n = anh_n−1 + h_n−2,
 #d: k_n = ank_n−1 + k_n−2.
- 
+
+#this implements the PQa algorithm of John D. Robertson
+#http://www.jpr2718.org/pell.pdf        
+def PQa(D,P0,Q0,limit):
+        
+    a=[0,0]
+    A=[0,1]
+    B=[1,0]
+    G=[-P0,Q0]
+    
+    P=[0,0,P0]
+    Q=[0,0,Q0]
+    
+    i=0
+    while i<=limit+1:
+        if i>0:
+            P.append(a[-1]*Q[-1]-P[-1])
+            Q.append((D-P[-1]**2)/Q[-1])
+        a.append(int((P[-1]+D**0.5)/Q[-1]))
+        A.append(a[-1]*A[-1]+A[-2])
+        B.append(a[-1]*B[-1]+B[-2])
+        G.append(a[-1]*G[-1]+G[-2])
+        i+=1
+        
+    return a[2:],A[2:],B[2:],G[2:]
+    
   
 def Pellnk(n,k,fs,memo={}):
     """

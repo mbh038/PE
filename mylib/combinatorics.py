@@ -99,10 +99,12 @@ def nCk_2(n,k,memo={}):
         memo[(n,k)]=result
     return result
 
+
+
 #using scipy    
 #sc.misc.comb(n,k) is faster
 
-#Guttag, Fig 9.5,page 122
+#Guttag, Fig 9.5,page 122 
 def getBinaryRep(n, numDigits):
    """Assumes n and numDigits are non-negative ints
       Returns a numDigits str that is a binary
@@ -146,3 +148,64 @@ def test2(n):
         [x for x in partition([0,1,2,3])]
     print(time.clock()-t)
     
+def trinomial ( i, j, k ):
+
+#*****************************************************************************80
+#
+## TRINOMIAL computes a trinomial coefficient.
+#
+#  Discussion:
+#
+#    The trinomial coefficient is a generalization of the binomial
+#    coefficient.  It may be interpreted as the number of combinations of
+#    N objects, where I objects are of type 1, J of type 2, and K of type 3.
+#    and N = I + J + K.
+#
+#    T(I,J,K) = N! / ( I! J! K! )
+#
+#  Licensing:
+#
+#    This code is distributed under the GNU LGPL license.
+#
+#  Modified:
+#
+#    11 April 2015
+#
+#  Author:
+#
+#    John Burkardt
+#
+#  Parameters:
+#
+#    Input, integer I, J, K, the factors.
+#    All should be nonnegative.
+#
+#    Output, integer VALUE, the trinomial coefficient.
+#
+  from sys import exit
+#
+#  Each factor must be nonnegative.
+#
+  if ( i < 0 or j < 0 or k < 0 ):
+    print ( '' )
+    print ( 'TRINOMIAL - Fatal error!' )
+    print ( '  Negative factor encountered.' )
+    exit ( 'TRINOMIAL - Fatal error!' )
+
+  value = 1
+
+  t = 1
+
+  for l in range ( 1, i + 1 ):
+#   value = value * t // l
+    t = t + 1
+
+  for l in range ( 1, j + 1 ):
+    value = value * t // l
+    t = t + 1
+
+  for l in range ( 1, k + 1 ):
+    value = value * t // l
+    t = t + 1
+  
+  return value

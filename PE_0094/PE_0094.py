@@ -25,7 +25,7 @@ def aet(pmax):
     returns L, a dictionary of all the right-angle triangles a<b<c, that when 
     mirrored on b, give an almost-equilateral triangle (c,c,2a) where 2a=c+/-1,
     with perimeter less than or equal to pmax. These almost-equilateral triangles
-    necessarily comprises the set of those that have integer area.
+    necessarily comprise the set of those that have integer area.
     """
     #generating matrices
     A = np.array( [[1,-2,2], [2,-1,2],[2,-2,3]] )

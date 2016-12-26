@@ -8,6 +8,10 @@ from timeit import default_timer as timer
 import math
 import numpy as np
 
+def rad(n):
+    """returns radical of n = product of distinct prime factors"""
+    return np.prod(list(dpf(n)))
+
 def prime_factors(n):
     """returns the prime factors of n"""   
     i = 2

@@ -9,35 +9,57 @@ Created on Sat Nov 26 07:47:19 2016
 @author: mbh
 """
 import time
-import numpy as np
-import collections as cl
+import itertools as it
 def p111(n):
     t=time.clock()
-    primes=primesfrom2to(int(10**n))
-    print(time.clock()-t)   
+    N=[0]*n
+    S=[0]*n
+    for i in range(0,10):
+        for d1 in range(10):           
+            for pos in range(1,n+1):
+                a=(pos-1)*str(i)+str(d1)+(n-pos)*str(i)
+                if a[-1] in '024568' or a[0]=='0' or ((n-1)*i+d1)%3==0:
+                    continue
+                aval=int(''.join([x for x in  a]))
+                if isprime(aval):
+                    N[i]+=1
+                    S[i]+=aval
     
-#    sprimes=[[int(x) for x in str(prime)] for prime in primes]
-    print(time.clock()-t) 
-    
-#    print(sprimes)
-    
-#    digits=[{str(digit):0 for digit in range(10)}]
-    counts={str(digit):0 for digit in range(10)} 
-    sums=[0]*10
-    for prime in primes:
-        pcounts=cl.Counter(str(prime))            
-#        for digit in pcounts:
-#            if pcounts[digit]>counts[digit]:
-#                counts[digit]=pcounts[digit]
-    print(time.clock()-t)
+    js=[j for j in range(10) if N[j]==0]
 
-    return
-    for i in range(len(sprimes)):
-        for digit in range(0,10):
-            if sprimes[i].count(digit)==counts[digit]:
-                sums[digit]+=primes[i]
-#    print(sums)
-#    print(sum(sums))        
+    for j in js:
+        for ds in it.product('0123456789',repeat=2):
+            for pos in it.combinations(list(range(n)),2):
+                a=str(j)*(pos[0])+ds[0]+(pos[1]-pos[0]-1)*str(j)+ds[1]+(n-pos[1]-1)*str(j)
+                if a[-1] in '024568' or a[0]=='0' or ((n-2)*j+int(ds[0])+int(ds[1]))%3==0:
+                    continue
+                aval=int(''.join([x for x in  a]))
+                if isprime(aval):
+                    N[j]+=1
+                    S[j]+=aval
+                    
+    print(sum(S))
+    print (time.clock()-t)
+
+    
+    
+    
+def isprime(n):
+    """Returns True if n is prime."""
+    if n==2 or n==3:
+        return True
+    if not n%2 or not n%3:
+        return False
+    i = 5
+    w = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += w
+        w = 6 - w
+    return True    
+    
+       
     print (time.clock()-t)
 
 def primesieve(n):
