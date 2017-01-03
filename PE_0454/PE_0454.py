@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 
-PE_0110
+PE_0454
 
 Diophantine Reciprocals 2
 
-See also p108.
+See also p108 and p110.
 
-Created on Sun Sep 11 10:08:48 2016
+Created on Thu Dec 29 05:49:36 2016
 @author: mbh
 """
 from timeit import default_timer as timer
@@ -15,7 +15,7 @@ import itertools as it
 import numpy as np
 from operator import itemgetter
            
-def dr(m):
+def p454(m):
     """
     returns minimum value of n for which the diophantine equation 1/x + 1/y = 1/n
     has more than m solutions
@@ -53,7 +53,7 @@ def pfpowers(pfs,maxpow):
     order such that 2^a*3^b*4^c...is an ascending sequence.
     """
     ps=[]
-    for a in it.combinations_with_replacement([x for x in range(maxpow,0,-1)],len(pfs)):
+    for a in it.combinations_with_replacement([x for x in range(maxpow,-1,-1)],len(pfs)):
         ps.append(list(a))
     ranks=[]
     ps=ps[::-1]
@@ -61,7 +61,7 @@ def pfpowers(pfs,maxpow):
     rps=[]
     for i in range(len(ps)):
         rps.append(ps[ranks[i][0]])
-    return rps
+    return rps[1:]
           
 def divisibility(powers):
     d=1

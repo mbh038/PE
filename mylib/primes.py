@@ -228,7 +228,44 @@ def facpfac(n):
             exp+=delta
             power+=1
             factors[prime]=exp
-    print(factors)        
+    print(factors) 
+
+def fpf(n):
+    """returns prime factors of n! list version"""
+    pfs=[]
+    for p in primesieve(n):        
+        exp=1
+        while 1:
+            term=n//(p**exp)
+            if term==0:break
+            pfs.extend([p]*term)            
+            exp+=1
+    return pfs
+
+def fpfdic(n):
+    """returns prime factors of n! dict version"""
+    pfs={}
+    for p in primesieve(n):
+        pexp=0        
+        exp=1
+        while 1:
+            term=n//(p**exp)
+            if term==0:break
+            pexp+=term            
+            exp+=1
+        pfs[p]=pexp
+    return pfs
+       
+def fpfs():
+    """yields dict of prime factors of n!"""
+    n=2
+    pfs={2:1}
+    yield n,pfs
+    while 1:
+        n+=1
+        for x in prime_factors(n):
+            pfs[x]=pfs.get(x,0)+1
+        yield n,pfs        
       
 #euler totient sieve
 def etsieve(n,primes):
