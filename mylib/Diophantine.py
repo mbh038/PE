@@ -251,6 +251,7 @@ def Pellfs(n):
 
     
 #code by John Carlson
+#solves linear diophantine equation ax +by = c
 def isolve(a,b,c):
       q, r = divmod(a,b)
       if r == 0:
@@ -260,3 +261,12 @@ def isolve(a,b,c):
         u = sol[0]
         v = sol[1]
         return( [ v, u - q*v ] )
+
+#my version        
+def primeLD(a,b,c):
+    """finds a solution to diophantine equation ax+by=c"""
+    q,r=a//b,a%b
+    if r==0:
+        return 0,c//b
+    u,v=primeLD(b,r,c)
+    return v,u-q*v

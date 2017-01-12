@@ -8,6 +8,15 @@ from timeit import default_timer as timer
 import math
 import numpy as np
 
+#Euclid algorithm for gcd
+def gcd(a, b):
+    r = a % b
+    while r!=0:
+        a = b
+        b = r
+        r = a % b
+    return b
+    
 def rad(n):
     """returns radical of n = product of distinct prime factors"""
     return np.prod(list(dpf(n)))

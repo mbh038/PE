@@ -11,6 +11,28 @@ import math
 import time
 
 
+def nPk(n,k,memo={}):
+    """partition n identical objects into k groups"""
+    if k<1 or k>n:
+        return 0
+    if k==1 or k==n:
+        return 1
+    try:
+        return memo[(k,n)]
+    except KeyError:
+        result = nPk(n-1,k-1,memo)+nPk(n-k,k,memo)
+        memo[(n,k)]=result
+        return result
+
+def partition_find(n,k):    
+    s=[1]*n
+    nPk=set()
+    for x in partitions(s):
+        if len(x)==k:
+            nPk.add(tuple(sorted([sum(y) for y in x])))
+    print (list(nPk))
+        
+
     
 def C(n):
     """returns nth catalan number"""

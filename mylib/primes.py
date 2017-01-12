@@ -276,6 +276,13 @@ def etsieve(n,primes):
             sieve[i::i]*=(1-1/i)
     return sieve.astype(int)    
 
+def squares(limit):
+    """return array of square numbers p: 2<=p<=n"""
+    sf=np.zeros(limit+1,dtype=bool)        
+    for i in range(1, int((limit+1)**0.5+1)):
+        sf[i**2]=True
+    return np.nonzero(sf)[0]
+
 #returns
 def squarefree(limit):
     """return array of square-free numbers p: 2<=p<=n"""

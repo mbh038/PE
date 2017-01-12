@@ -28,7 +28,7 @@ def p216(limit):
 def bsolve(prime):
     """returns solution b to 2b^2=1 mod prime"""
     x=ts(8,prime)
-    y=isolve(prime,-4,1)[1]
+    y=primeLD(prime,-4,1)[1]
     solution= x*y%prime
     if solution>prime/2:
         return prime-solution
@@ -74,14 +74,23 @@ def ts(n,p):
     return R
             
 def isolve(a,b,c):
-      q, r = divmod(a,b)
-      if r == 0:
+    """solves linear diophantine equation ax +by = c"""
+    q, r = divmod(a,b)
+    if r == 0:
         return( [0,c//b] )
-      else:
+    else:
         sol = isolve( b, r, c )
         u = sol[0]
         v = sol[1]
-        return( [ int(v), int(u - q*v) ] )        
+        return( [ int(v), int(u - q*v) ] )
+
+def primeLD(a,b,c):
+    """finds a solution to diophantine equation ax+by=c"""
+    q,r=a//b,a%b
+    if r==0:
+        return 0,c//b
+    u,v=primeLD(b,r,c)
+    return v,u-q*v        
 
 def primesieve(n):
     """return array of primes 2<=p<=n"""
