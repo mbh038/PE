@@ -5,9 +5,80 @@ Created on Tue Jan  3 04:34:13 2017
 @author: mbh
 """
 
+import time
+import math
+import numpy as np
+
+#Euclid algorithm for gcd - 3x slower than math.gcd()
+def gcd(a, b):
+    r = a % b
+    while r>0:
+        a,b,r = b,r,b%r
+    return b
+
+def extended_gcd(a, b):
+    
+    s,old_s = 0,1
+    t,old_t = 1,0
+    r,old_r = b,a
+
+    while r != 0:
+        q = old_r // r
+        old_r, r = r, old_r - q * r
+        old_s, s = s, old_s - q * s
+        old_t, t = t, old_t - q * t
+        
+    print( "Bézout coefficients:", old_s, old_t)
+    print( "greatest common divisor:", old_r)
+    print( "quotients by the gcd:", t, s)
+    
+
+#from Wikipedia
+def inverse(a, n):
+    """returns multiplicative inverse of a mod n. a and n must be-co-prime"""
+    t1,t2=0,1    
+    r1,r2=n,a    
+    while r2!=0:
+        q = r1 // r2
+        t1, t2 = t2, t1 - q * t2
+        r1, r2 = r2, r1 - q * r2
+    if t1 < 0:
+        t1 +=n
+    return t1 
+
+#from Rosetta code    
+def mul_inv(a, b):
+    b0 = b
+    x0, x1 = 0, 1
+    if b == 1: return 1
+    while a > 1:
+        q = a // b
+        a, b = b, a%b
+        x0, x1 = x1 - q * x0, x0
+    if x1 < 0: x1 += b0
+    return x1
+    
+#from Rosetta code
+def chinese_remainder(n, a):
+    xsum = 0
+    prod=np.prod(n)
+    for n_i, a_i in zip(n, a):
+        p = prod // n_i
+        xsum += a_i * mul_inv(p, n_i) * p
+    return xsum % prod
+
+#same thing, my version        
+def crt(a,n):
+    nprod=np.prod(n)
+    xsum=0
+    for i in range(len(n)):
+        Ni=nprod//n[i]
+        xsum+=a[i]*mul_inv(Ni,n[i])*Ni
+    return xsum %nprod
+
 def legendre_symbol(a,p):
     return pow(a,(p-1)//2,p)
-        
+    
 def ts(n,p):
     """
     Tonnelli-Shanks algorithm. returns R: R^2=n mod p

@@ -61,11 +61,13 @@ def LtoA(L,Amin,Amax):
 def Aexplore(Lmax,f):
     x=[]
     y=[]
-    for L in range(1,Lmax+1):
+    for L in range(12,Lmax+1,4):
         Az=LtoA(L,1,Lmax-6)
+#        print(L,len(Az),len(set(Az)))
         y.extend([x for x in Az])
         x.extend([L]*len(Az))
     print([(L,A) for L,A in zip(x[:10],y[:10])])
+    print([(L,A) for L,A in zip(x[-65:],y[-65:])])
     plt.plot(x,y,'ro')
     plt.axis([0, int(f*max(x)), 0, max(y)+10])
     plt.xlabel('L')
@@ -156,17 +158,25 @@ def C(nseek):
     
     vals={}
     found=set()
-    Lrange=2000
-    Arange=2000
-    Nrange=100
+    Lmax=25000
+    Arange=25000
+    Nrange=250
     nval=[]
     count=0
-    for L in range (12,Lrange+4,4):
-        for A in LtoA(L,2,Arange+4):
-            for n in range(1,Nrange+1):
+    for n in range(1,Nrange+1):
+        Lrange=Lmax
+        if n>5 and n<=10:
+            Lrange=Lmax//5
+        if n>10:
+            Lrange=Lmax//10
+        for L in range (12,Lrange+4,4):
+            Az=LtoA(L,2,Arange+4)
+    #        print (min(Az))
+            for A in Az:
+    #            for n in range(1,Nrange+1):
                 count+=1
                 val=A+(n-1)*(L+4*(n-2))
-#                if val==4162:
+#                if val==2056:
 #                    nval.append((L,A,n))
 #                    print(count,L,A,n)
                 vals[val]=vals.get(val,0)+1
@@ -188,7 +198,7 @@ def Cseek(nseek):
     
     coords=[]
     found=set()
-    Lrange=6534
+    Lrange=nseek+6
     Nrange=100
     for L in range (12,nseek+8,4):
         for A in LtoA(L,0,nseek+2):
@@ -239,7 +249,8 @@ def Cseek(nseek):
     print ('Lmax:',max(L),'Lmin:',min(L))
     print ('Amax:',max(A),'Amin:',min(A))
     print ('nmax:',max(n),'nmin:',min(n))
-    return coords,
+    print(len(coords))
+    return coords
 
     
 def prime_factors(n):

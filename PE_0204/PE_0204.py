@@ -20,7 +20,9 @@ Created on Tue Nov  8 20:12:42 2016
 @author: mbh
 """
 import numpy as np
+import math
 import time
+
 def kSmooth(k,n):
     """finds all k smooth numbers less than or equal to n, in sequence"""
     t=time.clock()
@@ -31,8 +33,10 @@ def kSmooth(k,n):
         sieve[primes1[i]::primes1[i]]=True
     for prime in primes2:
         sieve[prime::prime]=False
+    print(np.nonzero(sieve)[0])
     print (1+sum(sieve),time.clock()-t )       
   
+#see much faster ghn() recursive function below.
 def p204(k,n):
     """ finds all k-smooth numbers less than or equal to n"""
     t=time.clock()
@@ -71,3 +75,25 @@ def prime_factors(n):
         factors.append(n)
     return factors
 
+#Adapted from Assato - much faster
+#how many generalised Hamming numbers x of type k are there for numberx <=n
+# k must be prime
+def ghn (k,n):
+    primes=list(primesieve(k))
+    print(ghamming(len(primes)-1,n,primes))
+    
+def ghamming(k,n,primes): 
+    if k==0:
+        return int (math.log(n)/math.log(2)) + 1
+    if n==0:
+        return 0
+    result= ghamming(k-1,n,primes) + ghamming(k,n//primes[k],primes)
+    return result
+
+def test(k,n):
+    t=time.clock()
+    ghn(k,n)
+    print(time.clock()-t)
+#    t=time.clock()
+    p204(k,n)
+#    print(time.clock()-t)

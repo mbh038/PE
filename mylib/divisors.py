@@ -4,19 +4,26 @@ Created on Fri Sep 16 08:11:23 2016
 
 @author: mbh
 """
-from timeit import default_timer as timer
+import time
 import math
 import numpy as np
 
-#Euclid algorithm for gcd
+#Euclid algorithm for gcd - 3x slower than math.gcd()
 def gcd(a, b):
     r = a % b
-    while r!=0:
-        a = b
-        b = r
-        r = a % b
+    while r>0:
+        a,b,r = b,r,b%r
     return b
-    
+
+#recursive Euclid algorithm - about 50% slower
+def gcd2(a,b):
+    r = a % b
+    if r == 0: 
+        return b
+    else: 
+        return gcd2(b,r)
+
+#math.gcd(a,b) is 3x faster     
 def rad(n):
     """returns radical of n = product of distinct prime factors"""
     return np.prod(list(dpf(n)))
@@ -170,7 +177,7 @@ def eulersigma3(n):
 #use this for finding mobius numbers of a large range
 def mobius(limit):
     """returns mobius numbers for integers from 1 to limit"""    
-    P=mysieve(limit+1) # or any sieve
+    P=primesieve(limit+1) # or any sieve
     L = np.ones(limit+1).astype(int)
     
     for p in P:
@@ -323,11 +330,23 @@ def divisors(n):
             i += 1
             if i >= nfactors:
                 return divs 
+                
 import time                 
-def test(n=100000):
+def test(n=100):
     t=time.clock()
-    dpfs(n)
-#    print(divisors(n))
+    for i in range(1,n):
+        for j in range(1,n):
+            gcd(123456,765432)
+    print('Elapsed time:',time.clock()-t,'s')
+    
+    t=time.clock()
+    for i in range(1,n):
+        for j in range(1,n):
+            gcd2(123456,765432)
     print('Elapsed time:',time.clock()-t,'s')
    
-    
+    t=time.clock()
+    for i in range(1,n):
+        for j in range(1,n):
+            math.gcd(123456,765432)
+    print('Elapsed time:',time.clock()-t,'s')    

@@ -1,0 +1,1522 @@
+"""
+primes.py
+
+
+OVERVIEW
+
+This file defines the following functions:
+
+- `is_prime1` tests primality using a simple deterministic algorithm.
+`is_prime2` performs a probabilistic but highly reliable test of primality, and
+is much faster than any deterministic algorithms.
+
+- `test_times` compares the run-time performances of `is_prime1` and
+`is_prime2`.
+
+- `next_prime` finds the first prime greater than a specified number.
+
+- `primes` finds and displays the first `to_find` primes.
+
+- `prime_pairs` finds and displays the first `to_find` prime pairs (pairs of
+primes that differ by 2).
+
+- `prime_triples` finds and displays the first `to_find` triples of closely-
+spaced primes.  (In the literature, these are sometimes called 'prime
+triplets').
+
+- `factor1` and `factor2` calculate the prime factorization of the specified
+integer n using simple algorithms.
+
+
+AUTHOR
+
+Dr. Phillip M. Feldman
+
+
+REVISION HISTORY
+
+
+Version 3.1, 2014-08-23, Phillip M. Feldman:
+
+I added the functions `find_composite` and `next_composite` to find integers of
+the form p_1^n_1 * p_2^n_2 ..., where p_1, p_2, ... are specified primes and
+n_1, n_2, ... are arbitrary non-negative integers. `find_composite` uses an
+inefficient, brute-force search method while `next_composite` uses a more
+intelligent algorithm.
+
+
+Version 3.0, 2014-04-19, Phillip M. Feldman and Benjamin L. Cosman:
+
+We added the function `sum_of_proper_factors` to calculate the sum of the proper
+factors of a specified integer.
+
+I created the function `number_of_proper_factors` from `sum_of_proper_factors`.
+
+
+Version 2.0, 2013-01-31, Phillip M. Feldman:
+
+I added an import for the Python 3 `print` function and modified the code to use
+the new `print`.
+
+I added the functions `prime_statistics`, `plot_prime_statistics`, and
+`plot_prime_histogram`.
+
+
+Version 1.0, 2009-08-16: Initial version.
+"""
+
+
+# Section 1: Import from modules.
+
+from __future__ import print_function
+
+import collections, heapq, itertools, operator, numpy, pdb, random, re, time
+from math import sqrt
+from matplotlib import pyplot
+from numpy import arange, array, dot, floor, log, nonzero, shape, unique, zeros
+from scipy import integrate, interpolate, spatial, stats
+
+
+# Section 2: Define (non-mathematical) utility functions.
+
+def count_chars(s, chars=' \n\r\t'):
+   """
+   OVERVIEW
+
+   `count_chars` returns a count of characters in `s` that can be found in
+   `chars`.
+
+
+   INPUTS
+
+   `s` is the string in which characters are to be counted.
+
+   `chars`: The function returns the number of characters in `s` that appear in
+   this string.  If `chars` is not specified, the default is ' \n\r\t' (space,
+   newline, carriage return, and tab).
+   """
+
+   if not isinstance(s, (str, unicode)):
+      raise TypeError("`s` must be a string (str or unicode).  The actual type "
+        "is %s." % get_type(s, depth=0))
+
+   count= 0
+   for char in list(chars):
+      count+= sum([ch==char for ch in list(s)])
+   return count
+
+
+def log_round(x, mode='n', multipliers=None):
+   """
+   OVERVIEW
+
+   This function does base-10 logarithmic rounding.  The input `x` is rounded to
+   a number of the form a*10^n, where n is an integer and a is one of a small
+   number of multipliers.
+
+
+   INPUTS
+
+   x: a value or array of values to be logarithmically rounded.  All values must
+   be positive.
+
+   mode: This optional argument specifies the rounding direction.  Allowed
+   values are 'u' (round up), 'd' (round down), and 'n' (round to nearest).
+   'n' is the default.
+
+   multipliers: This optional argument specifies a list of int and/or float
+   multipliers.  The default is [1.0,  2.0,  5.0, 10.0], which is the most
+   standard list of base-10 multipliers.  Recommended alternative lists are
+   the following:
+
+   steps per   multipliers
+    decade
+   1           [1.0, 10.0]
+   2           [1.0,  3.0 , 10.0]
+   3           [1.0,  2.0 ,  5.0 , 10.0]
+   4           [1.0,  2.0 ,  3.0 ,  5.0 , 10.0]
+   4           [1.0,  1.7 ,  3.0 ,  5.0 , 10.0]
+   5           [1.0,  1.5 ,  2.5 ,  4.0 ,  6.0, 10.0]
+   5           [1.0,  1.6 ,  2.5 ,  4.0 ,  6.5, 10.0]
+   """
+
+   if (numpy.asarray(x) <= 0).any():
+       raise ValueError("Values to be logarithmically rounded must be positive.")
+
+   if multipliers is None:
+      multipliers= array([1.0,  2.0,  5.0, 10.0]) # default
+
+   elif not is_list_of(multipliers, (int, float)):
+      raise TypeError("If specified, `multipliers` must be a list containing "
+        "only int and float values.")
+
+   f= numpy.floor( numpy.log10(x) )
+
+   # 'normalized' values (values mapped to the [1,10] decade)
+   n= x / 10.**f
+
+   if mode == 'u':
+      s= numpy.searchsorted(multipliers, n)
+
+   elif mode == 'd':
+      s= numpy.searchsorted(multipliers, n, side='right') - 1
+
+   elif mode == 'n':
+      s= numpy.searchsorted(sqrt(multipliers[1:] * multipliers[:-1]), n)
+      ## s = abs(multipliers - n[...,newaxis]).argmin(axis=-1)  # This also works.
+
+   else:
+      raise ValueError("unknown mode '{}'".format(mode))
+
+   return (multipliers[s] * 10**f) .reshape(shape(x))
+
+
+def num2str(x, p=4, m=0, eps=0.0, strip_trailing_zeros=True):
+   """
+   OVERVIEW
+
+   This function converts the input `x` (int or float) to a string with
+   approximately `p` digits of precision.  If a conventional decimal
+   representation of `x` contains more than `p` digits, exponential format is
+   used instead, and any extraneous plus sign and/or leading zeros that would
+   otherwise be present in the exponent are suppressed.
+
+   INPUTS
+
+   p specifies the desired number of digits of precision.  The default is 4.
+
+   m specifies the minimum width of the returned string.  If the string would
+   otherwise be shorter than this, it is padded with blanks on the left.  The
+   default value is zero.  To print tabular data with aligned columns:
+
+   - Use the same value of `p` consistently.
+   - Specify m= p+3 (to allow space for p digits, a decimal point, a leading
+     zero, and a sign).
+
+   eps: Any input `x` having absolute value less than `eps` will be displayed
+   as a zero.  The default value of `eps` is zero, which suppresses this
+   feature.
+
+   strip_trailing_zeros: If this argument is True and the number ends with a
+   decimal point followed by any number of zeros (including no zeros), this
+   portion of the string is removed.  The default is True."""
+
+   if numpy.isnan(x):
+      return 'NaN'
+
+   if abs(x) < eps:
+      x= 0.0
+
+   # Try conventional decimal format:
+   s= ('%.' + str(p) + 'f') % x
+
+   # If `strip_trailing_zeros` equals True and the string representation of the
+   # number ends with a decimal point followed by any number of zeros (including
+   # no zeros), this portion of the string is removed.
+   if strip_trailing_zeros:
+      re.sub('[.]0*$', '', s)
+
+   # Check (A) that `s` does not begin with '0.' or '-0.', and (B) that the
+   # number of digits in `s` does not exceed `p`:
+   if s[:2]=='0.' or s[:3]=='-0.' or count_chars(s, '0123456789') > p:
+
+      # `s` did not pass tests (A) and (B) above, so we use exponential format:
+      s= ('%.' + str(p) + 'g') % x
+
+      # Suppress any extraneous plus sign and/or leading zeros in the exponent:
+      s= re.sub('(?<=[-])0+(?=\d)|([+]0+(?=\d))', '', s)
+
+   # If the length of the string `s` is less than `m`, pad with blanks on left:
+   s= (m-len(s))*' ' + s
+
+   return s
+
+
+class Timer(object):
+   """
+   OVERVIEW
+
+   This class defines methods for tracking and recording elapsed time, allowing
+   for an arbitrary number of timers.  The function `time` method returns a
+   string specifying the elapsed time in seconds, and also in minutes and
+   seconds if the elapsed time is 60 seconds or greater.  The `reset` method
+   resets the timer to zero.
+   """
+
+   # Constructor:
+   def __init__(self):
+      self.start= time.time()
+
+   def reset(self):
+      self.start= time.time()
+
+   # Report elapsed time and then optionally reset the timer:
+   def time(self, reset=False):
+
+      # Compute elapse time:
+      elapsed= time.time() - self.start
+
+      # Generate nice string representation:
+      s= '%.3f s' % elapsed
+
+      # If total elapsed time exceeds 60 seconds, also print time as
+      # as minutes and seconds:
+      if elapsed >= 60.0:
+         minutes= floor(elapsed / 60.0)
+         elapsed-= 60 * minutes
+         s+= '= %d m %d s' % (minutes, elapsed)
+
+      if reset:
+         self.start= time.time()
+      return s
+
+# end class Timer
+
+
+# Section 3: Define mathematical functions.
+
+def factor1(n):
+   """
+   This function finds the prime factorization of the specified integer n using
+   a very simple algorithm:
+
+   1. Remove all factors of 2.
+
+   2. Test the odd integers 3, 5, 7, ... up to sqrt(n), removing as many
+   factors of each as possible.
+
+   Note: For large integers with small numbers of factors, this algorithm is not
+   efficient.
+
+   The result is returned as an ordered dictionary in which keys are primes and
+   the corresponding values are the powers.
+   """
+
+   # Create empty default dictionary.  Any attempt to access a key that does not
+   # already exist will create that key with an associated value of zero.
+   factors= collections.defaultdict(int)
+
+   # Remove all factors of 2:
+   while True:
+      q, r= divmod(n, 2)
+
+      # If no more factors of 2, break out of loop:
+      if r: break
+
+      factors[2]+= 1
+      n= q
+
+   # Remove all odd prime factors:
+   f= 3
+
+   while f <= int(sqrt(n)):
+      while True:
+         q, r= divmod(n, f)
+
+         # If no more factors of f, increment f by 2 and break out of loop:
+         if r:
+            f+= 2
+            break
+
+         factors[f]+= 1
+         n= q
+
+
+   # If n has not been reduced to unity, it is itself prime:
+   if n != 1:
+      factors[n]= 1
+
+   return factors
+
+
+def factor2(n):
+   """
+   This function finds the prime factorization of the specified integer n using
+   an algorithm that represents a modest improvement over that of `factor1`:
+
+   1. Remove all factors of 2 and 3.
+
+   2. Remove factors of the form 3*n+2 and 3*n+4.
+   """
+
+   # Create empty dictionary:
+   factors= collections.OrderedDict()
+
+   # Remove all factors of 2 and 3:
+   for f in [2, 3]:
+      while True:
+         q, r= divmod(n, f)
+
+         # If no more factors of f, break out of loop:
+         if r: break
+
+         if f in factors:
+            factors[f]+= 1
+         else:
+            factors[f]= 1
+
+         n= q
+
+   # Remove all remaining prime factors.  We make use of the fact that all prime
+   # numbers other than 2 and 3 can be expressed as either 6*n-1 or 6*n+1.  Note
+   # that this is inefficient for large values of n.
+   f= 5
+
+   while True:
+
+      # Remove prime factors of the form 6*n-1.  f will take the values 5, 11,
+      # 17, 23, 29, 35, ...
+      if f > int(sqrt(n)): break
+
+      while True:
+         q, r= divmod(n, f)
+
+         # If no more factors of f, break out of loop:
+         if r: break
+
+         if f in factors:
+            factors[f]+= 1
+         else:
+            factors[f]= 1
+
+         n= q
+
+      f+= 2
+
+      # Remove prime factors of form 6*n-1.  f will take the values 7, 13, 19,
+      # 25, ...
+      if f > int(sqrt(n)): break
+
+      while True:
+         q, r= divmod(n, f)
+
+         # If no more factors of f, break out of loop:
+         if r: break
+
+         if f in factors:
+            factors[f]+= 1
+         else:
+            factors[f]= 1
+
+         n= q
+
+      f+= 4
+
+   # If n is not equal to 1, it is itself a factor of the original n:
+   if n != 1: factors[n]= 1
+
+   return factors
+
+
+def factor2p(n):
+   """
+   This function converts the output of `factor2` into a readable string.
+   """
+   L= []
+
+   for (i, j) in factor2(n).iteritems():
+      if j == 1:
+         L.append('%d' % i)
+      else:
+         L.append('%d^%d' % (i, j))
+
+   return ' * '.join(L)
+
+
+def is_prime1(n):
+   """
+   This function tests primality using a simple deterministic algorithm.
+   """
+   if n==2:
+      return True
+   if (n % 2) == 0:
+      return False
+   i= 3
+   while i <= sqrt(n):
+      if (n % i) == 0:
+         return False
+      i+= 2
+   return True
+
+
+def miller_rabin_pass(a, s, d, n):
+    a_to_power = pow(a, d, n)
+    if a_to_power == 1:
+        return True
+    for i in xrange(s-1):
+        if a_to_power == n - 1:
+            return True
+        a_to_power = (a_to_power * a_to_power) % n
+    return a_to_power == n - 1
+
+
+def is_prime2(n):
+   """
+   This function implements the Miller-Rabin primality test for integers n >= 3.
+   This is a probabilistic test of primality, i.e., it can return a false
+   positive result, although the probability of such an error is extremely low.
+   A return value of False means that n is definitely not prime.
+   This function was taken from the following source, and is reproduced with the
+   copyright notice from that source.
+
+   Copyright (c) 2013 the authors listed at the following URL, and/or
+   the authors of referenced articles or incorporated external code:
+   http://en.literateprograms.org/Miller-Rabin_primality_test_(Python)
+
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   """
+
+   d = n - 1
+   s = 0
+   while d % 2 == 0:
+       d >>= 1
+       s += 1
+
+   for repeat in xrange(20):
+       a= random.randrange(1, n)
+       if not miller_rabin_pass(a, s, d, n):
+           return False
+   return True
+
+
+def test_times(n=None, iters=10):
+   """
+   Run timing tests on different versions of is_prime."""
+
+   default= 1000273817
+
+   if n is None:
+      n= raw_input('Input an integer or expression that evaluates to an '
+        'integer, or hit Enter\nto get the default value of %d: ' % default)
+      if n == '':
+         n= default
+      else:
+         # Convert n from string (possibly containing an expression) to an
+         # integer:
+         n= eval(n)
+
+   is_primes= ['is_prime1', 'is_prime2']
+
+   for is_prime in is_primes:
+      print("Testing primality of %d via %s ..." % (n, is_prime))
+      is_prime= eval(is_prime)
+      x= Timer()
+      for iter in range(iters):
+         result= is_prime(n)
+      print("Result= %s, elapsed time for %d iterations= %s"
+        % (result, iters, x.time()))
+
+
+def next_prime(n, is_prime=is_prime2):
+   """
+   Find first prime number greater than input n."""
+
+   # Handle n<2 as special case:
+   if n<2:
+      return 2
+
+   # Advance to next odd number:
+   if (n % 2) == 0:
+      n+= 1
+   else:
+      n+= 2
+
+   # We don't save much by considering only odd numbers, because `is_prime1`
+   # very quickly returns False for any even number, but we do save a function
+   # call and a few other operations.
+   while not is_prime(n):
+      n+= 2
+
+   return n
+
+
+def find_primes(to_find=200, is_prime=is_prime2):
+   """
+   OVERVIEW
+
+   This function finds and returns the first `to_find` prime numbers.  The
+   default value of `to_find` is 200."""
+
+   primes= [2]
+   n= 3
+   found= 1
+
+   while True:
+      if is_prime(n):
+         found+= 1
+         primes.append(n)
+      if found >= to_find:
+         return primes
+      n+= 2
+
+
+def find_power(n, m):
+   """
+   This function accepts integers n and m, and returns the smallest power i such
+   that m^i divides n.
+   """
+   count= 0
+
+   while True:
+      n, j= divmod(n, m)
+      if j:
+         return count
+      count+= 1
+
+
+def find_composite(primes, highest=1000):
+   """
+   This program returns a list of composite integers of the form
+   p_1^n_1 * p_2^n_2 ..., where p_1, p_2, ... are items in `primes` and n_1,
+   n_2, ... are arbitrary non-negative integers.  The program uses the simple,
+   brute-force approach of testing all integers.  The algorithm is memory
+   efficient, but extremely time inefficient.  Compare with `next_composite`
+   below.
+   """
+
+   n= 0
+   result= []
+
+   if isinstance(primes, (list, tuple)):
+      primes= array(primes)
+
+   while True:
+      n+= 1
+
+      powers= array([find_power(n, prime) for prime in primes])
+
+      if n == numpy.product(primes ** powers):
+         result.append(n)
+
+      if n > highest:
+         return result
+
+
+def next_composite(primes):
+   """
+   OVERVIEW
+
+   This function returns a generator that finds composite numbers containing
+   only the specified prime factors, i.e., numbers of the form
+   p_1^n_1 * p_2^n_2 ..., where p_1, p_2, ... are items in `primes` and
+   n_1, n_2, ... are arbitrary non-negative integers.  Actually, the items in
+   `primes` are only constrained to be relatively prime integers.  If items in
+   `primes` are not unique, the duplicates are removed.  Outputs are generated
+   in increasing order.
+
+
+   NOTE
+
+   The algorithm uses a priority queue to ensure that values are returned in the
+   correct order.  The algorithm is time efficient, but the length of the queue
+   does gradually grow.  The author does not know of any fast algorithm that
+   avoids this problem.
+
+
+   EXAMPLE
+
+   g= build_composite(primes=(2,5))
+   for i in range(30):
+      print(g.next())
+
+   The output is 1, 2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50, 64, 80, 100 125, 128,
+   160, 200, 250, 256, 320, 400, 500, 512, 625, 640, 800, 1000, 1024
+   """
+
+   # Check inputs:
+   primes= unique(primes)
+   if primes.size == 0:
+      raise ValueError("`primes` must not be empty.")
+   if primes[0] < 2:
+      raise ValueError("Each element of `primes` must be 2 or greater.")
+
+   # Initialize the queue:
+   Q= []
+
+   # Create a set `found` that will store all composite numbers that have been
+   # found but not yet returned/yielded.  This is essentially the same
+   # information as is stored in `Q`, but lookups in `found` require O(1) time
+   # vs. O(n) time for `Q`.
+   found= set()
+
+   for prime in primes:
+      found.add(prime)
+      heapq.heappush(Q, prime)
+
+   # The first value in the sequence is always 1:
+   yield 1
+
+   while True:
+      head= Q[0]
+      # print("Q=%r" % Q)
+
+      for prime in primes:
+         m= prime * head
+         if not m in found:
+            # print("found=%r" % found)
+            found.add(m)
+            heapq.heappush(Q, m)
+
+      found.remove(head)
+      yield heapq.heappop(Q)
+
+
+def count_factors(k):
+   """
+   This function returns the number of factors (divisors) of `k`.
+   """
+
+   if k <= 1:
+      return 1
+
+   # Get factorization of `k` in dictionary form.  Keys of `F` are the prime
+   # factors, and the associated values are the corresponding powers (number of
+   # times that each prime appears in the prime factorization).
+   F= factor2(k)
+
+   count= 1
+
+   # In the following we make use of the fact that the factor `p` can appear
+   # anywhere from 0 to `F[p]` times, inclusive, allowing a total of `F[p]+1`
+   # possibilities.
+   for p in F:
+      count*= F[p]+1
+
+   return count
+
+
+def find_highly_composite(n_max=30000, a=0.9247):
+   """
+   OVERVIEW
+
+   This function searches for highly-composite numbers in the range from 6 to
+   `n_max`, inclusive.  To define 'highly-composite', consider the function
+
+      r(n)= (sum of proper factors of n) / n
+
+   We define the number n to be highly-composite iff
+
+      r(n) >= a * r_lin(n),
+
+   where r_lin(n) is the linearly interpolated envelope of r(n).
+
+   `find_highly_composite` returns a list of highly-composite numbers and a list
+   containing the corresponding values of r(n).
+   """
+
+   ns= []
+   rs= []
+   ns_env= []
+   rs_env= []
+
+   r_max= 0.999
+
+   n= 5
+
+   while True:
+      n+= 1
+      r= sum_of_proper_factors(n) / float(n)
+
+      ns.append(n)
+      rs.append(r)
+
+      if r <= r_max:
+         continue
+
+      r_max= r
+
+      ns_env.append(n)
+      rs_env.append(r)
+
+      if n >= n_max:
+         break
+   # end while True
+
+   ns= array(ns)
+   rs= array(rs)
+   rs_lin= interpolate.interp1d(ns_env, rs_env) (ns)
+
+   ndx= nonzero((rs >= a * rs_lin) & (ns <= n_max))[0]
+   return ns[ndx], rs[ndx]
+
+
+def find_numbers_with_odd_factor_count(k=1000):
+   for i in range(4,k+1):
+      c= count_factors(i)
+      if c % 2:
+         print(i, c)
+
+
+def number_of_proper_factors(i):
+   """
+   OVERVIEW
+
+   This function calculates the number of proper factors of the given integer
+   `i`, i.e., the number of factors excluding `i` itself.
+   """
+
+   if i <= 3:
+      return 1
+
+   L= [list(itertools.starmap(pow, itertools.product((a,), range(0,b+1))))
+     for (a, b) in factor2(i).iteritems()]
+
+   # In the following statement, we subtract 1 because `i` is not a proper
+   # factor of itself:
+   return reduce(operator.mul, [len(item) for item in L]) - 1
+
+
+def sum_of_proper_factors(i):
+   """
+   OVERVIEW
+
+   This function calculates the sum of the proper factors of the given integer
+   `i`, i.e., the sum of all factors, excluding `i` itself.
+
+
+   ACKNOWLEDGMENT [16 April 2014]
+
+   This function was developed in collaboration with Benjamin L. Cosman.  Ben--
+   one of my nephews--recently completed his undergraduate studies at the
+   California Institute of Technology.
+
+
+   NOTE
+
+   After the first statement below executes, `L` is a list of lists.  The jth
+   nested list contains powers of p_j, where p_j is the jth unique prime factor
+   appearing in the prime factorization of i.
+
+   In the second statement, we need `*L` rather than `L` because we want each
+   of the nested lists to be passed to `itertools.product` as a separate
+   argument.  `i` is subtracted because the sum should include only proper
+   factors--not the number itself.
+   """
+   if i <= 3:
+      return 1
+
+   L= [list(itertools.starmap(pow, itertools.product((a,), range(0,b+1))))
+     for (a, b) in factor2(i).iteritems()]
+
+   return sum([reduce(operator.mul, x) for x in itertools.product(*L)]) - i
+
+
+# Section 4: Define functions that generate printed and plotted output.
+
+def nice_print(*args, **kwargs):
+   """
+   Print first argument followed by colon and remaining arguments, with each
+   argument right justified in a field having the width specified via
+   `kwargs['width']`, or a default width of 8 if this keyword argument was not
+   specified.
+   """
+
+   if 'width' in kwargs:
+      width= kwargs['width']
+   else:
+      width= 8
+
+   for i in range(len(args)):
+      print('%s' % str(args[i]).rjust(width), end="")
+      if i==0:
+         print(': ', end="")
+   print()
+
+
+def print_primes(to_find=200):
+   """
+   OVERVIEW
+
+   This function finds and displays the first `to_find` prime numbers.  The
+   default value of `to_find` is 200."""
+
+   nice_print(1, 2)
+   n= 3
+   found= 1
+
+   while found < to_find:
+      if is_prime1(n):
+         found+= 1
+         nice_print(found, n)
+      n+= 2
+
+
+def prime_pairs(to_find=200, is_prime=is_prime2):
+   """
+   Find first `to_find` pairs of primes differing by 2 and display the values.
+   The default value of to_find is 200."""
+
+   nice_print(1, 3, 5)
+   n= 5
+   found= 1
+
+   while found < to_find:
+      if is_prime(n):
+         if is_prime(n+2):
+            found+= 1
+            nice_print(found, n, n+2)
+
+            # With the exception of (3,5,7), we will never find three
+            # consecutive odd numbers that are all prime:
+            n+= 6
+         else:
+            n+= 4
+      else:
+         n+= 2
+
+
+def prime_triples(to_find=100, is_prime=is_prime2):
+   """
+   Find first `to_find` triples of closely-spaced primes and display the values.
+   Such a triple is defined as a group of three consecutive primes such that the
+   difference between the smallest and the largest is no more than six.  With
+   the exception of (2,3,5) and (3,5,7), all such triples are of one of two
+   forms:
+
+   (n, n+2, n+6)
+   (n, n+4, n+6)
+
+   (In a triple of the form (n, n+2, n+4), one of the three numbers must be
+   divisible by 3).  It is postulated that the number of such triples is
+   infinite.  The default value of to_find is 100."""
+
+   if to_find > 10000:
+      width= 12
+   else:
+      width= 8
+
+   nice_print(1, 2, 3, 5, width=width)
+   nice_print(2, 3, 5, 7, width=width)
+   n= 5
+   found= 2
+
+   while found < to_find:
+      if not is_prime(n) or not is_prime(n+6):
+         pass
+      elif is_prime(n+2):
+         found+= 1
+         nice_print(found, n, n+2, n+6, width=width)
+      elif is_prime(n+4):
+         found+= 1
+         nice_print(found, n, n+4, n+6, width=width)
+      n+= 2
+
+
+def prime_statistics(n=2, block_size=50000, blocks=50, blocks_per_report=20,
+  is_prime=is_prime2):
+   """
+   OVERVIEW
+
+   This function collects statistics on the frequencies of prime numbers, prime
+   pairs, and prime triples, counting the number of each per bin, where the bin
+   size and number of bins are parameters of this function.
+
+   A prime pair or triple that is divided between two bins is counted as
+   belonging to the first one.
+
+
+   INPUTS
+
+   `n` is the first integer to be tested; the default is 2.
+
+   `block_size` is the number of integers per block.
+
+   `blocks` is the total number of blocks to be analyzed.
+
+   `blocks_per_report` specifies the interval at which the code should display
+   progress (so that one can verify that it is doing something).
+
+   `is_prime` specifies the function to be called to test whether a number is
+   prime.
+
+
+   NOTE
+
+   The logic of this function depends on `block_size` being an even number.
+
+   The code increments n in steps of 2, and starts a new block whenever
+   n mod block_size equals 1.  Thus, the total number of integers to be tested
+   is at most block_size * blocks / 2.
+   """
+
+   counts= zeros( (blocks, 3), dtype='int')
+
+   if isinstance(n, float):
+      n= int(n)
+
+   if n < 2:
+      raise ValueError("The starting value of n cannot be less than 2.")
+
+   if n == 2:
+
+      # Start checking from n= 3.  We will miss the prime 2, the prime pair
+      # (2, 3), and the prime triple (2, 3, 5), so we manually initialize the
+      # first row of `counts` to include these:
+      counts[0, :]= [1, 1, 1]
+
+   # Force the search to start with an odd number:
+   if n % 2 == 0:
+      n+= 1
+
+   print("n_block=", end='')
+
+   for block in range(blocks):
+
+      if (block % blocks_per_report) == 0:
+         print("%d, " % block, end='')
+
+      while True:
+
+         if is_prime(n):
+            counts[block, 0]+= 1
+
+            # Check for a prime pair:
+            if is_prime(n+2):
+               counts[block, 1]+= 1
+
+               # Check for a prime triple:
+               if is_prime(n+6):
+                  counts[block, 2]+= 1
+
+            else:
+
+               # Check for a prime triple:
+               if is_prime(n+4) and is_prime(n+6):
+                  counts[block, 2]+= 1
+
+         n+= 2
+
+         # If n mod block_size equals 1, start a new block:
+         if n % block_size == 1:
+            break
+
+      # end while True
+   # end for block in range(blocks)
+
+   return counts
+
+
+def plot_prime_statistics(block_size=10000000, blocks=100,
+  blocks_per_report=1):
+   """
+   OVERVIEW
+
+   This function calculates the numbers of primes, prime, pairs, and prime
+   triples in each block and then plots the data using side-by-side bars on a
+   log-log scale.
+
+
+   OBSERVATIONS
+
+   Prime pairs are rarer than primes, and prime triples are rarer still, as
+   one would expect.  The counts diminish rapidly at first, and then more and
+   more slowly.
+   """
+   counts= prime_statistics(block_size=block_size,
+     blocks=blocks, blocks_per_report=blocks_per_report)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+   ax= fig.add_subplot(1,1,1)
+   ax.set_xscale('log')
+   ax.set_yscale('log')
+
+   width= 0.4
+   ax.bar(arange(blocks)+1,       counts[:,0],
+     width=width, facecolor='green' , edgecolor='green', label='primes')
+   ax.bar(arange(blocks)+1.2    , counts[:,1],
+     width=width, facecolor='yellow', edgecolor='yellow', label='pairs' )
+   ax.bar(arange(blocks)+1.4    , counts[:,2],
+     width=width, facecolor='red'   , edgecolor='red',   label='triples')
+
+   ax.legend(loc='lower left')
+
+   # Adjust upper limits of x- and y-axes to eliminate excess white space:
+   pyplot.xlim([ None, log_round(blocks, mode='n') ])
+   pyplot.ylim([ None, log_round(max(counts[:, 0]), mode='u') ])
+
+   pyplot.xlabel('Block Number', fontsize=16)
+   pyplot.ylabel('Frequency' , fontsize=16)
+   pyplot.title(
+     "Bar heights show numbers of primes, prime pairs, and prime triples\n"
+     "per block.  Each block represents %s consecutive integers."
+     % num2str(block_size))
+   pyplot.grid(True)
+
+   # Save the figure to a file:
+   pyplot.savefig('prime statistics.png')
+
+   # Display the figure:
+   pyplot.show()
+
+
+def plot_prime_histogram(n=2, block_size=1000, blocks=200000, bins=None,
+  overlay='Poisson', return_counts=False, width=None):
+   """
+   OVERVIEW
+
+   This function calculates the numbers of primes, prime, pairs, and prime
+   triples in each bin and then plots histograms of the data.  (Currently,
+   histograms are plotted only for the counts of primes).
+
+
+   INPUTS
+
+   `n` is the first integer to be tested; the default is 2.
+
+   `block_size` specifies the bin (block) size.  Blocks of consecutive integers
+   of this size are tested, and the counts of primes, prime pairs, and prime
+   triples for each block are recorded.
+
+   `blocks` is the total number of bins to be tested.
+
+   `bins` specifies the bins for the histogram, either as a single integer--the
+   number of bins--or a list of bin edge locations.  Note that the value being
+   binned is now the count of the number of primes.  The default is `None`,
+   which causes the code to generate bins that each contain a single value of
+   the count.
+
+   `overlay` specifies the type of theoretical distribution to be displayed for
+   comparison with the data.  Options are 'Poisson', 'poisson', and 'normal'.
+   If the Poisson distribution family is selected, the mean of the distribution
+   is set to match the sample mean of the data, and the distribution is plotted
+   as blue bars that are partly behind the green bars of the histogram.  If the
+   normal distribution family is selected, the mean and standard deviation of
+   distribution are chosen to match the sample statistics, and the distribution
+   is plotted as a curve.  In both cases, the theoretical distribution is
+   scaled to have the same area as the histogram.  `overlay` defaults to
+   'Poisson'.
+
+
+   OBSERVATIONS
+
+   The initial plot shows a distribution that is strongly skewed to the right.
+   The cause of this skewness is that the underlying distribution is shifting
+   from one block to the next as the frequency of primes diminishes.  We can
+   reduce this effect, which is similar to the initial transient in a discrete
+   event simulation, by discarding some fraction of the blocks.  (The
+   distribution changes rapidly over the initial blocks, and then more and
+   more slowly).
+
+   As we increase the fraction of blocks that is discarded, the histogram begins
+   to closely match the overlaid normal/Gaussian curve.  Given that the prime
+   number sequence is as deterministic as anything can be, the emergence of the
+   normal distribution may be surprising.  There are in fact many settings where
+   deterministic sequences exhibit small- or large-scale behavior that not only
+   appears to be random, but that is indistinguisable from true randomness.
+
+
+   NOTE
+
+   If one increases the block size by a factor that offsets the decreasing
+   frequency of primes (or prime pairs or prime triples), so that the expected
+   number of primes per bin is held constant, the distribution of the number of
+   primes per bin tends to a Poisson limit.
+
+   The Poisson distribution converges to a normal limit with suitable scaling.
+   """
+   overlay= overlay.lower()
+
+   if overlay == 'poisson':
+      if bins is None:
+         bins= 30   # default
+      if width is None:
+         width= 0.4 # default
+
+   elif overlay == 'normal':
+      if bins is None:
+         bins= 60   # default
+      if width is None:
+         width= 0.8 # default
+
+   else:
+      raise ValueError("`overlay` must be a case-insensitive match to "
+        "'poisson' or 'normal'.")
+
+   counts= prime_statistics(n=n, block_size=block_size, blocks=blocks,
+     blocks_per_report=200)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+   ax= fig.add_subplot(1,1,1)
+
+   # If `bins` is an integer, the calling program wants us to size the bins
+   # automatically to produce the specified number of bins.  `numpy.histogram`
+   # is very convenient, but will in general choose bin edges such that the
+   # number of integers per bin are unequal.  The solution is as follows:
+
+   # (1) Let `numpy.histogram` perform the initial sizing.
+   # (2) Starting with the bin locations calculated by `numpy.histogram`,
+   #     calculate new bin edge locations that fall at integers, with each bin
+   #     containing the same number of integers.
+   # (3) Call `numpy.histogram` again to generate the final histogram counts.
+   if isinstance(bins, int):
+
+      # (1) Initial sizing:
+      hist, bin_edges= numpy.histogram(counts[:,0], bins=bins)
+
+      # (2) Calculate new bin edge locations:
+      step= max( int(bin_edges[-1]/bins + 0.5), 1 )
+      bin_edges= range(0, step*(bins+1)-1, step)
+
+      # (3) Call `numpy.histogram` again to generate final counts:
+      hist, bin_edges= numpy.histogram(counts[:,0], bins=bin_edges)
+
+   # Calculate region of x-axis where bar heights are at least 1/2 percent of
+   # the maximum height:
+   signif= nonzero(hist >= 0.005*hist.max())[0]
+
+   ax.bar(bin_edges[signif]-0.5*width, hist[signif], width=width,
+     facecolor='green', edgecolor='green', label='primes', zorder=1)
+
+   if overlay == 'poisson':
+
+      # Calculate scaled Poisson probability mass function (PMF):
+      mu= numpy.mean(counts[0:,0], dtype=numpy.float64)
+      x= bin_edges[signif]
+      y= stats.poisson.pmf(x, mu)
+      y*= hist.sum() / y.sum()
+
+      # Plot Poission PMF as overlay (actually, as an underlay):
+      ax.bar(x-0.4, y, linewidth=3, width=width,
+        facecolor='blue', edgecolor='blue', label='scaled Poisson PMF', zorder=0)
+
+   else: # overlay == 'normal'
+
+      # Calculate scaled normal curve for use in overlay:
+      mu   = numpy.mean(counts[0:,0], dtype=numpy.float64)
+      sigma= numpy.std (counts[0:,0], dtype=numpy.float64)
+      x_min= bin_edges[signif[ 0]] - 0.5
+      x_max= bin_edges[signif[-1]] + 0.5
+      ax.set_xlim([x_min, x_max])
+
+      x= numpy.linspace(x_min, x_max, 201)
+      y= dot(bin_edges[1:]-bin_edges[:-1], hist) \
+        * stats.norm.pdf(x, loc=mu, scale=sigma)
+
+      # Plot overlaid density:
+      ax.plot(x, y, linewidth=3, color='blue', label='scaled normal PDF', zorder=0)
+
+
+   # Adjust tick locations and formatting of tick labels.  Note that the
+   # argument of `pyplot.FuncFormatter` is a function, and that that function
+   # must accept two arguments, even if, as in this case, it only uses one of
+   # them.
+   ax.set_xticks(bin_edges[signif])
+   ax.xaxis.set_major_formatter(
+     pyplot.FuncFormatter(lambda x,p: '%d' % (x+0.5)))
+
+   # Sort legend labels so that they will be displayed in alphabetical order:
+   handles, labels= ax.get_legend_handles_labels()
+   hl= sorted(zip(handles, labels), key=operator.itemgetter(1))
+   handles, labels= zip(*hl)
+   ax.legend(handles, labels, loc='upper right')
+
+   pyplot.xlabel('Counts of primes', fontsize=16)
+   pyplot.ylabel('Frequency', fontsize=16)
+   pyplot.title("%d blocks, %d integers per block, starting from n=%s\n"
+     "mean primes/block=%.1f" % (blocks, block_size, num2str(n), mu))
+   pyplot.grid(True)
+
+   pyplot.savefig('prime histogram %s, %s %d %d.png'
+     % (overlay, num2str(n), blocks, block_size))
+
+   if return_counts:
+      return counts
+
+
+def plot_number_of_proper_factors(n_max=360):
+   """
+   This Python function plots the number of proper factors versus n for all n up
+   to and including the specified value.
+   """
+   ns= range(3, n_max+1) # values of n
+   cs= []                # corresponding counts of proper factors
+
+   ns_biggest= []
+   cs_biggest= []
+
+   c_max= 0
+
+   for n in ns:
+      c= number_of_proper_factors(n)
+      cs.append(c)
+
+      if c > c_max:
+         c_max= c
+         ns_biggest.append(n)
+         cs_biggest.append(c)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+   ax= fig.add_subplot(1, 1, 1)
+   # ax.set_xscale('log')
+
+   pyplot.scatter(ns, cs)
+   pyplot.hold(True)
+   pyplot.plot(ns_biggest, cs_biggest, linewidth=2)
+
+   pyplot.xlabel('n', fontsize=16)
+   pyplot.ylabel('number of proper factors', fontsize=16)
+   pyplot.xlim([3, n_max])
+   pyplot.ylim([0, None])
+   pyplot.grid(True)
+
+   # Save the figure to a file:
+   pyplot.savefig('n_proper_factors_plot.png')
+
+   # Display the figure:
+   pyplot.show()
+
+
+def plot_sum_of_proper_factors(n_max=360):
+   """
+   This Python function plots the sum of the proper factors of n versus n for
+   all n up to and including the specified value.
+   """
+   ns= range(3, n_max+1) # values of n
+   cs= []                # corresponding counts of proper factors
+
+   ns_biggest= []
+   cs_biggest= []
+
+   c_max= 0
+
+   for n in ns:
+      c= sum_of_proper_factors(n)
+      cs.append(c)
+
+      if c > c_max:
+         c_max= c
+         ns_biggest.append(n)
+         cs_biggest.append(c)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+   ax= fig.add_subplot(1, 1, 1)
+   # ax.set_xscale('log')
+
+   pyplot.scatter(ns, cs)
+
+   # Overlay envelope line on scatter plot:
+   pyplot.hold(True)
+   pyplot.plot(ns_biggest, cs_biggest, linewidth=2)
+
+   pyplot.xlabel('n', fontsize=16)
+   pyplot.ylabel('sum of proper factors', fontsize=16)
+   pyplot.xlim([3, n_max])
+   pyplot.ylim([0, None])
+   pyplot.grid(True)
+
+   # Save the figure to a file:
+   pyplot.savefig('sum_of_proper_factors_plot.png')
+
+   # Display the figure:
+   pyplot.show()
+
+
+def plot_normalized_sum_of_proper_factors(n_max=360):
+   """
+   This Python function plots a scatter diagram of the normalized sum of proper
+   factors
+
+      r(n)= (sum of proper factors of n) / n
+
+   versus n for integers up to and including the specified value.  A blue line
+   is overlaid to show the simple piecewise-linear envelope of the above
+   function, and a green line is overlaid to show the convex hull.
+   """
+   ns= range(3, n_max+1)
+   rs= []
+
+   ns_biggest= []
+   rs_biggest= []
+
+   r_max= 0
+
+   for n in ns:
+      r= sum_of_proper_factors(n) / float(n)
+      rs.append(r)
+
+      if r > r_max:
+         r_max= r
+         ns_biggest.append(n)
+         rs_biggest.append(r)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+
+   pyplot.scatter(ns, rs)
+
+   # Calculate convex hull and overlay on plot as green line:
+   hull= spatial.ConvexHull(array(ns_biggest + rs_biggest).reshape(2, -1).T)
+   pyplot.plot(array(ns_biggest)[hull.vertices[1:]],
+               array(rs_biggest)[hull.vertices[1:]], linewidth=2, color='green')
+
+   # Overlay simple piecewise-linear envelope as blue line:
+   pyplot.hold(True)
+   pyplot.plot(ns_biggest, rs_biggest, linewidth=2, color='blue')
+
+   pyplot.xlabel('n', fontsize=16)
+   pyplot.ylabel('r(n)= (sum of proper factors) / n', fontsize=16)
+   pyplot.xlim([3, n_max])
+   pyplot.ylim([-0.02, None])
+   pyplot.grid(True)
+
+   # Save the figure to a file:
+   pyplot.savefig('normalized_sum_of_proper_factors.png')
+
+   # Display the figure:
+   pyplot.show()
+
+
+def plot_normalized_sum_of_proper_factors_with_colors(n_max=10000, a=0.9247):
+   """
+   This Python function plots a scatter diagram of the normalized sum of proper
+   factors
+
+      r(n)= (sum of proper factors of n) / n
+
+   versus n for integers up to and including the specified value.  It differs
+   from `plot_normalized_sum_of_proper_factors` in two ways:
+
+   - The envelope line is not shown.
+
+   - Dots are color-coded as follows: prime -> red, perfect number -> yellow,
+   highly-composite -> green, other numbers -> black.
+   """
+   integers= range(3, n_max+1)
+
+   perfect= array([6, 28, 496, 8128])
+   powers_of_10= 10**arange(6)
+   perfect         = perfect         [perfect          <= n_max]
+   powers_of_10    = powers_of_10    [powers_of_10     <= n_max]
+
+   highly_composite= find_highly_composite(n_max=n_max, a=0.9247)[0]
+
+   primes= []
+   rs= numpy.empty(n_max+1, dtype='f4')
+
+   for j in integers:
+      if is_prime(j):
+         primes.append(j)
+      rs[j]= sum_of_proper_factors(j) / float(j)
+
+   primes= array(primes)
+
+   fig= pyplot.figure(figsize=[10,7], dpi=120, facecolor=[1,1,1])
+   ax= fig.add_subplot(1,1,1)
+   ax.set_xscale('log')
+
+   pyplot.hold(True)
+
+   for (numbers       , size,   bc   ,   ec   , zorder, label) in (
+     (primes          ,   70, 'blue' , 'blue' ,   2,   'prime'           ),
+     (powers_of_10    ,  140, 'green', 'black',   2,   '10^n'            ),
+     (perfect         ,  160, 'gold' , 'black',   3,   'perfect'         ),
+     (highly_composite,  140, 'red'  , 'black',   2,   'highly-composite'),
+     (integers        ,   24, 'gray' , 'black',   1,   'other'           ),
+   ):
+      pyplot.scatter(numbers, rs[numbers], size, c=bc, edgecolor=ec,
+        linewidth=1, zorder=zorder, label=label)
+
+   pyplot.plot([3, n_max], [1.0, 1.0], c='yellow', linewidth=3, zorder=5)
+
+   pyplot.xlabel('n', fontsize=16)
+   pyplot.ylabel('r(n)= (sum of proper factors) / n', fontsize=16)
+   pyplot.xlim([2.5, 1.04*n_max])
+   pyplot.ylim([-0.03, None])
+   pyplot.grid(True)
+
+   xticks= numpy.array([3, 6, 10, 100, 1000, 10000])
+   xticks= xticks  [xticks  <= n_max]
+   xlabels= ['3', '6', '10', '100', '1000', '1e4'][:len(xticks)]
+   pyplot.xticks(xticks, xlabels)
+
+   pyplot.legend(loc='upper left')
+
+   pyplot.subplots_adjust(left=0.1, right=0.95)
+
+   # Save the figure to a file:
+   pyplot.savefig('normalized_sum_of_proper_factors_with_colors.png')
+
+   # Display the figure:
+   pyplot.show()
+
+
+def print_highly_composite(n_max=30000, a=0.9247):
+   """
+   OVERVIEW
+
+   This function calculates highly-composite integers and displays a table.
+   The ith row of the table contains the number i, n_i= the ith highly-composite
+   integer, r(n_i), and the prime factorization of n_i, where
+
+      r(n)= (sum of proper factors of n) / n.
+   """
+
+   ns, rs= find_highly_composite(n_max=n_max, a=a)
+
+   print('                    # of\n'
+         '  i       n   r(n) proper  factorization\n'
+         '                   factors')
+
+   for i, n in enumerate(ns):
+      print('%3d %7d %6.3f %4d    %s'
+        % (i+1, n, rs[i], count_factors(n)-1, factor2p(n)))
+
+
+def print_perfect():
+   """
+   OVERVIEW
+
+   This function calculates and displays the first few perfect numbers, where a
+   perfect number is defined to be a number that is equal to the sum of its
+   proper factors.  We make use of the fact that all even perfect numbers are of
+   the form 2^(p-1) * (2^p-1), where p is a prime, and assume that there are no
+   odd perfect numbers.
+
+   My computer can generate the first nine perfect numbers in about 15 minutes:
+
+   p=  2, n=6
+   p=  3, n=28
+   p=  5, n=496
+   p=  7, n=8128
+   p= 13, n=33550336
+   p= 17, n=8589869056
+   p= 19, n=137438691328
+   p= 31, n=2305843008139952128
+   p= 61, n=2658455991569831744654692615953842176
+   """
+
+   for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
+     61, 67, 71]:
+      m= 2**p - 1
+
+      # If m is not a Mersenne prime, skip it:
+      if not is_prime(m):
+         continue
+
+      n= 2**(p-1) * m
+      if sum_of_proper_factors(n) != n:
+         continue
+
+      print("p=%2d, n=%d" % (p, n))
+
+
+# Define aliases:
+
+factor  = factor2
+is_prime= is_prime2

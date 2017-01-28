@@ -1,0 +1,70 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{amsmath}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Totients}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Totient Sums}
+x
+Suppose we want to find the sum of totients $\varphi(i)$ for $1<i\le n$
+
+Andy in Stack exchange:\\
+
+Let\\
+F(N) = cardinality$\{ a,b : 0 <a < b \le N \}$\\
+R(N) = cardinality$\{ a,b : 0 < a < b \le N, gcd(a,b) = 1 \}$\\
+
+$$R(N)=F(N)-\sum^N_{m=2}R(\lfloor\frac{N}{m}\rfloor)$$
+
+\begin{verbatim}
+def R2(N,X2={}):
+    if N==1:
+        return 0
+    try:
+        return X2[N]
+    except KeyError:
+        fsum = F(N)
+        m=2
+        while 1:
+            x = N//m
+            nxt = N//x
+            if(nxt >= N):
+                result=fsum - (N-m+1)*R2(N//m,X2)
+                X2[N]=result
+                return result
+            fsum -= (nxt-m+1) * R2(N//m,X2)
+            m = nxt+1
+
+def F(N):
+    return N*(N-1)//2
+    
+#returns sum of totients of x<=n
+#wrapper for R2
+#sum of totient(x) for x<=n
+def totientSum(n):
+    return R2(n)+1
+\end{verbatim}
+
+$$\sum\limits_{k=2}^n k^j R_j\left ( \left \lfloor \frac{n}{k} \right \rfloor \right )$$
+
+$$= \sum\limits_{k=2}^{\lfloor n/q \rfloor} k^j R_j\left ( \left \lfloor \frac{n}{k} \right \rfloor \right ) + \sum\limits_{m=1}^{q-1} \sum\limits_{k=\lfloor \frac{n}{m+1} \rfloor + 1}^{\lfloor \frac{n}{m} \rfloor} k^j R_j(m)$$
+
+$$= \sum\limits_{k=2}^{\lfloor n/q \rfloor} (S_j(k) - S_j(k-1)) R_j\left ( \left \lfloor \frac{n}{k} \right \rfloor \right ) + \sum\limits_{m=1}^{q-1} \left ( S_j \left ( \left \lfloor \frac{n}{m} \right \rfloor \right ) - S_j \left ( \left \lfloor \frac{n}{m+1} \right \rfloor \right ) \right ) R_j(m)$$
+
+
+Daniel Fischer writes:
+
+$$R(N) = F(N) - F\left( \Big\lfloor \frac{N}{2} \Big\rfloor \right)  - \sum_{k=1}^{\lfloor\frac{N-1}{2}\rfloor}{ R\left(\Big\lfloor\frac{N}{2k+1}\Big\rfloor\right) }$$
+
+\end{document}  

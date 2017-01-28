@@ -1,0 +1,232 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      6496,        224]
+NotebookOptionsPosition[      5334,        179]
+NotebookOutlinePosition[      5693,        195]
+CellTagsIndexPosition[      5650,        192]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{"Reduce", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"x", "^", "2"}], "\[Equal]", "x"}], ",", 
+   RowBox[{"{", "x", "}"}], ",", 
+   RowBox[{"Modulus", "\[Rule]", "180"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.69322423236014*^9, 3.693224258786901*^9}, {
+  3.693224310223673*^9, 3.6932244556088753`*^9}, {3.693253844889874*^9, 
+  3.693253914323989*^9}, {3.6932539590697193`*^9, 3.693254001826812*^9}, {
+  3.693293887532856*^9, 3.6932938881876297`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"x", "\[Equal]", "0"}], "||", 
+  RowBox[{"x", "\[Equal]", "1"}], "||", 
+  RowBox[{"x", "\[Equal]", "36"}], "||", 
+  RowBox[{"x", "\[Equal]", "45"}], "||", 
+  RowBox[{"x", "\[Equal]", "81"}], "||", 
+  RowBox[{"x", "\[Equal]", "100"}], "||", 
+  RowBox[{"x", "\[Equal]", "136"}], "||", 
+  RowBox[{"x", "\[Equal]", "145"}]}]], "Output",
+ CellChangeTimes->{{3.693224330109522*^9, 3.693224400478835*^9}, {
+   3.693224437895101*^9, 3.693224458017613*^9}, {3.69325385105976*^9, 
+   3.693253915029172*^9}, {3.693253960664043*^9, 3.693254002767202*^9}, 
+   3.693293891003805*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Mod", "[", 
+  RowBox[{
+   RowBox[{"28", "^", "2"}], ",", "36"}], "]"}]], "Input",
+ CellChangeTimes->{{3.693224463291871*^9, 3.693224502652224*^9}, {
+  3.693253930755529*^9, 3.69325393825771*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Mod", "[", 
+  RowBox[{"7", ",", "6"}], "]"}]], "Input",
+ CellChangeTimes->{{3.693293708347384*^9, 3.693293717417663*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"FactorInteger", "[", "144", "]"}]], "Input",
+ CellChangeTimes->{{3.693293902869948*^9, 3.693293912372422*^9}, {
+  3.69329400048382*^9, 3.693294015872786*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"2", ",", "4"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "2"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.6932939135050097`*^9, {3.6932940019212112`*^9, 3.693294017005405*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"FindInstance", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{"31", "x"}], ",", "83"}], "]"}], "\[Equal]", "14"}], ",", "x"}],
+   "]"}]], "Input",
+ CellChangeTimes->{{3.693301397568108*^9, 3.693301552409161*^9}}],
+
+Cell[BoxData[
+ TemplateBox[{
+  "FindInstance","nsmet",
+   "\"The methods available to FindInstance are insufficient to find the \
+requested instances or prove they do not exist.\"",2,269,32,
+   23147336927893110934,"Local"},
+  "MessageTemplate"]], "Message", "MSG",
+ CellChangeTimes->{{3.693301515780463*^9, 3.693301529050199*^9}, 
+   3.6933015835700083`*^9}],
+
+Cell[BoxData[
+ RowBox[{"FindInstance", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{"31", " ", "x"}], ",", "83"}], "]"}], "\[Equal]", "14"}], ",", 
+   "x"}], "]"}]], "Output",
+ CellChangeTimes->{
+  3.693301414115869*^9, 3.693301457533574*^9, {3.693301491616753*^9, 
+   3.693301529066472*^9}, 3.693301583586252*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Mod", "[", 
+  RowBox[{
+   RowBox[{"13", "*", "5"}], ",", "11"}], "]"}]], "Input",
+ CellChangeTimes->{{3.693302121207192*^9, 3.6933021289651833`*^9}, {
+  3.693302163854007*^9, 3.6933021657245092`*^9}, {3.693302208426158*^9, 
+  3.693302208976715*^9}, {3.693302493149743*^9, 3.693302494933463*^9}}],
+
+Cell[BoxData["10"], "Output",
+ CellChangeTimes->{3.69330249638545*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Mod", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Mod", "[", 
+     RowBox[{"13", ",", "11"}], "]"}], "*", 
+    RowBox[{"Mod", "[", 
+     RowBox[{"5", ",", "11"}], "]"}]}], ",", "11"}], "]"}]], "Input",
+ CellChangeTimes->{{3.693302499226227*^9, 3.693302529979375*^9}}],
+
+Cell[BoxData["10"], "Output",
+ CellChangeTimes->{3.693302531261551*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Mod", "[", 
+  RowBox[{"4", ",", "2"}], "]"}]], "Input",
+ CellChangeTimes->{{3.6933027539187737`*^9, 3.693302764197186*^9}, {
+  3.693360311375779*^9, 3.693360333981022*^9}, {3.6933603783675957`*^9, 
+  3.693360398780127*^9}}],
+
+Cell[BoxData["0"], "Output",
+ CellChangeTimes->{
+  3.693302765119133*^9, {3.693360313219658*^9, 3.693360334947427*^9}, {
+   3.6933603811948977`*^9, 3.693360399308386*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"FindInstance", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Mod", "[", 
+     RowBox[{"76", ",", "x"}], "]"}], "\[Equal]", "x"}], ",", "x", ",", 
+   "Integers"}], "]"}]], "Input",
+ CellChangeTimes->{{3.693451271021687*^9, 3.693451294219398*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", "}"}]], "Output",
+ CellChangeTimes->{3.693451295064748*^9}]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.6933024758420677`*^9, 3.693302475851551*^9}}]
+},
+WindowSize->{808, 681},
+WindowMargins->{{20, Automatic}, {Automatic, 44}},
+FrontEndVersion->"11.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
+21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 474, 10, 32, "Input"],
+Cell[1057, 34, 603, 13, 32, "Output"]
+}, Open  ]],
+Cell[1675, 50, 219, 5, 32, "Input"],
+Cell[1897, 57, 145, 3, 32, InheritFromParent],
+Cell[CellGroupData[{
+Cell[2067, 64, 182, 3, 32, InheritFromParent],
+Cell[2252, 69, 266, 8, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2555, 82, 271, 8, 32, "Input"],
+Cell[2829, 92, 359, 8, 24, "Message"],
+Cell[3191, 102, 351, 10, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3579, 117, 319, 6, 32, "Input"],
+Cell[3901, 125, 70, 1, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4008, 131, 289, 8, 32, "Input"],
+Cell[4300, 141, 71, 1, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4408, 147, 247, 5, 32, "Input"],
+Cell[4658, 154, 171, 3, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4866, 162, 265, 7, 32, "Input"],
+Cell[5134, 171, 87, 2, 32, "Output"]
+}, Open  ]],
+Cell[5236, 176, 94, 1, 32, InheritFromParent]
+}
+]
+*)
+

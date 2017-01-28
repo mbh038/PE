@@ -5,6 +5,7 @@ Created on Thu Jun 30 15:37:00 2016
 @author: michael.hunt
 """
 import math
+import random as rd
 from math import log,sqrt
 import numpy as np
 import time
@@ -71,6 +72,32 @@ def check_is_prime1():
 #from sympy -seems to be 7-10x slower than is_prime1
 from sympy import isprime
      
+#code by Philip Feldman - seems to be slow
+def miller_rabin_pass(a, s, d, n):
+    a_to_power = pow(a, d, n)
+    if a_to_power == 1:
+        return True
+    for i in range(s-1):
+        if a_to_power == n - 1:
+            return True
+        a_to_power = (a_to_power * a_to_power) % n
+    return a_to_power == n - 1
+
+#from Philip Feldman  uses Miller-Rabin above
+def is_prime(n):
+
+   d = n - 1
+   s = 0
+   while d % 2 == 0:
+       d >>= 1
+       s += 1
+
+   for repeat in range(20):
+       a= rd.randrange(1, n)
+       if not miller_rabin_pass(a, s, d, n):
+           return False
+   return True
+
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
 # http://stackoverflow.com/users/88622/alexandru
 #See also https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11
@@ -266,6 +293,15 @@ def fpfs():
         for x in prime_factors(n):
             pfs[x]=pfs.get(x,0)+1
         yield n,pfs        
+
+def coprime(n) :
+    """returns all positive integers <N that are coprime with n"""
+    cpsieve=np.ones(n+1,dtype=bool)
+    for i in range(2,int(n**.5)+1):
+        if not n%i:
+            cpsieve[i::i]=False
+            cpsieve[n//i::n//i]=False
+    return np.nonzero(cpsieve)[0][1:]
       
 #euler totient sieve
 def etsieve(n,primes):
@@ -496,23 +532,23 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
 
 from timeit import default_timer as timer
 def test(n):
-#    start=timer()
-#    for i in range(n):
-#        is_prime1(n)
-#    print ('Elapsed time for ip1: ',timer()-start)
-#    start=timer()
-#    for i in range(n):
-#        is_prime3(n)
-#    print ('Elapsed time for ip3: ',timer()-start)
-#    start=timer()
-#    for i in range(n):
-#        is_prime3(i)
-#    print ('Elapsed time for 3: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        is_prime1(n)
+    print ('Elapsed time for ip1: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        is_prime3(n)
+    print ('Elapsed time for ip3: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        is_prime(n)
+    print ('Elapsed time for mr: ',timer()-start)
 #    start=timer()
 #    for i in range(n):
 #        is_prime4(i)
 #    print ('Elapsed time for 4: ',timer()-start ) 
-    start=timer()
-    [prime_factors(x) for x in squarefree(n)]
-    print ('Elapsed time for squarefree: ',timer()-start )
+#    start=timer()
+#    [prime_factors(x) for x in squarefree(n)]
+#    print ('Elapsed time for squarefree: ',timer()-start )
         

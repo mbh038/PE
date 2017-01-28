@@ -11,59 +11,98 @@ Squarefree numbers
 Created on Mon Oct 31 09:10:30 2016
 @author: mbh
 """
-import itertools as it
-import math
 import numpy as np
-import sympy as sp
 import time
-def p193(limit):
+
+def test(n):
     t=time.clock()
-    
-    limit=2**limit
-    
-    primes=primesfrom2to(limit//2)
-    print(primes)
-
-#    squares=[x**2 for x in range(2**(limit//2)+1)]
-    sieve=np.ones(limit,dtype=bool)
-##    print(len(squares),len(sieve))
-    for prime in primes:
-        if sieve[prime]:
-            sieve[2*prime::prime]=False
-            
-    print(sieve)
-  
-#    print (squares[:])
-    print(np.nonzero(sieve))
-    print(len(np.nonzero(sieve)[0]))
-#    print ([(squares[i],sieve[i]) for i in range(len(squares))])
-#    psq=([x**2 for x in primesieve(int(limit**0.5))])
-#    print(len(psq))
-#    print(time.clock()-t)
-##    print (2**limit-sum(sieve))
-#    print(psq)
-##    dsq=[x**2 for x in np.nonzero(sieve)[0]][2:]
-##    print(dsq)
-#    
-#    count=0
-#    for i in range(len(psq)):
-#        count+=(limit)//psq[i]
-#    c2=0   
-#    for i in range(len(psq)):
-#        for j in range(i+1,len(psq)):
-#            if limit/psq[j]<psq[i]:
-#                continue
-#
-#            c2+=limit//(psq[i]*psq[j])
-            
-
-#    print(limit-count+c2)
+    primeSieve(n)
     print(time.clock()-t)
-#    print(2**limit-sum([(2**limit)//x for x in psq]))
-
-       
-#    return (2**limit)-count
+    t=time.clock()
+    moebiusSieve(n)
+    print(time.clock()-t)
     
+#find Q, the number of square-free numbers less than n
+def p193(n):
+    t=time.clock()
+    moebs=moebiusSieve(int(n**.5)+1)
+    ks=np.arange(1,len(moebs)+1)
+    floors=n//(ks*ks)
+    Q=np.sum(moebs*floors)
+    print(Q,time.clock()-t)
+
+def moebiusSieve(limit):
+    """returns array of moebius numbers 1<=n<=limit"""    
+    P=primeSieve(limit+1) # or any sieve
+    L = np.ones(limit+1).astype(int)    
+    for p in P:
+        L[::p]    *= -1
+        L[::p**2] *=  0 
+    return L[1:]
+    
+def primeSieve(n):
+    """returns array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+    
+#not needed below here
+
+#implementing the inclusion-exclusion idea - way too slow
+def ccc(n):
+    t=time.clock()
+    primes=primesieve(int(n**0.5))    
+    e=exclusions(n,primes,1,1,1)
+#    print(e)
+    print ( n-1+e)
+    print(time.clock()-t)
+    
+#algorithm in.... uses inclusion-exclusion principle
+def exclusions(n,primes,p,q,r):    
+    x=0
+    rdash=-r
+    
+    Sp=primes[primes>p] 
+#    print(Sp)
+    Sp=Sp[Sp<(n**0.5)/q]
+    for pdash in Sp:
+        qdash=pdash*q
+        x+=rdash*((n-1)//(qdash**2))
+        x+=exclusions(n,primes,pdash,qdash,rdash)
+    
+    return x
+    
+#bf way, ok for small n
+def csf(n):
+    """returns number of square-free numbers less than n"""
+    return len([x for x in range(1,n) if len(set(prime_factors(x)))==len(prime_factors(x))])
+
+def inex(n):
+    """returns sum of mobius numbers for integers from 1 to limit""" 
+    primes=primesieve(int(n**0.5)+1)
+    res=0
+    primeprod=1
+    for i in range(len(primes)):
+        primeprod*=primes[i]**2
+        res+=((-1)**i)*n//primeprod
+    return res
+
+def prime_factors(n):
+    """returns the prime factors of n"""   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors
+        
 def p193v2(limit):
 
     fsum=0
@@ -182,16 +221,6 @@ def reimannzeta(s,terms=10000):
         rzsum+=1/(n**s)
     return rzsum
     
-def mobius(limit):
-    """returns mobius numbers for integers from 1 to limit"""    
-    P=primesieve(limit+1) # or any sieve
-    L = np.ones(limit+1).astype(int)
-    
-    for p in P:
-        L[::p]    *= -1
-        L[::p**2] *=  0 
-    return L[1:]
-
 def mu(n):
     """returns mobius number of integer n"""
     pfd=pfdic(n)

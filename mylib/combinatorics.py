@@ -121,8 +121,6 @@ def nCk_2(n,k,memo={}):
         memo[(n,k)]=result
     return result
 
-
-
 #using scipy    
 #sc.misc.comb(n,k) is faster
 

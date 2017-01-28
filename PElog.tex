@@ -1,0 +1,390 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{amsmath}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Problems}
+\subsection{Problem 50}
+Python, about 35 ms.
+
+I start with sums of primes from 2, and find the longest sequence of primes that sum to a prime, then do the same from 3, and stop once it is not possible to find a sequence longer than the longest already found, which starts from 7.
+
+I use a 3.5x faster version of David Epstein's very nice primes generator, and a simple 6n±1 test for primality that I have used on other problems.
+\begin{verbatim}
+import time
+import numpy as np
+import itertools as it
+           
+def cp(n):
+    t = time.clock()
+    nmoretries=1000
+    ntries=0
+    for startFrom in list(primesieve(100)):
+        ntries+=1
+        if ntries>nmoretries:
+            break
+        psums={}
+        psums[startFrom],count,countmax=0,0,-1
+        for p in erat2a():
+            if p<startFrom:
+                continue
+            count+=1         
+            psums[startFrom]+=p
+            if psums[startFrom]>n:
+                break
+            if isPrime(psums[startFrom]):
+                if count>countmax:
+                    pmax=p
+                    nmax=psums[startFrom]
+                    countmax=count
+        print (startFrom,pmax,nmax,countmax)
+        
+        # is it worth continuing?
+        if primesthatsumto(n)-countmax<nmoretries:
+            nmoretries=primesthatsumto(n)-countmax
+            ntries=0
+    print(time.clock()-t)
+
+def primesthatsumto(n):
+    psum=0
+    count=0
+    for p in erat2a():
+        psum+=p
+        if psum>n:
+            break
+        count+=1
+    return count
+#  
+# prime generator
+#http://code.activestate.com/recipes/117119/
+def erat2a():
+    D = {}
+    yield 2
+    for q in it.islice(it.count(3), 0, None, 2):
+        p = D.pop(q, None)
+        if p is None:
+            D[q * q] = 2 * q # use here 2 * q
+            yield q
+        else:
+            x = p + q
+            while x in D:
+                x += p
+            D[x] = p
+            
+def primesieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+    
+def isPrime(n):
+    """Returns True if n is prime."""
+    if n==2 or n==3:
+        return True
+    if not n%2 or not n%3:
+        return False
+    i = 5
+    w = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += w
+        w = 6 - w
+    return True
+\end{verbatim}
+
+\subsection{Problem 114}
+
+$50-100 \mu\text{s}$ in Python, using recursion and a memo. For block lengths up to 3 units I worked out the number of solutions that had a red left-most block, or a black left-most block, and put these pairs of values in a dictionary with the block length as key. Then, working upwards in block lengths one unit at a time, I imagined placing $k=1$ to $n$ black blocks at  the left-most end. For each value $k$, this  gave a rightward space of $n-k$ blocks in length that had to be filled with  any allowed combination of sub-blocks that had a red left-most edge. I could look this value up in the dictionary. The sum of these values for each $k$ then gave the number of solutions for blocks of length $n$ with a black left edge. To find the solutions for $n$ units that have a red edge, I do the same, starting this time with a red block of 3 units at the left edge.
+
+In fact, on inspecting the numbers for the first few block lengths, one sees that the recursion relation is:
+
+\begin{align*}
+n_{\text{black left edge}}(L)&=n_{\text{black left edge}}(L-1)+n_{\text{red left edge}}(L-1)\\
+n_{\text{red left edge}}(L)&=n_{\text{black left edge}}(L-3)+n_{\text{red left edge}}(L-1)
+\end{align*}
+
+
+Here are the values up to $L=20$:
+
+$$
+\begin{array}{|r|r|r|r|}\hline
+L& R& B& R+B\\\hline
+1& 0& 1& 1\\\hline
+2& 0& 1& 1 \\\hline
+3& 1& 1& 2\\\hline
+4& 2& 2& 4\\\hline
+5& 3& 4& 7\\\hline
+6& 4& 7& 11\\\hline
+7& 6& 11& 17\\\hline
+8& 10& 17& 27\\\hline
+9& 17& 27& 44\\\hline
+10& 28& 44& 72\\\hline
+11& 45& 72& 117\\\hline
+12& 72& 117& 189\\\hline
+13& 116& 189& 305\\\hline
+14& 188& 305& 493\\\hline
+15& 305& 493& 798\\\hline
+16& 494& 798& 1292\\\hline
+17& 799& 1292& 2091\\\hline
+18& 1292& 2091& 3383\\\hline
+19& 2090& 3383& 5473\\\hline
+20& 3382& 5473& 8855\\\hline
+\end{array}
+$$
+
+
+\begin{verbatim}
+import time
+def F(m,n,memo={}):
+    t=time.clock()   
+    blocks={k:[0,1] for k in range (1,m)}
+    blocks[0]=[0,0]
+    blocks[m]=[1,1]
+    try:
+        print(m,n,memo[(m,n)],time.clock()-t)
+        return 
+    except KeyError:
+        for L in range (m+1,n+1):
+            blocks.setdefault(L,[]).append(blocks[L-1][0]+blocks[L-m][1]) #red left-edged solutions
+            blocks.setdefault(L,[]).append(blocks[L-1][0]+blocks[L-1][1]) #black left-edged solutions
+        result =sum(blocks[L])
+        memo[(m,n)]=result
+    print(m,n,sum(blocks[L]),time.clock()-t)
+\end{verbatim}
+
+\subsection{Problem 243}
+
+About 0.3 ms in Python. I use the same ideas as many here, noting that $R(d)=\frac{\phi(n)}{n-1}\approx \frac{\phi(n)}{n}$ for large $n$, and so is a function only of the prime factors of $n$, independent of the exponents of those factors. The denominator will be minimised if $n$ is a primorial. Thus we look for the smallest primorial number for which $\frac{\phi (n)}{n}< \frac{15499}{94744}$and then multiply that successively by 2 until $\frac{\phi(n)}{n-1}< \frac{15499}{94744}$, knowing that by doing so we will not change the value of $\frac{\phi(n)}{n}$.
+
+\begin{verbatim}
+import time
+import numpy as np
+
+def p243():
+    t=time.clock()
+    primes=primesieve(100)
+    Rtrial=1
+    i=0
+    while et(Rtrial)/Rtrial>15499/94744:
+        Rtrial*=primes[i]
+        i+=1    
+    while et(Rtrial)/(Rtrial-1)>15499/94744:
+        Rtrial*=2
+    print(Rtrial)
+    print(time.clock()-t)
+
+def primesieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+    
+#Euler totient is number of integers m 1 <= m <=n that are coprime with n
+def et(n):
+    """returns Euler totient (phi) of n """   
+    phi=n
+    pfs=set(prime_factors(n))
+    for pf in pfs:
+        phi*=(1-1/pf)
+    return int(phi)
+       
+def prime_factors(n):
+    """returns the prime factors of n"""   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors 
+\end{verbatim}
+
+\subsection{Problem 407}
+\par
+Just meeting the 1000s rule in Python. :( 
+
+But, it is good to be here, at last :)
+
+As of now I cannot see how to speed things up, using this method: I find the prime factors of each $n$, and then, via the Chinese Remainder Theorem, I find one idempotent per prime factor, and then all others as a power set of combinations of these. I couldn't work out how to avoid calculating all $a$ for each $n$.
+
+I note the humbling contributions above, but it has been useful to finally understand how the CRT works and to devise code to implement it.
+
+\begin{verbatim}
+import time
+import itertools as it
+
+def p407(limit):
+    t=time.clock()
+    misum=0
+    for n in range(2,limit+1):
+        misum+=max_idempotent(n)
+    print(misum)
+    print(time.clock()-t)
+    
+def max_idempotent(n):
+    """returns maximum idempotent a < n: a^2=a mod n"""    
+    pfs=pflist(n)
+    pfnum=len(pfs)
+    if pfnum==1:
+        return 1 #idempotent=1 for primes or powers of primes
+        
+    #Use the CRT to find m 'base' idempotent solutions from m prime factors p_i^a_i   
+    idems=[]
+    for i in range(pfnum):
+        allButOnePfs=pfs[:i]+pfs[i+1:]
+        xsum=0
+        for i in range(pfnum-1):
+            Ni=n//allButOnePfs[i]
+            xsum+=inverse(Ni,allButOnePfs[i])*Ni        
+        idems.append(xsum % n)
+
+    #generate all other idempotents from these, and return the maximum
+    maxval=max(idems)
+    for i in range(2,len(idems)):
+        for a in it.combinations(idems, i):
+            aprod=1
+            for x in a:
+                aprod*=x
+                aprod=aprod%n
+            if aprod>maxval:
+                maxval=aprod
+    return maxval
+   
+def pflist(n):
+    """returns the distinct prime factors of n as [2^a,3^b.....]"""   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            factors.append(1)
+            while not n %i:
+                n //= i
+                factors[-1]*=i
+    if n > 1:
+        factors.append(n)
+    return factors            
+    
+#with thanks to Wikipedia and numerous other sources
+def inverse(a, n):
+    """returns multiplicative inverse of a mod n. a and n must be-co-prime"""
+    t1,t2=0,1    
+    r1,r2=n,a    
+    while r2!=0:
+        q = r1 // r2
+        t1, t2 = t2, t1 - q * t2
+        r1, r2 = r2, r1 - q * r2
+    if t1 < 0:
+        t1 +=n
+    return t1 
+\end{verbatim}
+
+\subsection{Problem 512}
+ I managed to work out that $\displaystyle g(n) = \sum_{i=1,i \nmid 2}^n \varphi(i)$ and then did the sum by brute-force sieving in 6 minutes.
+ 
+ $$\sum _{i=1}^n \phi \left(n^i\right)=\frac{\left(n^n-1\right) \phi (n)}{n-1}$$
+ 
+ $$(\left(\sum _{i=1}^n \phi \left(n^i\right)\right) \bmod (n+1))=(\left((\frac{n^n-1}{n-1} \bmod (n+1)) (\phi (n) \bmod (n+1))\right) \bmod (n+1))$$
+ 
+ $$(\frac{n^n-1}{n-1} \bmod (n+1))=1$$
+ 
+ Hence
+ 
+ $$\displaystyle g(n) = \sum_{i=1,i \nmid 2}^n \varphi(i)$$
+
+\begin{verbatim}
+import numpy as np
+import time
+
+def p512(n):
+    t=time.clock()
+    primes=primesieve(n)
+    g=sum(etsieve(n,primes)[1::2])
+    print(g,time.clock()-t)
+
+def etsieve(n,primes):
+    """return array of euler totient(x) for x from 2 to n"""
+    sieve=np.array(range(n+1),dtype=float)
+    for i in primes:  
+        if sieve[i]==i:
+            sieve[i::i]*=(1-1/i)
+    return sieve.astype(int)
+    
+def primesieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+\end{verbatim}
+
+To get it within one minute, I had to understand how to sum totients without actually calculating them. This is covered in daniel fischer's excellent overview to problem 73 and in [url=http://math.stackexchange.com/questions/316376/how-to-calculate-these-totient-summation-sums-efficiently.]this stack exchange page[/url] (see the post by 'Andy'), which is also used by the very helpful post earlier in this forum from  chsl95. This code (which is essentially the same as that of chsl95) goes in about 10s.
+
+\begin {verbatim}
+def p512v2(n):
+    t=time.clock()
+    print(oddTotientSum(n))
+    print(time.clock()-t)
+    
+#implements stack exchange 'Andy' 
+#http://math.stackexchange.com/questions/316376/how-to-calculate-these-totient-summation-sums-efficiently
+def R2(N,X2={}):
+    if N==1:
+        return 0
+    try:
+        return X2[N]
+    except KeyError:
+        fsum = F2(N)
+        m=2
+        while 1:
+            x = N//m
+            nxt = N//x
+            if(nxt >= N):
+                result=fsum - (N-m+1)*R2(N//m,X2)
+                X2[N]=result
+                return result
+            fsum -= (nxt-m+1) * R2(N//m,X2)
+            m = nxt+1
+
+#returns sum of totients of x<=n
+#wrapper for R2
+#sum of totient(x) for x<=n
+def totientSum(n):
+    return R2(n)+1
+    
+#sum of totient(x) for x<=n and x is even
+def evenTotientSum(N):
+    if N < 2:
+        return 0
+    return totientSum(N//2)+evenTotientSum(N//2)
+
+#sum of totient(x) for x<=n and x is odd (answer to PE p512)    
+def oddTotientSum(N):
+    return totientSum(N)-evenTotientSum(N)
+\end{verbatim}
+The key insight I got from chsl95 is how to calculate the sum of totients of even numbers.
+
+\end{document}  

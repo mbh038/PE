@@ -8,75 +8,84 @@ Idempotents
 Created on Tue Jan 10 04:49:44 2017
 @author: mbh
 """
-import numpy as np
+
+import itertools as it
+import time
+
 def p407(limit):
-    
-    Msum=0
-    
-    squares=np.array([x**2 for x in range(1,(2*limit-1)**2) if x**2%4==1])   
+    t=time.clock()
+    misum=0
     for n in range(2,limit+1):
-        ssq=squares[squares<(2*n-1)**2]
-#            print(ssq)
-        ssq=list(ssq**.5)
-        while 1:
-            a=(1+ssq[-1])//2
-            if a**2%n==a:
-                break
-            ssq.pop()
-        Msum+=a
-#        print(n,a,ssq)
-
-    print(Msum)
-        
-def ts2(a,p): 
-    """Tonnelli-Shanks algorithm. returns R: R^2=n mod p"""
-    """Implementing Ezra Brown's description of the algorithm"""
+        misum+=max_idempotent(n)
+    print(misum)
+    print(time.clock()-t)
     
-    if legendre_symbol(a,p)==-1:
-        return 0
-    if p%4==3:
-        return  pow(a,(p+1)//4,p)
+def max_idempotent(n):
+    """returns maximum idempotent a < n: a^2=a mod n"""    
+    pfs=pflist(n)
+    pfnum=len(pfs)
+    if pfnum==1:
+        return 1 #idempotent=1 for primes or powers of primes
         
-    s=p-1
-    e=0
-    while not s%2:
-        e+=1
-        s//=2 
-        
-    n=2
-    while legendre_symbol(n,p):
-        n+=1
+    #Use the CRT to find m 'base' idempotent solutions from m prime factors p_i^a_i   
+    idems=[]
+    for i in range(pfnum):
+        allButOnePfs=pfs[:i]+pfs[i+1:]
+        xsum=0
+        for i in range(pfnum-1):
+            Ni=n//allButOnePfs[i]
+            xsum+=inverse(Ni,allButOnePfs[i])*Ni        
+        idems.append(xsum % n)
 
-    x = pow(a, (s + 1) // 2, p)
-    b = pow(a, s, p)
-    g = pow(n, s, p)
-    r = e
-
-    while True:
-        t = b
-        m = 0
-        for m in range(r):
-            if t == 1:
-                break
-            t = pow(t, 2, p)
-
-        if m == 0:
-            return x
-
-        gs = pow(g, 2 ** (r - m - 1), p)
-        g = (gs * gs) % p
-        x = (x * gs) % p
-        b = (b * g) % p
-        r = m        
-        
-def legendre_symbol(a, p):
-    """ Compute the Legendre symbol a|p using
-        Euler's criterion. p is a prime, a is
-        relatively prime to p (if p divides
-        a, then a|p = 0)
-
-        Returns 1 if a has a square root modulo
-        p, -1 otherwise.
-    """
-    ls = pow(a, (p - 1) // 2, p)
-    return -1 if ls == p - 1 else ls
+    #generate all other idempotents from these, and return the maximum
+    maxval=max(idems)
+    for i in range(2,len(idems)):
+        for a in it.combinations(idems, i):
+            aprod=1
+            for x in a:
+                aprod*=x
+                aprod=aprod%n
+            if aprod>maxval:
+                maxval=aprod
+    return maxval
+   
+def pflist(n):
+    """returns the distinct prime factors of n as [2^a,3^b.....]"""   
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            factors.append(1)
+            while not n %i:
+                n //= i
+                factors[-1]*=i
+    if n > 1:
+        factors.append(n)
+    return factors            
+    
+def inverse(a, n):
+    """returns multiplicative inverse of a mod n. a and n must be-co-prime"""
+    t1,t2=0,1    
+    r1,r2=n,a    
+    while r2!=0:
+        q = r1 // r2
+        t1, t2 = t2, t1 - q * t2
+        r1, r2 = r2, r1 - q * r2
+    if t1 < 0:
+        t1 +=n
+    return t1 
+    
+#not used
+def maxIdem(s,n):
+    maxval=max(s)
+    for i in range(2,len(s)):
+        for a in it.combinations(s, i):
+            aprod=1
+            for x in a:
+                aprod*=x
+                aprod=aprod%n
+            if aprod>maxval:
+                maxval=aprod
+    return maxval

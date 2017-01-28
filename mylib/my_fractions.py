@@ -7,9 +7,25 @@ Created on Tue Jul 19 04:15:19 2016
 """
 
 import math
-from math import sqrt
 from timeit import default_timer as timer
 
+#from Wikipedia
+def farey_function(n, descending=False):
+    """Print the nth Farey sequence, either ascending or descending."""
+    az,bz=[],[]
+    a, b, c, d = 0, 1, 1, n
+    if descending: 
+        a, c = 1, n-1
+#    print ("%d/%d" % (a,b))
+    az,bz=[a],[b]
+    while (c <= n and not descending) or (a > 0 and descending):
+        k = int((n + b) / d)
+        a, b, c, d = c, d, (k*c-a), (k*d-b)
+#        print ("%d/%d" % (a,b))
+        az.append(a)
+        bz.append(b)
+    return az,bz
+    
 def rfl(d):
     """returns tuple (l,rf):
     l=length of recurring fraction part of 1/d
@@ -152,7 +168,7 @@ def Pellnk(n,k,fs,memo={}):
 from itertools import cycle
 def Pellfs(n):
     """returns fundamental solution for Pell equation x^2-ny^2 =1 for given n"""   
-    if sqrt(n)==int(sqrt(n)):
+    if math.sqrt(n)==int(math.sqrt(n)):
         return None
     anext,repeats=sqcf(n)    
     rps=cycle(repeats)

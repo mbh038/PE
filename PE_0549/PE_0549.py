@@ -116,7 +116,7 @@ def p549(limit=1000):
         newxx={x*y for x in xx for y in a if x*y<=limit}
 #        print(k,newxx)
         dx=newxx.difference(xx)
-        print(k,dx,isprime(k))
+#        print(k,dx,isprime(k))
         xx=xx.union(newxx)        
         for x in dx:
             if L[x]==0:
