@@ -8,6 +8,14 @@ import time
 import math
 import numpy as np
 
+def primesieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+
 #Euclid algorithm for gcd - 3x slower than math.gcd()
 def gcd(a, b):
     r = a % b
@@ -23,7 +31,8 @@ def gcd2(a,b):
     else: 
         return gcd2(b,r)
 
-#math.gcd(a,b) is 3x faster     
+#math.gcd(a,b) is 3x faster 
+    
 def rad(n):
     """returns radical of n = product of distinct prime factors"""
     return np.prod(list(dpf(n)))
@@ -70,6 +79,54 @@ def pfdic(n):
         factors[n]=factors.get(n,0)+1
     return factors
 
+def pflist(n):
+    """returns the distinct prime factors of n as [2^a,3^b.....]""" 
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            factors.append(1)
+            while not n %i:
+                n //= i
+                factors[-1]*=i
+    if n > 1:
+        factors.append(n)
+
+    return factors
+    
+def prime_factorizations(n):
+    """returns the distinct prime factors of 1...n as [[2^a,3^b..],..,[]]""" 
+    sieve = [[] for x in range(n+1)]
+    for i in range(2, n+1):
+        if not sieve[i]:
+            sieve[i].append(1)
+            q = i
+            while q <= n:
+                for r in range(q, n+1, q):
+                    if not sieve[r] or sieve[r][-1]%i:
+                        sieve[r].append(i)
+                    else:
+                        sieve[r][-1]*=i
+                q *= i        
+    for i in range(2,n+1):
+        if sieve[i][0]==1:
+            del(sieve[i][0])
+    return sieve
+    
+def pfs(n):
+    ps=primesieve(n)
+    sieve=np.ones(n+1,dtype=int)
+    for i in ps:
+        if sieve[i]==1:
+            q=i
+            while q<=n:
+                sieve[q::q]*=i
+                print(sieve)
+                q*=i
+    return sieve
+  
 def npfs(n):
     """returns number of distinct prime _factors of integers from 2 to n"""
     sieve=np.zeros(n+1,dtype=int)
@@ -90,11 +147,12 @@ def ndpfs(limit):
 
 def dpfs(limit):
     """returns distinct prime factors of n from 2 to limit"""
-#    start=timer()
+    t=time.clock()
     L=[[]]*(limit+1)
     for i in range(2,limit+1):
         if L[i]==[]:
-            for j in range(i,limit+1,i): L[j]=L[j]+[i] 
+            for j in range(i,limit+1,i): L[j]=L[j]+[i]
+    print(time.clock()-t)
     return L
     
 #import numpy as np    
@@ -112,8 +170,7 @@ def squarefree(limit):
     for i in range(2, int((limit+1)**0.5+1)):
         if sf[i]:
             sf[i**2::i**2]=False
-    return np.nonzero(sf)[0][2:]
-    
+    return np.nonzero(sf)[0][2:]   
     
 def  sqFreetoN(sf,limit):
     """return all integers for which the distinct prime factors are those of the 
@@ -330,9 +387,37 @@ def divisors(n):
             i += 1
             if i >= nfactors:
                 return divs 
+
+#code by agf 
+#http://stackoverflow.com/questions/6800193/what-is-the-most-efficient-way-of-finding-all-the-factors-of-a-number-in-python
+import functools
+def factors(n):    
+    return set(functools.reduce(list.__add__, 
+                ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))
+                
+#see also
+#faster for small numbers, no better for large numbers
+#def factors(n):
+#    results = set()
+#    for i in range(1, int(math.sqrt(n)) + 1):
+#        if n % i == 0:
+#            results.add(i)
+#            results.add(n//i)
+#    return results
+    
+def test(n):
+    t=time.clock()
+    for i in range(2,n+1):
+        a=divisors(i)
+    print (time.clock()-t)
+    t=time.clock()
+    for i in range(2,n+1):
+        a=factors(i)
+    print (time.clock()-t)   
+    
                 
 import time                 
-def test(n=100):
+def gcdtest(n=100):
     t=time.clock()
     for i in range(1,n):
         for j in range(1,n):

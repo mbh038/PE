@@ -10,7 +10,30 @@ Created on Sun Nov 20 22:42:47 2016
 
 import itertools as it
 
-def p191(n):
+def bf191(n):
+    count=0
+    for a in it.product('AOL',repeat=n):
+#        count+=1
+        astr=''.join([x for x in a])
+        Lscore=len([x for x in a if x =='L'])
+        if 'AAA' not in astr and Lscore<=1:
+#            print(astr)
+            count+=1
+    return count
+    
+def test():
+    ns=[]
+    for n in range(4,16):
+        ns.append(bf191(n))
+    return ns
+    
+def p191(n):    
+    msum=0
+    for m in range(3,n+1):
+        msum+=(n+1-m)*2**(n-m)
+    return 2**n+n*2**(n-1)-msum
+        
+def p191v1(n):
     count,total=0,0
     prizes=[]
     not_prizes=[]

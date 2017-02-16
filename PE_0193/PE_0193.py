@@ -21,6 +21,9 @@ def test(n):
     t=time.clock()
     moebiusSieve(n)
     print(time.clock()-t)
+    t=time.clock()
+    moebiusSieve2(n)
+    print(time.clock()-t)
     
 #find Q, the number of square-free numbers less than n
 def p193(n):
@@ -31,13 +34,13 @@ def p193(n):
     Q=np.sum(moebs*floors)
     print(Q,time.clock()-t)
 
-def moebiusSieve(limit):
-    """returns array of moebius numbers 1<=n<=limit"""    
-    P=primeSieve(limit+1) # or any sieve
-    L = np.ones(limit+1).astype(int)    
+def moebiusSieve(n):
+    """returns array of moebius numbers 1<=n<=limit"""   
+    P=primeSieve(n+1) # or any sieve
+    L = np.ones(n+1).astype(int)    
     for p in P:
-        L[::p]    *= -1
-        L[::p**2] *=  0 
+        L[::p]*= -1
+        L[::p**2]=0 
     return L[1:]
     
 def primeSieve(n):
@@ -47,6 +50,7 @@ def primeSieve(n):
         if sieve[i]:
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:]
+    
     
 #not needed below here
 
@@ -102,18 +106,7 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
-        
-def p193v2(limit):
-
-    fsum=0
-    for a in sp.primerange(2,sp.prevprime(2**(limit//2))+1):
-#        print(a)
-        fsum+=1/a**2
-    print(fsum,2**limit*fsum)       
-    
-def nchoosek(n,k):
-    return int(math.factorial(n)/(math.factorial(n-k)*math.factorial(k)))
-    
+            
 def primesfrom2to(n):
     """ Input n>=6, Returns a array of primes, 2 <= p < n """
     sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)

@@ -69,6 +69,7 @@ def chinese_remainder(n, a):
 
 #same thing, my version        
 def crt(a,n):
+    """a=[a_0....a_i], n=[n_0...n_i] in x = a_i mod n_i"""
     nprod=np.prod(n)
     xsum=0
     for i in range(len(n)):

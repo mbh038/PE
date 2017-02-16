@@ -250,7 +250,7 @@ def sqnr(x,sd):
     print(round(xnew,sd))
 
 # lecture 3.6, slide 2
-# bisection search for square root
+# binary search for square root
 def bi_sqrt(x):
     epsilon = 0.01
     numGuesses = 0
