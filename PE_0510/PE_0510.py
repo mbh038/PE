@@ -28,18 +28,24 @@ def p510(limit):
     print(len(abc))
 #    print(abc)
     print(time.clock()-t)
-    abcfund=set()
+    abcfund=[]#set()
     for i in range(len(abc)):
         div=math.gcd(abc[i][0],math.gcd(abc[i][1],abc[i][2]))
-        abcfund.add((abc[i][0]//div,abc[i][1]//div,abc[i][2]//div))
-    print(len(abcfund))
+        newTrio=(abc[i][0]//div,abc[i][1]//div,abc[i][2]//div)
+        if newTrio not in abcfund:
+            abcfund.append(newTrio)
+    print("abcfund size: ",len(abcfund))
 #    print(abcfund)
     print(time.clock()-t)
     S=0
+    k=0
     for trio in abcfund:
+        k+=1
         a,b,c=trio[0],trio[1],trio[2]
         L=limit//b
         S+=(a+b+c)*L*(L+1)//2
+        if k%100==0:
+            print(k,a,b,c,S,L)
     print(S)
     print(time.clock()-t)
     
@@ -59,7 +65,7 @@ def p510v2(limit):
         b+=1
         if a*q/b<=1:
             q+=1
-        print(p,q,a,b,a*q/b)
+#        print(p,q,a,b,a*q/b)
     print(Ssum)
     print(time.clock()-t)
                     

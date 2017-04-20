@@ -28,7 +28,10 @@ def p225(limit):
     t=time.clock()
     count=0
     n=25
+    loops=0
     while count<limit:
+        loops+=1
+        print(loops,n,count)
 #        print(omits)
         n+=2
 #        n+=2

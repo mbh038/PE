@@ -8,7 +8,7 @@ Exploring Pascal's Pyramid
 Created on Sat Dec 24 05:46:35 2016
 @author: mbh
 """
-import sympy as sp
+
 import numpy as np
 import time
 
@@ -70,3 +70,9 @@ def primesieve(n):
         if sieve[i]:
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:] 
+    
+def nckloop():
+    t=time.clock()
+    for i in range(10,101):
+        print(i,nCk(i,i//2))
+    print(time.clock()-t)

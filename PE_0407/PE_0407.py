@@ -16,7 +16,11 @@ def p407(limit):
     t=time.clock()
     misum=0
     for n in range(2,limit+1):
-        misum+=max_idempotent(n)
+#        print ("n = ",n)
+        nsum=max_idempotent(n)
+        misum+=nsum
+#        print(nsum,misum)
+#        print()
     print(misum)
     print(time.clock()-t)
     
@@ -36,15 +40,18 @@ def max_idempotent(n):
             Ni=n//allButOnePfs[i]
             xsum+=inverse(Ni,allButOnePfs[i])*Ni        
         idems.append(xsum % n)
-
+#    print("base idems",idems)
     #generate all other idempotents from these, and return the maximum
     maxval=max(idems)
     for i in range(2,len(idems)):
         for a in it.combinations(idems, i):
+#            print(a)
             aprod=1
             for x in a:
                 aprod*=x
+#                print(aprod)
                 aprod=aprod%n
+#                print(aprod)
             if aprod>maxval:
                 maxval=aprod
     return maxval
