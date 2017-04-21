@@ -43,7 +43,7 @@ def p493v2(n=7,b=10,p=20):
 
     trialsum=0
     newave,oldave=1,0
-    dps=9
+    dps=11
     count=0
     while (abs(newave-oldave)>10**(-dps)):
         count+=1
