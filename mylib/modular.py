@@ -84,6 +84,8 @@ def ts(n,p):
     """
     Tonnelli-Shanks algorithm. returns R: R^2=n mod p
     Implements Wikipedia description of the algorithm
+    https://en.wikipedia.org/wiki/Tonelli–Shanks_algorithm
+    (as also described in the p216 overview)
     """ 
     
     #check first that a solution exists. Return 0 if not.
@@ -165,3 +167,25 @@ def ts2(a,p):
         x = (x * gs) % p
         b = (b * g) % p
         r = m
+
+# * Written (in C++) by Christian Stigen Larsen, 2012-01-10
+# * http://csl.sublevel3.org        
+#/*
+# * Fast calculation of `a^x mod n´ by using right-to-left
+# * binary modular exponentiation.
+# *
+# * This algorithm is taken from Bruce Schneier's book
+# * APPLIED CRYPTOGRAPHY.
+# *
+# * See http://en.wikipedia.org/wiki/Modular_exponentiation
+# */
+
+def pow_mod(a,x,n):
+    r=1
+    while x:
+        if x & 1 == 1:
+            r = a*r % n        
+        x >>= 1;
+        a = a*a % n    
+    return r
+    

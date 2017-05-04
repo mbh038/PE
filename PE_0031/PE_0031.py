@@ -5,17 +5,15 @@ PE_0031
 Coin Sums
 
 How many different ways can £2 be made using any number of coins
+Simple example of dynamic programming
 
 Created on Mon Jun 27 08:53:29 2016
 
 @author: Mike
 """
 import time
-def coinsum(value):
-    
-    t=time.clock()
-    
-    coins=[1,2,5,10,20,50,100,200]
+def p31(value,coins):
+       
     ways=[0] * (value+1)
     ways[0]=1
    
@@ -26,14 +24,45 @@ def coinsum(value):
         for j in range (coins[i],value+1):
             ways[j]+=ways[j-coins[i]]
     
-    print (ways[-1],time.clock()-t)
+    return ways[-1]
 
-
-def dp(n):
+#recursive solution using dicts and a memo
+#6-10 times slower than dptable or p31, and reaches recursion limit at n=1000
+def dpdic(n,denom,memo={}):    
     
-    t=time.clock()
+#    denom=[1,2,5,10,20,50,100,200]
+    m=len(denom)
     
-    denom=[1,2,5,10,20,50,100,200]
+#    base cases    
+#    we have no money, coin change must = 0
+    if n==0:
+        return 1
+#    negative money, no change possible
+    if n<0:
+        return 0
+#    we have money, but no change is available
+    if n>=1 and m<=0:
+        return 0
+        
+    #recursive solutions
+    try:
+        key1=tuple([n]+denom[:-1])
+        result1 = memo[key1]
+    except KeyError:
+        result1 = dpdic(n,denom[:-1],memo)
+        memo[key1]=memo.get(key1,0)+result1
+    try:
+        key2=tuple([n-denom[-1]]+denom)
+        result2=memo[key2]
+    except KeyError:
+        result2=dpdic(n-denom[-1],denom,memo)
+        memo[key2]=memo.get(key2,0)+result2
+    return result1+result2
+    
+#dynamic programming solution without recursiom
+#is 100 times faster in C++
+#code from gotclout in p31 forum
+def dptable(n,denom):
     m=len(denom)
     table = [[1 for i in range(m)] for j in range(n+1)]
             
@@ -44,31 +73,19 @@ def dp(n):
             else:
                 table[i][j] = table[i][j-1]
                 
-    print(table[n][m-1])
-    print(time.clock()-t)
-                
-                
-
-
-#void dp(int n)
-#{
-#    const int m=8;
-#    int arr[n+1][m];
-#    int denom[m] ={1, 2, 5, 10, 20, 50, 100, 200};
-#
-#    for(int a=0; a<n+1; a++)
-#        for(int b=0; b<m; b++)
-#            arr[a][b] = 1;
-#
-#    for(int i=1; i<n+1; i++)
-#    {
-#        for(int j=1; j<m; j++)
-#        {
-#            if(i-denom[j] >=0)
-#                arr[i][j] = arr[i][j-1]+arr[i-denom[j]][j];
-#            else
-#                arr[i][j] = arr[i][j-1];
-#        }
-#    }
-#    std::cout << arr[n][m-1] << std::endl;
-#}
+    return table[n][m-1]   
+        
+    
+def dpcall(n=200,denom=[1,2,5,10,20,50,100,200]):
+#    t=time.clock()
+#    print(dpdic(n,denom,memo={}))
+#    print (time.clock()-t)
+    
+    t=time.clock()
+    print(dptable(n,denom))
+    print (time.clock()-t)
+    
+    t=time.clock()
+    print(p31(n,denom))
+    print (time.clock()-t)
+    

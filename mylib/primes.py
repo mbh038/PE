@@ -98,6 +98,33 @@ def is_prime(n):
            return False
    return True
 
+#Rabin-Miller prime
+def rm_isprime(n, k = 7):
+   """use Rabin-Miller algorithm to return True (n is probably prime)
+      or False (n is definitely composite)"""
+   if n < 6:  # assuming n >= 0 in all cases... shortcut small cases here
+      return [False, False, True, True, False, True][n]
+   elif n & 1 == 0:  # should be faster than n % 2
+      return False
+   else:
+      s, d = 0, n - 1
+      while d & 1 == 0:
+         s, d = s + 1, d >> 1
+      # Use random.randint(2, n-2) for very large numbers
+      for a in rd.sample(range(2, min(n - 2, sys.maxint)), min(n - 4, k)):
+         x = pow(a, d, n)
+         if x != 1 and x + 1 != n:
+            for r in range(1, s):
+               x = pow(x, 2, n)
+               if x == 1:
+                  return False  # composite for sure
+               elif x == n - 1:
+                  a = 0  # so we know loop didn't continue to end
+                  break  # could be strong liar, try another a
+            if a:
+               return False  # composite if we reached end of this loop
+      return True  # probably prime if reached end of outer loop
+      
 #All primes are 6n+/-1   (but note: about 50% of 6n+-1 numbers <1000 are not prime!)
 # http://stackoverflow.com/users/88622/alexandru
 #See also https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11
@@ -130,7 +157,7 @@ def is_prime2(x):
             return False
     return True
   
-#fastest primality checker here
+#fastest primality checker here ???
 # about 10% faster than 6n+/-1 algoritm (is_primes1) for n<100,000
 # twice as fast for n<1e6
 def is_prime3(n):
@@ -180,7 +207,7 @@ def is_prime3(n):
   and n%19 and n%23 and n%29 and n%31 and n%37 and n%41 and n%43\
   and n%47 and n%53 and n%59 and n%61 and n%67 and n%71 and n%73\
   and n%79 and n%83 and n%89): return False
-
+#  print(w)
   # Miller-Rabin, avec témoins "w"
   S = 0
   d = n-1
@@ -529,26 +556,101 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
         q = a*nq**2+b*nq+c
 
 
-
+p=34155007172832137
 from timeit import default_timer as timer
 def test(n):
     start=timer()
     for i in range(2,n):
-        is_prime1(n)
+        is_prime1(p)
     print ('Elapsed time for ip1: ',timer()-start)
-    start=timer()
-    for i in range(2,n):
-        is_prime3(n)
-    print ('Elapsed time for ip3: ',timer()-start)
-    start=timer()
-    for i in range(2,n):
-        is_prime(n)
-    print ('Elapsed time for mr: ',timer()-start)
 #    start=timer()
-#    for i in range(n):
-#        is_prime4(i)
-#    print ('Elapsed time for 4: ',timer()-start ) 
+#    for i in range(2,n):
+#        rm_isprime(i)
+#    print ('Elapsed time for ip3: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        is_prime3(p)
+    print ('Elapsed time for mr: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        mr(p,7)
+    print ('Elapsed time for mr from c++: ',timer()-start ) 
 #    start=timer()
 #    [prime_factors(x) for x in squarefree(n)]
 #    print ('Elapsed time for squarefree: ',timer()-start )
+
+
         
+# * Written (in C++) by Christian Stigen Larsen, 2012-01-10
+# * http://csl.sublevel3.org        
+#/*
+# * Fast calculation of `a^x mod n´ by using right-to-left
+# * binary modular exponentiation.
+# *
+# * This algorithm is taken from Bruce Schneier's book
+# * APPLIED CRYPTOGRAPHY.
+# *
+# * See http://en.wikipedia.org/wiki/Modular_exponentiation
+# */
+def pow_mod(a,x,n):
+    r=1
+    while x:
+        if x & 1 == 1:
+            r = a*r % n        
+        x >>= 1;
+        a = a*a % n    
+    return r
+
+def mr(n,k):
+    #n must be odd and greater than three  
+    if  n==2 or n==3:  return True
+    if  n<=1 or not (n & 1):  return False  
+
+    # Write n-1 as d*2^s by factoring powers of 2 from n-1
+    s = 0
+    m=n-1
+    while not m&1:
+        s+=1
+        m>>=1
+    d = (n-1) // (1<<s)
+
+    for i in range(k):
+        flag=True
+        a=rd.randint(2,n-2)
+        x=pow(a,d,n)
+        
+        if x ==1 or x == n-1:
+            continue
+        
+        for r in range(1,s):
+            x=pow(x,2,n)
+            if x ==1 :
+                return False
+            if x == n-1:
+                flag=False
+                break
+        if flag: return False
+    # n is *probably* prime
+    return True
+            
+    
+  # Miller-Rabin, avec témoins "w"
+#  S = 0
+#  d = n-1
+#  while not d&1:
+#    d>>=1
+#    S+=1
+#  for p in w:
+#    x = lpow(p, d, n)
+#    if x == 1: continue
+#    s=S
+#    while s:
+#      if x == n-1: break
+#      x = x*x%n
+#      s-=1
+#    else:
+#      break
+#    continue
+#  else:
+#    return True
+#  return False

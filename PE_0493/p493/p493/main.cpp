@@ -9,62 +9,90 @@
 #include <iostream>
 using namespace std;
 #include <cmath>
-#include <random>
-#include <cstdlib>
 #include <ctime>
-#include <iomanip>
+#include <vector>
 
-int main() {
+int64_t factorial(int64_t n)
+{
+    return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
+int64_t nCk(int64_t n, int64_t k)
+{
+    return factorial(n)/(factorial(n-k)*factorial(k));
+}
+
+void counting(int perColour,int p)
+{
+    int colours=7;
+    int a,b,c,d,e,f,g;
+    vector<int64_t> ncks;
     
-    cout << fixed;
-    cout << setprecision(9);
-    
-    srand((unsigned)time(NULL));
-    double n=7.0,b=10.0,p=20.0;
-    double trialsum=0.0;
-    double newave=0.0,oldave=1.0;
-    int dps=10;
-    double count=0.0;
-    double np,nc;
-    int picks,ncols;
-    double prob_np,randval;
-    while (abs(newave-oldave)>1/pow(10,dps) || count < 10){
-        //cout << "hello world"<<endl;
-        count+=1;
-        np=n*b;
-        nc=0;
-        picks=0;
-        ncols=0;
-        while (picks<p){
-            prob_np=(double)np/(double)(np+nc);
-            randval=(double)rand()/RAND_MAX;
-            //cout << randval<<" " <<prob_np<<endl;
-            if (randval<=prob_np){
-                ncols+=1;
-                np -= b;
-                nc +=(b-1);
-                //cout<<"new colour"<<ncols<<endl;
-            }
-            else{
-                nc-=1;
-                //cout<<"not new colour"<<endl;
-            }
-            picks+=1;
-        }
-        //cout<<ncols<<endl;
-        trialsum+=ncols;
-        oldave=newave;
-        newave=(double)(trialsum)/(double) count;
-        //cout <<ncols<<" "<<oldave<<" "<<newave<<endl;
-        if ((int)count%100000000==0){
-            //cout << fixed;
-            //cout << setprecision(9);
-            cout << newave;
-            cout <<endl;
-        }
+    for (int k=0;k<=perColour;k++){
+        ncks.push_back(nCk(perColour,k));
     }
-    cout << newave<<endl;
+    
+    vector<int64_t> nColours(colours+1);
+    
+    for (a=0;a<=perColour;a++) for (b=0;b<=perColour;b++) for (c=0;c<=perColour;c++) for (d=0;d<=perColour;d++) for (e=0;e<=perColour;e++) for (f=0;f<=perColour;f++) for (g=0;g<=perColour;g++)
+    {
+        vector <int64_t> pick;
+        if (a+b+c+d+e+f+g==p){
+            if (a>0) pick.push_back(a);
+            if (b>0) pick.push_back(b);
+            if (c>0) pick.push_back(c);
+            if (d>0) pick.push_back(d);
+            if (e>0) pick.push_back(e);
+            if (f>0) pick.push_back(f);
+            if (g>0) pick.push_back(g);
+        }
+        if (pick.size()==0) continue;
+        
+        int64_t newWays=1;
+        for (int i=0;i<pick.size();i++)
+        {
+            newWays*=ncks[pick[i]];
+        }
+        nColours[pick.size()]+=newWays;
+    }
+
+    double num=0,den=0;
+    for (int i=0;i<nColours.size();i++)
+    {
+        num+=i*nColours[i];
+        den+=nColours[i];
+    }
+    cout.precision(10);
+    cout<<num/den<<endl;
+}
+
+
+int main()
+{
+    clock_t t;
+    t = clock();
+    
+    int perColour=10,picks=20;
+    counting(perColour,picks);
+    
+    cout << ((float)(clock()-t))/CLOCKS_PER_SEC<<"\n";
+    
     return 0;
 }
+
+/*
+nCks=[sc.misc.comb(b,k) for k in range(b+1)]
+colours={k:0 for k in range(n+1)}
+
+for a in it.product([x for x in range(b+1)],repeat=n):
+if(sum(a)==p):
+valid=np.array(a)
+valid=valid[valid>0]
+newWays=np.prod(np.array([nCks[x] for x in valid]))
+colours[len(valid)]+=newWays
+
+meancol=sum([k*v for k,v in colours.items()])/sum([v for k,v in colours.items()])
+ 
+*/
 
 
