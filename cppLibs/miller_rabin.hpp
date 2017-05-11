@@ -1,4 +1,3 @@
-
 /*
  * The Miller-Rabin primality test
  *
@@ -8,8 +7,8 @@
  * Distributed under the modified BSD license
  */
 
-#ifndef INC_MILLER_RABIN_H
-#define INC_MILLER_RABIN_H
+#ifndef miller_rabin_hpp
+#define miller_rabin_hpp
 
 #include <stdint.h>
 
@@ -38,5 +37,4 @@ bool isprime(uint64_t n, int accuracy = DEFAULT_ACCURACY);
  */
 void setrand(int (*rand_function)(void), const int rand_max);
 
-#endif // INC_MILLER_RABIN_H
-
+#endif /* miller_rabin_hpp */

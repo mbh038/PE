@@ -52,6 +52,7 @@ Created on Mon May  1 07:05:31 2017
 """
 
 import math
+import time
 
 def lcm(a):
     
@@ -60,13 +61,14 @@ def lcm(a):
         lcm*=a[i]//math.gcd(lcm,a[i])
     return lcm
 
-def p601final(n):
-    
+def p601(n):
+    t=time.clock()
     Psum=1
     for s in range(2,n+1):
         N=4**s
         Psum+=(N-2)//lcm([i for i in range(1,s+1)])-(N-2)//lcm([i for i in range(1,s+2)])        
     print(Psum)
+    print(time.clock()-t)
         
 
 def seeker(n):
@@ -86,7 +88,7 @@ def seeker(n):
             
 
 
-def p601(limit):
+def p601v1(limit):
     Psum=0
     vals= [[2,3,2,2],
  [3,7,12,1],

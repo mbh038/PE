@@ -260,7 +260,7 @@ def primesfrom2to(n):
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 #mine - about 0.4 ms for n=10000
-def primesieve(n):
+def primeSieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
@@ -563,10 +563,10 @@ def test(n):
     for i in range(2,n):
         is_prime1(p)
     print ('Elapsed time for ip1: ',timer()-start)
-#    start=timer()
-#    for i in range(2,n):
-#        rm_isprime(i)
-#    print ('Elapsed time for ip3: ',timer()-start)
+    start=timer()
+    for i in range(2,n):
+        isprime5(p)
+    print ('Elapsed time for ip5: ',timer()-start)
     start=timer()
     for i in range(2,n):
         is_prime3(p)
@@ -654,3 +654,55 @@ def mr(n,k):
 #  else:
 #    return True
 #  return False
+    
+#segmented sieve by Kim Walisch  - very slow, but reduces storage requirements   
+def segSieve(limit):
+
+    L1D_CACHE_SIZE = 32768
+    
+    sqrt=int(limit**0.5)
+    segment_size=max(sqrt, L1D_CACHE_SIZE)
+    
+    if limit <2:
+        count=0
+    else:
+        count=1
+    s=3
+    n=3
+    
+    #generate small primes <=sqrt
+    is_prime=np.ones(int(sqrt+1), dtype=bool);
+#    for i in range(2,int(sqrt**0.5+1)+1):
+    i=2
+    while i**2<=sqrt:
+        if is_prime[i]:
+            j=i**2
+            while j<=sqrt:
+#            for j in range(i*i,int(sqrt+1),i):
+                is_prime[j]=0
+                j+=i
+        i+=1
+        
+    primes,nexts=[],[]    
+    for low in range(0,limit+1,segment_size):
+        sieve=np.ones(segment_size,dtype=bool)
+        high=min(low + segment_size - 1, limit)
+        while s**2<=high:
+            if is_prime[s]:
+                primes.append(int(s))
+                nexts.append(int(s**2-low))
+            s+=2
+#    // sieve the current segment
+        for i in range(len(primes)):
+            j=nexts[i]
+            k = 2*primes[i]
+            while j<segment_size:
+                sieve[j]=0
+                j+=k
+            nexts[i]=j-segment_size
+            
+        while n<=high:
+            if sieve[n-low]:
+                count+=1
+            n+=2
+    print (count)
