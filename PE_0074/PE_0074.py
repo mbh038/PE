@@ -12,36 +12,11 @@ Created on Tue Aug 30 20:20:22 2016
 """
 
 
-from timeit import default_timer as timer
+import time
 import math
-
-def fc(n):
-   fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
-   chain=[n]
-   i=0
-   while 1:
-       i+=1
-       candidate=(sum([fs[int(x)] for x in str(chain[-1])]))
-#       print(chain[-1])
-       if candidate in chain:
-           break
-       chain.append(candidate)
-       if i>100: 
-           break
-#   print(n,len(chain),chain,candidate)
-   return chain
-
-import itertools
-def test(n):
-    lens=[]
-    i=0
-    for x in itertools.combinations_with_replacement([0,1,2,3,4,5,6,7,8,9],n):
-        print(x)
-        i+=1
-    print(i)
         
-def cl(n):
-    start=timer()
+def p74(n):
+#    t=time.clock()
     fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
     chainlengths={169:3,871:2,872:2,145:1,69:5,78:4,540:2}
     fd=set()    
@@ -85,7 +60,32 @@ def cl(n):
         for k,v in xdic.items():
             ysum[-1]=ysum[-1]//math.factorial(v)          
         
-    print(sum(ysum))       
-    print('Elapsed time',timer()-start)
+    return(sum(ysum))       
+#    print(time.clock()-t)
            
+def fc(n):
+   fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+   chain=[n]
+   i=0
+   while 1:
+       i+=1
+       candidate=(sum([fs[int(x)] for x in str(chain[-1])]))
+#       print(chain[-1])
+       if candidate in chain:
+           break
+       chain.append(candidate)
+       if i>100: 
+           break
+#   print(n,len(chain),chain,candidate)
+   return chain
 
+import itertools
+def test(n):
+    lens=[]
+    i=0
+    for x in itertools.combinations_with_replacement([0,1,2,3,4,5,6,7,8,9],n):
+        print(x)
+        i+=1
+    print(i)
+
+p74(1000000)

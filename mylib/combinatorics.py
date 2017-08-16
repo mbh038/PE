@@ -124,6 +124,29 @@ def nCk_2(n,k,memo={}):
 #using scipy    
 #sc.misc.comb(n,k) is faster
 
+#power sets
+#Stack Exchange
+#https://stackoverflow.com/questions/18035595/powersets-in-python-using-itertools
+#Martijn Pieters
+
+from itertools import chain, combinations
+
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+    
+#then use:
+#for result in powerset([1, 2, 3]):
+#    print(result)
+#or
+#results = list(powerset([1, 2, 3]))
+#print(results)
+#or
+#store the object in a variable and use the next() function to get results from
+#the generator one by one.
+    
+    
 #Guttag, Fig 9.5,page 122 
 def getBinaryRep(n, numDigits):
    """Assumes n and numDigits are non-negative ints

@@ -18,6 +18,40 @@ import itertools as it
 import queue
 import time
 
+def nk(x,y,z,k,memo={}):
+    dimSum=x+y+z
+    dimProd=2*(x*y+x*z+y*z)
+    if k==1:
+        return dimProd
+    try:
+        return memo[(x,y,z,k)]
+    except KeyError:
+        result=nk(x,y,z,k-1,memo)+4*dimSum+8*(k-2)
+        memo[(x,y,z,k)]=result
+        return result
+
+def nk2(a,b,c,k):
+    return 2*(a*b+a*c+b*c)+4*(k-1)*(a+b+c)+4*(k-2)*(k-1)
+
+def dimProd(x,y,z):
+    return x*y+x*z+y*z
+
+def p126():    
+    t=time.clock()
+    cDict={}
+    for c in range(1,90):
+        for b in range(c,90):
+            for a in range (b,5001):
+                for k in range(1,60):
+                    newN=2*(a*b+a*c+b*c)+4*(k-1)*(a+b+c)+4*(k-2)*(k-1)
+                    if newN>25000:
+                        break
+                    cDict[newN] = cDict.get(newN, 0) + 1
+    for k,v in cDict.items():
+        if v==1000:
+            print (v,k)
+    print(time.clock()-t)
+
 
 def AL(a,b,c):
     A=2*(a*b+a*c+b*c)

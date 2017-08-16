@@ -31,7 +31,19 @@ def extended_gcd(a, b):
     print( "Bézout coefficients:", old_s, old_t)
     print( "greatest common divisor:", old_r)
     print( "quotients by the gcd:", t, s)
-    
+
+def egcd(aa, bb):
+    lastremainder, remainder = abs(aa), abs(bb)
+    x, lastx, y, lasty = 0, 1, 1, 0
+    while remainder:
+        lastremainder, (quotient, remainder) = remainder, divmod(lastremainder, remainder)
+        x, lastx = lastx - quotient*x, x
+        y, lasty = lasty - quotient*y, y
+    return lastremainder, lastx * (-1 if aa < 0 else 1), lasty * (-1 if bb < 0 else 1)
+
+def inv(a, m):
+    g, x, y = egcd(a, m)
+    return x % m    
 
 #from Wikipedia
 def inverse(a, n):

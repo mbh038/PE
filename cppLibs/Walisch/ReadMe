@@ -1,0 +1,32 @@
+From Kim Walisch's' primesieve site
+
+http://primesieve.org
+and
+https://github.com/kimwalisch/primesieve#build-instructions
+
+Installation of primeseive console application:
+# macOS
+brew install primesieve
+
+Build Instructions
+cmake .
+make -j
+sudo make install
+
+This installs librimesieve in /usr/local/lib and "primesieve" folder and primesieve.hpp in /usr/local/include
+
+Linking against libprimesieve
+export LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
+export C_INCLUDE_PATH=/usr/local/include:$C_INCLUDE_PATH
+
+Compiling
+In same folder as your source .cpp file, need primseive.hpp, plus folder "primesieve", containing iterator.h,iterator.hpp,primesieve_error.hpp,PrimeSieve.hpp and StorePrimes.hpp.
+
+To compile:
+clang++ foo.cpp -o bar -lprimesieve -std=c++11
+
+
+
+

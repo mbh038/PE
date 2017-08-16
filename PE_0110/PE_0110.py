@@ -10,17 +10,18 @@ See also p108.
 Created on Sun Sep 11 10:08:48 2016
 @author: mbh
 """
-from timeit import default_timer as timer
+import time
 import itertools as it
 import numpy as np
-from operator import itemgetter
+import operator as op
+
            
 def dr(m):
     """
     returns minimum value of n for which the diophantine equation 1/x + 1/y = 1/n
     has more than m solutions
     """
-    start=timer()
+    t=time.clock()
     primes=[]
     prime=erat2a()
     while 1:
@@ -45,7 +46,7 @@ def dr(m):
     print('Prime factors:',primes[:len(amin)])
     print('Prime factor exponents:',amin)   
     print ('Number of solutions:',(divisibility(amin)+1)//2)
-    print('Elapsed time',timer()-start)
+    print('Elapsed time',time.clock()-t)
 
 def pfpowers(pfs,maxpow):
     """
@@ -57,7 +58,7 @@ def pfpowers(pfs,maxpow):
         ps.append(list(a))
     ranks=[]
     ps=ps[::-1]
-    ranks=sorted([(i,myprod(ps[i],pfs)) for i in range(len(ps))],key=itemgetter(1))
+    ranks=sorted([(i,myprod(ps[i],pfs)) for i in range(len(ps))],key=op.itemgetter(1))
     rps=[]
     for i in range(len(ps)):
         rps.append(ps[ranks[i][0]])

@@ -5,6 +5,7 @@ Created on Thu Jun 30 15:37:00 2016
 @author: michael.hunt
 """
 import math
+import sys
 import random as rd
 from math import log,sqrt
 import numpy as np
@@ -240,6 +241,14 @@ def is_prime4(n):
     
 #Primes generators    
 ################################################################################
+def phash(n):
+    """returns primorial of first n primes"""
+    p = erat2a()    
+    phash=1
+    for i in range(1,n+1):
+        phash*=next(p)
+    return phash
+
 def primorial(n):
     """returns primorial numbers < n"""
     p = erat2a()    
@@ -257,6 +266,7 @@ def primesfrom2to(n):
             k=3*i+1|1
             sieve[       k*k//3   ::2*k] = False
             sieve[k*(k-2*(i&1)+4)//3::2*k] = False
+    print(sieve)
     return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 #mine - about 0.4 ms for n=10000
@@ -346,7 +356,7 @@ def squares(limit):
         sf[i**2]=True
     return np.nonzero(sf)[0]
 
-#returns
+#returns squarefree numbers
 def squarefree(limit):
     """return array of square-free numbers p: 2<=p<=n"""
     sf=np.ones(limit+1,dtype=bool)        
@@ -354,6 +364,16 @@ def squarefree(limit):
         if sf[i]:
             sf[i**2::i**2]=False
     return np.nonzero(sf)[0][2:]
+
+#returns non-squarefree numbers
+def squareNotFree(limit):
+    """return array of non square-free numbers p: 2<=p<=n"""
+    sf=np.ones(limit+1,dtype=bool)        
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=False
+    sf=np.logical_not(sf)
+    return np.nonzero(sf)[0][:]
     
 #1slow sieve I found: 45 ms for n=100000
 def primes (n): 

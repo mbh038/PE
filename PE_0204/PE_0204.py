@@ -90,10 +90,7 @@ def ghamming(k,n,primes):
     result= ghamming(k-1,n,primes) + ghamming(k,n//primes[k],primes)
     return result
 
-def test(k,n):
+def test(k,n,primes):
     t=time.clock()
-    ghn(k,n)
+    print(ghamming(k,n,primes))
     print(time.clock()-t)
-#    t=time.clock()
-    p204(k,n)
-#    print(time.clock()-t)

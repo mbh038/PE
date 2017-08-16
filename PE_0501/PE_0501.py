@@ -17,12 +17,17 @@ import queue
 import scipy as sc
 import time
 
+def nd(limit):
+    count=0
+    for i in range(1,limit+1):
+        if ndivisors(i)==8:
+            count+=1
+    print(count)
 
 def primeProduct(limit):
     
     ps=list(primeSieve(int((limit//2)**0.5)))
     qs=ps[:]
-
     pp=[]
     for i in range(len(ps)):
         for j in range(i+1,len(qs)):
@@ -43,23 +48,26 @@ def p501(L):
     print(sum3(L))
     
     return len(ps[ps<L**(1/7)])+sum2(L,False)+sum3(L)
-    
+
+def sum1(L):
+    ps=primeSieve(int(L**(1/7)))
+    return len(ps)    
 
 def sum3 (limit):
 
     pps=primeProduct(limit)
     sum3=0
     lastp2=0
-    p2pc=0
+    p2pc=1
     for i in range(len(pps)):
         p2 = pps[i][0]
         if p2>lastp2:
             lastp2=p2
-            p2pc=howManyPrimes(p2)
-
-
+            p2pc+=1#howManyPrimes(p2)
         prod = pps[i][1];
         sum3+=howManyPrimes(limit//prod)-p2pc;
+#        print(p2,p2pc,howManyPrimes(limit//prod),sum3)
+#        print(i,p2,prod,limit//prod,howManyPrimes(limit//prod))
 #        //cout<<p2<<","<<prod<<","<<limit/prod<<","<<primecount(limit/prod)<<","<<p2pc<<endl;
 
     return sum3;
@@ -123,32 +131,27 @@ def sum2(L,p501=True):
     pps={2:5100605440,3:1590395560,5:367783654,7:140573117,11:38767450,13:24112077,17:11264206,19:8220785,23:4789852}
     
     ps=primeSieve(int(L**.5))
-    found=set()
     sumpf=0    
     i=0
     if p501:
         i=len(pps)
         sumpf=sum([v for k,v in pps.items()])
     while (ps[i]**3)*ps[i+1]<=L:
-        found.add((i,i+1))
-        a=howManyPrimes(int(L/ps[i]**3+1))
+        a=howManyPrimes(int(L/ps[i]**3))
         sumpf+=a
         i+=1
-#    sumpf-=((i)*howManyPrimes(ps[0])+i*(i-1)//2)
-#    print(i-1)
     sumpf-=(i+i*(i-1)//2)
     j=0
     print(sumpf)
     while ps[j]*(ps[j+1]**3)<=L:
-
-#        a=howManyPrimeCubes(int((L/ps[i])+1))
+#        print(L,ps[j],int((L/ps[j])**(1/3)))
         a=howManyPrimes(int((L/ps[j])**(1/3)))
+#        print(int((L/ps[j])**(1/3)),a)
         sumpf+=a
+#        print("j",j,sumpf)
         j+=1
-#    print(j-1)
-#    sumpf-=((j)*howManyPrimes(ps[0])+j*(j-1)//2)
     sumpf-=(j+j*(j-1)//2)
-#    print(sumpf)
+    print(sumpf)
     print(time.clock()-t)
     return sumpf
 
@@ -206,7 +209,7 @@ def find8(L):
             pflens[len(pfs)]+=1
             pflist.append([p for p,e in pfs.items()])
 #            print(i,pfs)
-    print(pflens)
+#    print(pflens)
     print(count)
 #    return
     p1=[x for x in pflist if len(x)==1]
@@ -219,7 +222,7 @@ def find8(L):
 
 def primeSieve(n):
     """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
+    sieve=np.ones(n+1,dtype=np.bool)
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
             sieve[2*i::i]=False
@@ -317,11 +320,10 @@ def howManyPrimeCubes(n):
     
 def test(n):
     t=time.clock()
-    howManyPrimes(n)
+    a=howManyPrimes(n)
+    print("Done primes to: ",a)
     print(time.clock()-t)
-    t=time.clock()
-    segSieve(n)
-    print(time.clock()-t)
+
     
 #const int L1D_CACHE_SIZE = 32768;
 
@@ -378,4 +380,22 @@ def segSieve(limit):
             n+=2
     print (count)
 
-            
+def ndivisors(n):
+    """find number of divisors of n from prime factor exponents"""
+    
+    i = 2
+    factors = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+        
+    divisors=1
+    for k,v in factors.items():
+        divisors*=(v+1)
+        
+    return divisors            

@@ -9,9 +9,142 @@ Created on Thu Feb  2 09:40:26 2017
 
 #[(x,dpf(x),x in h,et(x),dpf(et(x))) for x in range(1,101)]
 import numpy as np
+import itertools as it
+import math
 import time
 
-def p516(limit): 
+
+def p516(limit):
+    
+    smooths=smooth5s(limit)
+    primes=[]
+    for s in smooths:
+        if (isPrime(s+1)):
+            primes.append(s+1)
+    primes=sorted(primes)[3:]
+    
+    twos=[] 
+    for i in range(1,int(12*math.log(10)/math.log(2))+1):
+        twos.append(2**i)
+    print(len(twos))
+    threes=[] 
+    for i in range(1,int(12*math.log(10)/math.log(3))+1):
+        threes.append(3**i)
+    print(len(threes))
+    fives=[] 
+    for i in range(1,int(12*math.log(10)/math.log(5))+1):
+        fives.append(5**i)
+    print(len(fives))
+    
+    #1 prime
+    cands=twos+threes+fives+primes
+    
+    #2 prime
+    for two in twos:
+        print("Twos and threes")
+        for three in threes:
+            newCand=two*three
+            if newCand<limit:
+                cands.append(newCand)
+                print(two,three,newCand)
+            else:
+                break    
+        print(len(cands))
+        print("Twos and fives")
+        for five in fives:
+            newCand=two*five
+            if newCand<limit:
+                cands.append(newCand)
+                print(two,five,newCand)
+            else:
+                break    
+        print(len(cands)) 
+        print("Twos and primes")
+        for prime in primes:
+            newCand=two*prime
+            if newCand<limit:
+                cands.append(newCand)
+                print(two,five,newCand)
+            else:
+                break    
+        print(len(cands))    
+
+    for three in threes:
+        print("Threes and fives")
+        for five in fives:
+            newCand=three*five
+            if newCand<limit:
+                cands.append(newCand)
+                print(three,five,newCand)
+            else:
+                break    
+        print(len(cands)) 
+        print("Threes and primes")
+        for prime in primes:
+            newCand=three*prime
+            if newCand<limit:
+                cands.append(newCand)
+                print(three,prime,newCand)
+            else:
+                break    
+        print(len(cands))    
+
+    for five in fives: 
+        print("Fives and primes")
+        for prime in primes:
+            newCand=three*prime
+            if newCand<limit:
+                cands.append(newCand)
+                print(five,prime,newCand)
+            else:
+                break    
+        print(len(cands)) 
+
+
+
+
+
+def fprod(factors,limit):
+    prod=1
+    i=0
+    while 1:
+        prod*=factors[i]
+        print(i,factors[i],prod)
+        if prod>limit:
+            return i-1
+        i+=1
+    return len(factors)
+            
+    
+    
+def signature_seq(signature, limit):
+  products = set((1,))
+  for factor in signature:
+    new_products = set()
+    for prod in products:
+      x = factor * prod
+      while x <= limit:
+        new_products.add(x)
+        x *= factor
+    products.update(new_products)
+
+  products.remove(1)
+  return products    
+    
+
+def smooth5s(limit):
+    """    find all 5 smooth integers <n"""
+    smooths=[]
+    for i in range(int((math.log(limit)-math.log(15))/math.log(2))+10):
+        for j in range(int((math.log(limit)-math.log(10))/math.log(3))+10):
+            for k in range(int((math.log(limit)-math.log(6))/math.log(5))+10):
+                a=2**i*3**j*5**k
+                if a<limit:
+                    smooths.append(a)
+    return smooths
+                
+
+def p516old(limit): 
     t=time.clock()
 
     count=0

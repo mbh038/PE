@@ -21,89 +21,122 @@ Created on Mon Dec 19 16:04:07 2016
 """
 import time
 import numpy as np
-import sympy as sm
 
-def p146(low,high):
-    
-    t=time.clock()
-    
-#    for n in range(low,high+1,2):
-##        print (n,[isprime(n**2+k)for k in [1,3,7,9,13,27] ])
-#        if all([isprime(n**2+k)for k in [1,3,7,9,13,27] ]):
-#            print(n)
-    ys=np.array([101,103,107,109,113,127],dtype=int)
-    for x in range(low,high,10):
-        ys+=20*(x-10)+100
-        if not isprime(ys[0]) or not isprime(ys[-1]):
-            continue
-#        print(x,ys,[isprime(x) for x in ys])
-        if ys[0]%6 !=5:
-            continue
-        if all([isprime(y) for y in ys[1:]]):
-            print(x)
+def p146(limit):
 
+    t=time.clock()  
+    ns=np.array(np.arange(10, (limit+1),10), dtype=int)
+    print("10",len(ns))
+    ns=ns[(ns%7==3) | (ns%7==4)]
+    print("7",len(ns)) 
+    ns=ns[(ns%13==1) | (ns%13==3) | (ns%13==4) | (ns%13==9) | (ns%13==10) | (ns%13==12)]     
+    print("13",len(ns))
+    ns=ns[(ns%11!=2) & (ns%11!=3) & (ns%11!=8) & (ns%11!=9)]
+    print("11",len(ns))
+    ns=ns[ns%3!=0]
+    print("3",len(ns))
+    ns=ns[ns%23!=4]
+    print("23",len(ns))      
+    nsq=ns**2
+    primes=primeSieve(2000)   
+    for prime in primes[1:]:
+        for i in [1,3,7,9,13,27]:
+            nsq=nsq[(nsq+i)%prime!=0] 
+    print(len(nsq))
+    ns=[int(n**0.5) for n in nsq]
+    ns=sqGood(ns)
+    print(len(ns))
+    ns=consec(ns)
+    print(len(ns))
+    ns=[10]+ns
+    print(sum(ns))
     print(time.clock()-t)
-           
-def p146v2(low,high):
-    ps=primesieve(high//10)
-    print(len(ps))
-    ps=ps[ps>low//10]
-    print(len(ps))
-    ps=10*ps
-    ps=ps**2
-    ps=ps[ps%6==4]
-    print(len(ps))
-    sump=0
-    for p in ps:
-        if isprime(p+27) and isprime(p+13) and isprime(p+9) and isprime(p+7) and isprime(p+3) and isprime(p+1):
-            print(p**.5)
-            sump+=p**.5
-    print (sump)
 
-
-
+def consec(ns):
+    nGood=[]
+    for n in ns:
+        Good=True
+        for i in [5,11,15,17,19,21,23,25]:
+            if is_probable_prime(n**2+i):
+                Good=False
+                break
+        if Good:nGood.append(n)  
+    return nGood
     
-    
+def sqGood(nCand):
+    ns=[]
+    iss={1:0,3:0,7:0,9:0,13:0,27:0}
+    for n in nCand:
+        t=time.clock()
+        Good=True
+        for i in [1,3,7,9,13,27]:
+            if not is_probable_prime(n**2+i):
+                iss[i]+=1
+                Good=False
+                break
+        if Good: 
+            # print(n)
+            ns.append(n)
+        # print(n,Good,time.clock()-t)
+    return ns
 
-                  
-                
-#        p6sum=sum(p6)
-#
-#        nsq=p6sum/6-10
-#        if int(nsq**.5)==nsq**.5:
-#            print(p6,p6sum,nsq**.5)
+#finds out which congruences are allowed
+import collections
+def ctest():
+    ks=[1,3,7,9,13,27]
+    ns=primeSieve(30)[1:]
+    ndic={}
+    for n in ns:
+        tflag=True
+        tlist=[t for t in range(n)]
+        if n in ks:tlist=tlist[1:]
+        for t in range(n):
+            if t==0 and n in ks:
+                continue
+            for k in  ks:
+                if ((t**2)+k)%n==0:
+                    print(n,t)
+                    tflag==False
+                    tlist.remove(t)
+                    break
+        ndic[n]=tlist
+    print(ndic)
 
-def sqsieve(n):
-    sieve=np.array(range(1,n+1))
-    sieve*=sieve
-    return sieve
-        
 
-def primesieve(n):
+
+
+
+
+def primeSieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:]
-    
-def primesfrom2to(n):
-    """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
-    for i in range(1,int(n**0.5/3)+1):
-        if sieve[i]:
-            k=3*i+1|1
-            sieve[       k*k//3   ::2*k] = False
-            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
-    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
-    
-def isprime(n):
+       
+def isPrime(n):
     """Returns True if n is prime."""
     if n==2 or n==3:
         return True
     if not n%2 or not n%3:
         return False
     i = 5
+    w = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += w
+        w = 6 - w
+    return True
+
+def isprimeNot(n,fmin=5):
+    """Returns True if n is prime."""
+    if n==2 or n==3:
+        return True
+    if not n%2 or not n%3:
+        return False
+    i = fmin
     w = 2
     while i * i <= n:
         if n % i == 0:
@@ -125,3 +158,72 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
+
+def test(n):
+    for i in [1,3,7,9,13,27]:
+        t=time.clock()
+        print(i,isprime(n**2+i))
+        print(time.clock()-t)
+        t=time.clock()
+        print(i,isprimeNot(n**2+i,39999983))
+        print(time.clock()-t)
+
+# code from https://rosettacode.org/wiki/Miller–Rabin_primality_test#Python
+import random
+_mrpt_num_trials = 5 # number of bases to test
+ 
+def is_probable_prime(n):
+    """
+    Miller-Rabin primality test.
+ 
+    A return value of False means n is certainly not prime. A return value of
+    True means n is very likely a prime.
+    """
+    assert n >= 2
+    # special case 2
+    if n == 2:
+        return True
+    # ensure n is odd
+    if n % 2 == 0:
+        return False
+    # write n-1 as 2**s * d
+    # repeatedly try to divide n-1 by 2
+    s = 0
+    d = n-1
+    while True:
+        quotient, remainder = divmod(d, 2)
+        if remainder == 1:
+            break
+        s += 1
+        d = quotient
+    assert(2**s * d == n-1)
+ 
+    # test the base a to see whether it is a witness for the compositeness of n
+    def try_composite(a):
+        if pow(a, d, n) == 1:
+            return False
+        for i in range(s):
+            if pow(a, 2**i * d, n) == n-1:
+                return False
+        return True # n is definitely composite
+ 
+    for i in range(_mrpt_num_trials):
+        a = random.randrange(2, n)
+        if try_composite(a):
+            return False
+ 
+    return True # no base tested showed n as composite
+
+limit=150000000
+# primes=primeSieve(limit//4)
+
+p146(limit)
+
+# ns=[10, 315410, 927070, 2525870, 8146100, 16755190, 39313460, 97387280, 119571820, 121288430, 130116970, 139985660, 149782090]
+# ns=consec(ns)
+# print(ns)
+# ns=sqGood(ns)
+# print(ns)
+
+#ctest()
+    
