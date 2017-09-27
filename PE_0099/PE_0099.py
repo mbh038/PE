@@ -21,12 +21,12 @@ above.
 Created on Fri Jul 29 15:19:11 2016
 @author: mbh
 """
-from timeit import default_timer as timer 
+import time
 from math import log
 
-def PE_0099():
+def p99():
     
-    start=timer()
+    t=time.clock()
     
     with open("p099_base_exp.txt") as f:
         data=[[int(x) for x in line.split(",")] for line in f]
@@ -40,5 +40,5 @@ def PE_0099():
             
     print (maxline+1,data[maxline],maxval)
     
-    print('Elapsed time: ',timer()-start,'s')
+    print(time.clock()-t)
     

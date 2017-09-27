@@ -98,16 +98,16 @@ def penew():
     conn.commit()
 
 def pethere(number):
+    response={True:'Already in database',False:'Not in database'}
     number=str(number)
     conn = sqlite3.connect('mbhPE.sqlite3')
     cur = conn.cursor()
     cur.execute('select count(*) from peProblems where problem = ?',(number,))
     for row in cur:
-        if row[0]==0:
-            print ('Not in database')
-        else:
-            print('Already in database')
-    cur.close()
+        cur.close()
+        return response[row[0]!=0]
+    
+#    return response[row[0]!=0]
     
 def petags(term):
     conn = sqlite3.connect('mbhPE.sqlite3')

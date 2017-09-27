@@ -25,6 +25,7 @@ Created on Tue Jul 26 13:38:44 2016
 
 from timeit import default_timer as timer
 from itertools import permutations
+
 def p61():
     start=timer()
     p3,p4,p5,p6,p7,p8=[],[],[],[],[],[]

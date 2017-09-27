@@ -16,9 +16,9 @@
 \begin{document}
 \maketitle
 \section{Problems}
-\subsection{Problem 50}
-Python, about 35 ms.
+\subsection{Problem 50} \textbf{Consecutive prime sum}
 
+Python, about 35 ms.
 I start with sums of primes from 2, and find the longest sequence of primes that sum to a prime, then do the same from 3, and stop once it is not possible to find a sequence longer than the longest already found, which starts from 7.
 
 I use a 3.5x faster version of David Epstein's very nice primes generator, and a simple 6n±1 test for primality that I have used on other problems.
@@ -107,6 +107,157 @@ def isPrime(n):
     return True
 \end{verbatim}
 
+\subsection{Problem 60} \textbf{Prime pair sets}
+
+Bah! I cannot get this to go any quicker than about 3.6 s. At least that is way faster than the 120 s+ I was getting when I first solved this.
+
+I  first generate a dictionary of primes $p_i$ up to some limit, then to each of these I attach a set of the other primes in that dict, $p_j$, for which the concatenations $p_ip_j$ and $p_jp_i$ are prime. I then use set intersections to find the primes that connect to however many others is required. 
+
+Creating the dictionary takes 90\% of the total time.
+
+Creating primes is far faster than checking for primality - so if checking is what you want to do, then it can be faster to put lots of primes in a data structure with constant look-up time, such as a Python set or dictionary, then check whether your candidate prime is in that structure.
+
+This problem is clearly amenable to graph-theoretical analysis, and what I have done resembles looking for cliques in a graph. I look forward to pursuing this more explicitly.
+
+\begin{verbatim}
+def primesfrom2to(n):
+    """ Input n>=6, Returns a array of primes, 2 <= p < n """
+    #Code by Robert William Hanks
+    #http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n/3035188#3035188
+    sieve = numpy.ones(n//3 + (n%6==2), dtype=numpy.bool)
+    for i in range(1,int(n**0.5/3)+1):
+        if sieve[i]:
+            k=3*i+1|1
+            sieve[       k*k//3   ::2*k] = False
+            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
+    return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0][1:]+1)|1)]    
+
+def goodprimes(n,m):
+    primes=list(primesfrom2to(n))
+    pc=set(primesfrom2to(n**2))
+    [x.remove(y) for x in [primes,pc] for y in [2,5]]    
+    pdic={prime:set([prime]) for prime in primes}
+    for prime1 in primes:
+        for prime2 in primes:
+            try1=prime1*10**(int(math.log10(prime2))+1)+prime2
+            if try1 not in pc:
+                continue
+            try2=prime2*10**(int(math.log10(prime1))+1)+prime1
+            if try2 in pc:
+                pdic[prime1].add(prime2)
+    opdic={}
+    for k,v in pdic.items():
+        if len (v)>=m:
+            opdic[k]=v 
+    return opdic,pc
+          
+def PE_0060(n,m):
+    
+    start1=timer()    
+    pdic,pc=goodprimes(n,m)
+    print ('Elapsed time:',timer()-start1)
+    
+    start2=timer()
+    smin=math.inf
+    tts={}
+    for k,v in pdic.items():
+        for x in v:
+            if x ==k: continue
+            try:
+                tt=v.intersection(pdic[x])
+                tts.setdefault(len(tt),[]).append(tt)
+            except:
+                pass          
+    print ('Elapsed time:',timer()-start2)
+    
+    start3=timer()
+    for tt in tts[m]:
+       if sum([x*10**(int(math.log10(y))+1)+y in pc for x in tt for y in tt if x!=y ])==m*(m-1):
+            if sum(tt)<smin:
+                smin=sum(tt)
+                ttmin=tt
+    print(ttmin,smin)      
+    print ('Elapsed time:',timer()-start3)
+    
+    print ('Total elapsed time:',timer()-start1)
+\end{verbatim}
+
+\subsection{Problem 64}\textbf{Odd period square roots}
+
+About 240 ms in Python
+
+\begin{verbatim}
+import time
+import math
+def p64(n):
+    """returns number of  integers <=n that have odd-period continued fractions""" 
+    t=time.clock()
+    c=0
+    for i in range (1,n+1):
+        if  i%4==0 or int(math.sqrt(i))==math.sqrt(i):
+            continue
+        if len(sqcf(i)[1])%2==1:
+            c+=1           
+    print (c,time.clock()-t)
+    
+def sqcf(S):
+    """
+    S is a natural number. Must not be a perfect square
+    
+    returns (a0,[r0,..,rn]) where a0 is the stem and [r0,...,rn] is the 
+    repeating part of the square root continued fraction of S
+    """
+    a=[int(math.sqrt(S))]    
+    d0,d=1,1
+    m=0      
+    while 1:
+        m=d*a[-1]-m
+        d=int((S-m**2)/d)
+        a.append(int((a[0]+m)/d))
+        if d==d0:
+            return (a[0],a[1:])
+            break
+\end{verbatim}
+
+\subsection{Problem 94} \textbf{Almost equilateral triangles}
+
+More Pythagorean triples, where this time we need only consider primitive triples. About 1.3 ms in Python.
+
+\begin{verbatim}
+import numpy as np
+
+def aet(pmax):
+    """
+    returns L, a dictionary of all the right-angle triangles a<b<c that, when 
+    mirrored on b, give an almost-equilateral triangle (c,c,2a) where 2a=c+/-1,
+    with perimeter less than or equal to pmax. These almost-equilateral triangles
+    necessarily comprise the set of those that have integer area.
+    """
+    #generating matrices
+    A = np.array( [[1,-2,2], [2,-1,2],[2,-2,3]] )
+    B = np.array( [[1,2,2], [2,1,2],[2,2,3]] )
+    C = np.array( [[-1,2,2], [-2,1,2],[-2,2,3]] )
+       
+    tripgen=[[3,4,5]]
+    L={5:[3,4,5]}
+        
+    while True:
+        nextgen=[]
+        for triplet in tripgen:
+            for matrix in [A,B,C]:
+                c=sorted(list(np.dot(matrix,np.array(triplet))))
+                if 2*(c[0]+c[2])<=pmax:
+                    if c[0]==(c[2]+1)/2 or c[0]==(c[2]-1)/2:
+                        nextgen.append(c)
+                        L[c[2]]=c
+
+        if len(nextgen)==0:
+            break
+        tripgen=nextgen[:]
+
+    print(sum([2*(v[0]+v[2]) for k,v in L.items()]))
+    return L
+\end{verbatim}
 \subsection{Problem 114}
 
 $50-100 \mu\text{s}$ in Python, using recursion and a memo. For block lengths up to 3 units I worked out the number of solutions that had a red left-most block, or a black left-most block, and put these pairs of values in a dictionary with the block length as key. Then, working upwards in block lengths one unit at a time, I imagined placing $k=1$ to $n$ black blocks at  the left-most end. For each value $k$, this  gave a rightward space of $n-k$ blocks in length that had to be filled with  any allowed combination of sub-blocks that had a red left-most edge. I could look this value up in the dictionary. The sum of these values for each $k$ then gave the number of solutions for blocks of length $n$ with a black left edge. To find the solutions for $n$ units that have a red edge, I do the same, starting this time with a red block of 3 units at the left edge.

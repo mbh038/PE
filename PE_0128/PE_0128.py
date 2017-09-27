@@ -31,17 +31,12 @@ Created on Thu Aug 17 17:06:39 2017
 @author: mbh
 """
 import time
-import numpy as np
-import random
-_mrpt_num_trials = 5 # number of bases to test for Miller-Rabin primality test
-
 def p128(limit):
     
     t=time.clock()
     
     count=2 #for PD(1)=PD(2)=3
     n=1 # start in the 2nd ring
-#    goods=[1,2]
     offline=True
     
     while count<limit:
@@ -50,13 +45,11 @@ def p128(limit):
             continue
         if pd1(n):
             count+=1
-#            goods.append(3*n**2-3*n+2)
             if count==limit:
                 offline=False
                 break
         if pd2(n):
             count+=1
-#            goods.append(3*(n+1)**2-3*(n+1)+1)
     print(count,n)
     if offline:
         print(3*(n+1)**2-3*(n+1)+1)

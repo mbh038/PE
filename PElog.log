@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.10)  23 JAN 2017 12:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.10)  2 SEP 2017 06:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -291,28 +291,67 @@ Missing character: There is no ± in font cmr10!
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
+Overfull \hbox (156.36153pt too wide) in paragraph at lines 183--183
+[]    \OT1/cmtt/m/n/10.95 #http://stackoverflow.com/questions/2068372/fastest-w
+ay-to-list-all-primes-below-n/3035188#3035188[] 
+ []
+
+[3]
+Overfull \hbox (121.8694pt too wide) in paragraph at lines 183--183
+[]       \OT1/cmtt/m/n/10.95 if sum([x*10**(int(math.log10(y))+1)+y in pc for x
+ in tt for y in tt if x!=y ])==m*(m-1):[] 
+ []
+
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [3]
-Overfull \hbox (139.11546pt too wide) in paragraph at lines 168--168
+ [4]
+Overfull \hbox (41.38777pt too wide) in paragraph at lines 220--220
+[]    \OT1/cmtt/m/n/10.95 """returns number of  integers <=n that have odd-peri
+od continued fractions"""[] 
+ []
+
+
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 260--260
+[]    \OT1/cmtt/m/n/10.95 returns L, a dictionary of all the right-angle triang
+les a<b<c that, when[] 
+ []
+
+
+Overfull \hbox (24.14171pt too wide) in paragraph at lines 260--260
+[]    \OT1/cmtt/m/n/10.95 mirrored on b, give an almost-equilateral triangle (c
+,c,2a) where 2a=c+/-1,[] 
+ []
+
+[5]
+Overfull \hbox (35.63908pt too wide) in paragraph at lines 260--260
+[]    \OT1/cmtt/m/n/10.95 with perimeter less than or equal to pmax. These almo
+st-equilateral triangles[] 
+ []
+
+
+Underfull \vbox (badness 4752) has occurred while \output is active []
+
+ [6]
+Overfull \hbox (139.11546pt too wide) in paragraph at lines 319--319
 []            \OT1/cmtt/m/n/10.95 blocks.setdefault(L,[]).append(blocks[L-1][0]
 +blocks[L-m][1]) #red left-edged solutions[] 
  []
 
 
-Overfull \hbox (150.61284pt too wide) in paragraph at lines 168--168
+Overfull \hbox (150.61284pt too wide) in paragraph at lines 319--319
 []            \OT1/cmtt/m/n/10.95 blocks.setdefault(L,[]).append(blocks[L-1][0]
 +blocks[L-1][1]) #black left-edged solutions[] 
  []
 
-[4] [5]
-Overfull \hbox (47.13646pt too wide) in paragraph at lines 302--302
+[7] [8]
+Overfull \hbox (47.13646pt too wide) in paragraph at lines 453--453
 []    \OT1/cmtt/m/n/10.95 #Use the CRT to find m 'base' idempotent solutions fr
 om m prime factors p_i^a_i[] 
  []
 
-[6]
-Overfull \hbox (12.64433pt too wide) in paragraph at lines 302--302
+[9]
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 453--453
 []    \OT1/cmtt/m/n/10.95 """returns multiplicative inverse of a mod n. a and n
  must be-co-prime"""[] 
  []
@@ -320,43 +359,39 @@ Overfull \hbox (12.64433pt too wide) in paragraph at lines 302--302
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [7]
-[8]
-Overfull \hbox (173.60759pt too wide) in paragraph at lines 387--387
+ [10]
+[11]
+Overfull \hbox (173.60759pt too wide) in paragraph at lines 538--538
 []\OT1/cmtt/m/n/10.95 #http://math.stackexchange.com/questions/316376/how-to-ca
 lculate-these-totient-summation-sums-efficiently[] 
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [9]
-[10] (./PElog.aux) ) 
+[12] [13] (./PElog.aux) ) 
 Here is how much of TeX's memory you used:
  3331 strings out of 493014
  43691 string characters out of 6133350
- 118955 words of memory out of 5000000
+ 117955 words of memory out of 5000000
  6673 multiletter control sequences out of 15000+600000
  11255 words of font info for 44 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
  42i,11n,31p,898b,316s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmcsc10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-r9.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
-0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.
-pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.p
-fb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm
-10.pfb>
-Output written on PElog.pdf (10 pages, 141931 bytes).
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr9.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
+t10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols
+/msbm10.pfb>
+Output written on PElog.pdf (13 pages, 151124 bytes).
 PDF statistics:
- 85 PDF objects out of 1000 (max. 8388607)
- 60 compressed objects within 1 object stream
+ 95 PDF objects out of 1000 (max. 8388607)
+ 67 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -79,6 +79,19 @@ def pfdic(n):
         factors[n]=factors.get(n,0)+1
     return factors
 
+def pftup(n):
+    """returns the distinct prime factors of n as [(prime1,exponent1),...]"""   
+    i = 2
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors[i]=factors.get(i,0)+1
+    if n > 1:
+        factors[n]=factors.get(n,0)+1
+    return factors
+
 def pflist(n):
     """returns the distinct prime factors of n as [2^a,3^b.....]""" 
     i = 2

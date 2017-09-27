@@ -33,6 +33,16 @@ import math
 import numpy as np
 import itertools as it
 
+def fump(limit):
+    
+    op={2:[2],3:[3,6]}
+    opset=set([2,3,6])
+    
+    for n in range(2,limit//2+1):
+        if n in op: continue
+    
+    
+
 def p549v3(limit):
     
     t=time.clock()   
@@ -50,101 +60,109 @@ def p549v3(limit):
         nlim=min(p,limit//p+1)
         for n in range(1,nlim):#<=min(limit,np.prod(fpf(min(primes[i],flim)))):
             L[n*p]=p
-            
+
+
+def p549v7(limit):
+    done=set()
+    
+    fp=fpfdic(2)
+    for n in range(2,limit//2+1): 
+        fp=fpfdic()
+        
 
 def p549(limit=1000):
     
     t=time.clock()
+    ps=set(mysieve(limit))
+    rest=set(list(range(2,limit)))
+    rest=rest.difference(ps)
+    print(sum([fhpf(n) for n in rest])+sum(ps))
+    print (time.clock()-t)
+
+def fexp(limit):
     
-    psieve=np.ones(limit+1,dtype=bool)
-    for i in range(2, int((limit+1)**0.5+1)):
-        if psieve[i]:
-            psieve[2*i::i]=False
-    primes=np.nonzero(psieve)[0][2:]
-    print("Sieving primes",time.clock()-t)
+    opDic={}
     
-    flim=1
-    while 1:
-        if np.prod(fpf(flim))>limit:
-            break
-        flim+=1
-
-
-    L=[0,1]+[0]*(limit-1)    
-
-#    for i in range (len(primes)):
-#        p=primes[i] 
-#        nlim=min(p,limit//p+1)
-#        for n in range(2,nlim):#<=min(limit,np.prod(fpf(min(primes[i],flim)))):
-#            L[n*p]=p
-            
-#    print([(x,L[x]) for x in range(len(L))])
-            
-#    kfacs=fpfs()
-            
-            
-
-    k=1 
-    xx=set([1])       
-    while k<2*limit**.5:
-        k+=1
-#        k,newk=next(kfacs)
+    for n in range(2,limit+1):
+        fn=fhpf(n)
+        opDic.setdefault(fn, []).append(n)
         
-#        print(k,newk)
-#        if L[k]>0:
-#            continue
-#        if k not in primes:
-#            continue
-        newk=pfdic(k)
-        
-        factors=[k for k,v in newk.items()]
-#        print(k,factors)
-        a=set([factors[0]**x for x in range(newk[factors[0]]+1)])
-        newa=set()
-        for j in range(1,len(factors)): 
-                        
-            for exp in range(0,newk[factors[j]]+1):
-                nt=factors[j]**exp
-                if nt<=limit:
-                    newa.add(nt)
-                else:
+    return opDic
+
+def fhpf(value):
+    
+    pfs=pfdic(value)
+    nmax=-1
+    for pf,k in pfs.items():
+        n=pf
+        while 1:
+            ksum=0
+            exp=1
+            while 1:
+                term=n//(pf**exp)
+                if term==0:
                     break
-#                a=[x for x in a if x<=limit]
-#            print(newa,a)
-            a={x*y for x in newa for y in a if x*y<=limit}
-#        print(k,a)       
-        newxx={x*y for x in xx for y in a if x*y<=limit}
-#        print(k,newxx)
-        dx=newxx.difference(xx)
-#        print(k,dx,isprime(k))
-        xx=xx.union(newxx)        
-        for x in dx:
-            if L[x]==0:
-                L[x]=k
-#        print(L)
-    print (time.clock()-t)
-    for i in range (len(primes)):
-        p=primes[i] 
-        nlim=min(p,limit//p+1)
-        for n in range(1,nlim):#<=min(limit,np.prod(fpf(min(primes[i],flim)))):
-            L[n*p]=p
-    print (time.clock()-t)
+                ksum+=term
+                exp+=1
+            if ksum>=k:
+                break
+            n+=pf
+        if n>nmax:
+            nmax=n
+    return nmax
+
+#returns s(p^k) = smallest n such that p^k divides n!
+def spk(p,k):    
+    n=p
+    while 1:
+        ksum=0
+        exp=1
+        term=None
+        while term is None or term>0:
+            term=n//(p**exp)
+            ksum+=term
+            exp+=1
+        if ksum>=k:
+            break
+        n+=p
+        
+    return n
+        
+def s(n):
+    
+    pfs=sorted([(k,v) for k,v in pfdic(n).items()])
+   
+    return s_recursive(pfs)
+
+def s_recursive(pfs):
+    
+    for p,exp in pfs:
+        result=spk(p,exp)
+        if len(pfs)>1:
+            result=(max(result,s_recursive(pfs[1:])))       
+        return result
+    
+def S(n):
+    t=time.clock()
+#    print ( sum([s(n) for n in range(2,n+1)]))
+    print ( sum([fhpf(n) for n in range(2,n+1)]))
+    print(time.clock()-t)
+
 
         
         
-
-            
-
-                
-                
-                
-                
-
-            
-#    print(L)       
-#    print( [(x,L[x],s(x,primes)) for x in range(2,len(L)) if L[x]!=s(x,primes)])
-    print (sum(L[2:]))
-    print (time.clock()-t)
+    
+#returns highest power of prime p in n! n>=p            
+def s_prime(p,n):
+    """"""
+    pexp=0        
+    exp=1
+    while 1:
+        term=n//(p**exp)
+        if term==0:break
+        pexp+=term            
+        exp+=1
+    return pexp      
     
     
 def fpf(n):
@@ -187,16 +205,16 @@ def fpfs():
 def powerset(L):
     return set([tuple([x for x in it.compress(L,binLst)]) for binLst in it.product([0,1],repeat=len(L))][1:])       
     
-def s(n,primes):
-#    if n%2:
-#        if n in primes:
-#            return n
-    x=biggest_prime_factor(n)
-    while 1:
-        if not math.factorial(x)%n:
-            break
-        x+=1
-    return x
+#def s(n,primes):
+##    if n%2:
+##        if n in primes:
+##            return n
+#    x=biggest_prime_factor(n)
+#    while 1:
+#        if not math.factorial(x)%n:
+#            break
+#        x+=1
+#    return x
 
 def p549v2(limit):
     S=[0]*(limit+1)
@@ -246,8 +264,6 @@ def p549v2(limit):
 
 
         
-def S(n):
-    return(sum([s(x) for x in range(2,n+1)]))
     
     
 def sv2(n):       
@@ -404,3 +420,82 @@ def isprime(n):
         i += w
         w = 6 - w
     return True
+
+def e549(limit):
+    
+    t=time.clock()
+    
+    spLim=int(limit**0.5)
+    sp=[]
+    m=2
+    
+    s=[0]*(limit+1)
+    
+    for m in range (2,limit//2+1):
+        
+        if s[m]==0:
+            s[m]=m
+            if m<=spLim:
+                sp.append(m)
+        
+        sm=s[m]
+        threshold=limit//m
+        
+        for p in sp:
+            if p> threshold:
+                break
+            if m%p !=0:
+                s[p*m]=sm
+            else:
+                e,q=2,m
+                while 1:
+                    if (q//p)%p==0:
+                        q//=p
+                        e+=1
+                    else:
+                        break
+                
+                s[p*m]=max(spk(p,e),s[q])
+                break
+
+    for m in range(2,limit):
+        if s[m]==0:
+            s[m]=m
+            
+    print(sum(s))
+    print(time.clock()-t)
+    
+    
+#from user Nore    
+def v_p(n, p):
+    k = 0
+    while n % p == 0:
+        n //= p
+        k += 1
+    return k
+
+def sieve_ff(n):
+    l = [0] * (n + 1)
+    for p in range(2, n + 1):
+        if l[p] == 0:
+            u = p
+            k = 1
+            s = 0
+            while u <= n:
+                while k > 0:
+                    s += p
+                    k -= v_p(s, p)
+                j = u
+                while j <= n:
+                    if s > l[j]:
+                        l[j] = s
+                    j += u
+                k += 1
+                u *= p
+    return l
+
+def nore(limit):
+    t=time.clock()
+    l = sieve_ff(limit)
+    print(sum(l[1:]))
+    print(time.clock()-t)

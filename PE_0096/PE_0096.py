@@ -10,10 +10,10 @@ Created on Fri Jul 29 17:06:41 2016
 """
 
 import copy
-from timeit import default_timer as timer 
+import time
 
-def main1(filename):
-    start=timer()
+def p96(filename='p096_sudoku.txt'):
+    t=time.clock()
     grids=readGrids(filename)
     solved=0
     tl3=0
@@ -42,7 +42,7 @@ def main1(filename):
         tl3+=100*int(grid[0][0]) +10*int(grid[0][1])+int(grid[0][2])
     print (tl3)
     print (solved,'puzzles solved') # if <50, more strategies required!
-    print('Elapsed time: ',timer()-start,'s')
+    print(time.clock()-t)
 
 def singles(grid):
     """fill in all singles and hidden singles"""
