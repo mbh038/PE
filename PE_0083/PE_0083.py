@@ -16,16 +16,16 @@ Created on Wed Jun 22 04:25:27 2016
 
 @author: Mike
 """
-from timeit import default_timer as timer
+import time
 import math as m
    
 #ssame code as for P_0081, just with different neighbour rules  
 def PE_0083(filename='p083_matrix.txt',sn=(0,0),fn=(79,79),rules='udlr'): 
-    start=timer()
+    t=time.clock()
     M=readfile(filename)
     graph=gm(M,rules,sn,fn)
     print('Minimum path sum:',dijkstra(graph,sn,fn))
-    print ('Elapsed time: ',timer()-start,'s')
+    print ('Elapsed time: ',time.clock()-t,'s')
     
 def readfile(filename):
     with open(filename,'r') as file:

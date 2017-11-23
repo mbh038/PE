@@ -60,7 +60,7 @@ def p1(value):
     for i in range(len(ps)):
         for j in range (ps[i],value+1):
             ways[j]+=ways[j-ps[i]]    
-    return (ways[-1]-1)+1
+    return (ways[-1]-1)
     print('Elapsed time: ',timer()-start,'s')
 
 

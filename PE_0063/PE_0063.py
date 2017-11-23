@@ -15,14 +15,15 @@ Created on Wed Jul 13 17:13:54 2016
 @author: Mike
 """
 
-from timeit import default_timer as timer
-from math import log10
-def pdc():
-    start=timer()
+import time
+import math
+
+def p63():
+    t=time.clock()
     a={1: range(1,10)}
     n=1
     while len(a[n])>0:
         n+=1
-        a[n]=[x for x in range(1,10) if log10(x)>(n-1.0)/n]
-    print sum(len(x) for x in a.values())
-    print 'Elapsed time: ',timer()-start
+        a[n]=[x for x in range(1,10) if math.log10(x)>(n-1.0)/n]
+    print (sum(len(x) for x in a.values()))
+    print (time.clock()-t)

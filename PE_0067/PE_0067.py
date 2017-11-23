@@ -4,8 +4,12 @@ Created on Wed Jun 22 04:25:27 2016
 
 @author: Mike
 """
-from timeit import default_timer as timer
-def PE_0067(filename):
+import time
+
+def p67(filename="PE_0067.txt"):
+    
+    t=time.clock()
+    
     triangle=[]    
     with open(filename, 'r') as fh:
         for line in fh:
@@ -17,8 +21,8 @@ def PE_0067(filename):
         for number in range(len(triangle[line])):
             newFrontier.append(triangle[line][number]+max(frontier[number],frontier[number+1]))           
         frontier=newFrontier
-    print ' Maximum sum=: ',frontier[0]
-    
+    print (' Maximum sum=: ',frontier[0])
+    print(time.clock()-t)
 
 #not used
 def readTriangle(filename):

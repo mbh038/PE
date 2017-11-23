@@ -8,7 +8,7 @@ import time
 import math
 import numpy as np
 
-def primesieve(n):
+def primeSieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
@@ -82,6 +82,7 @@ def pfdic(n):
 def pftup(n):
     """returns the distinct prime factors of n as [(prime1,exponent1),...]"""   
     i = 2
+    factors=[]
     while i * i <= n:
         if n % i:
             i += 1

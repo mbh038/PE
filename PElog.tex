@@ -219,6 +219,133 @@ def sqcf(S):
             break
 \end{verbatim}
 
+\subsection{Problem 74} \textbf{Digit factorial chains}
+
+About 50 ms*, in Python.
+
+I only check for numbers with integers that increase in order, then find the number of valid permutations of those digits - all permutations must have the same chain length. To speed things up when working through chains, I develop a dictionary of the chain lengths found for all numbers that have appeared in chains before, and stop when I get to one of these numbers, because the chain length of the present number can now be calculated directly. This saves a lot of time.
+
+When I first solved the problem using brute force, my code required 70 s. Getting the dictionary/cache method to work correctly (which took me ages!) brought that down by a factor of 20 to 3.5 s, then the realisation that digit order did not matter brought the time down by a further factor of 70, to 50 ms.
+
+\begin{verbatim}
+def p74(n):
+    start=timer()
+    fs=[1,1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+    chainlengths={169:3,871:2,872:2,145:1,69:5,78:4,540:2}
+    fd=set()    
+    for number in itertools.combinations_with_replacement('0123456789',len(str(n-1))):
+        nx=int(''.join([x for x in number]))
+        for number in [nx,10*nx]:
+            if number>n:
+                continue
+            chain=[number]
+            while 1:
+                candidate=sum([fs[int(x)] for x in str(chain[-1])])
+                if candidate in set(chain):
+                    chainlengths[candidate]=len(chain)-chain.index(candidate)
+                    break
+                if candidate in chainlengths:
+                    chainlengths[number]=len(chain)+chainlengths[candidate]
+                    break
+                chain.append(candidate)
+    
+            for j in range(len(chain)):
+                if chain[j] in chainlengths:
+                    continue
+                if candidate in set(chain):
+                    chainlengths[chain[j]]=chainlengths[candidate]+chain.index(candidate)-j
+                else:
+                    chainlengths[chain[j]]=chainlengths[candidate]+len(chain)-j
+    
+            if chainlengths[number]==60:
+                fd.add(number)
+
+    #how many permutations are there of each of these numbers?
+    ysum=[]
+    for x in fd:
+        y=[i for i in str(x)]
+        ysum.append(math.factorial(len(y)))
+        if '0' in y:
+            ysum[-1]-=math.factorial(len(y)-1)
+        y=''.join([i for i in y])
+        xdic={}
+        for digit in y:
+            xdic[digit]=xdic.get(digit,0)+1
+        for k,v in xdic.items()]
+            ysum[-1]=ysum[-1]//math.factorial(v)          
+        
+    print(sum(ysum))       
+    print('Elapsed time',timer()-start)
+\end{verbatim}
+
+\subsection{Problem 75}\textbf{Singular integer right triangles}
+
+
+Feels slow - about 4 s in Python.
+
+I use the three generating matrices to generate a ternary tree of primitive triads, then add in the non-primitives. Nothing more clever going on.
+
+\begin{verbatim}
+import numpy as np
+import copy
+
+def perimeters(n,m):
+
+   print('Up to a maximum perimeter of',n,'there are:')
+   L=primitives(n)
+   allL(n,L,m)
+
+def primitives(n):
+    """
+    returns dictionary L {k:v} where k are the perimeters of primitive
+    Pythagorean triangles less than n, and v are the number primitives that share
+    that perimeter
+    """
+
+    #generating matrices
+    A = np.array( [[1,-2,2], [2,-1,2],[2,-2,3]] )
+    B = np.array( [[1,2,2], [2,1,2],[2,2,3]] )
+    C = np.array( [[-1,2,2], [-2,1,2],[-2,2,3]] )
+    
+    L={12:1}
+    tripgen=[[3,4,5]]  # the root of the tree   
+    
+    while True:
+        nextgen=[]
+        for triplet in tripgen:
+            for matrix in [A,B,C]:
+                c=np.dot(matrix,np.array(triplet))                
+                if c[2]<=n/2:
+                    length=sum(c)
+                    nextgen.append(list(c))
+                    L[length]=L.get(length,0)+1
+        if len(nextgen)==0:
+            break
+        tripgen=copy.deepcopy(nextgen)
+    p=(sum([y for x,y in L.items() if x<=n and y>=1]))
+    print(p,'primitive Pythagorean trangles') 
+    return L
+    
+
+def allL(n,L,m):
+    """
+    returns the number of perimeters less than n shared by m Pythagorean triangles
+    L is a dict of primitive perimeters returned by primitives()
+    """
+    AllPT={}
+    for primitive,v in L.items():
+        length=0
+        i=0
+        while True:
+            i+=1
+            length=i*primitive
+            if length>n:
+                break
+            AllPT[length]=AllPT.get(length,0)+1
+    perims= (len({x:y for x,y in AllPT.items() if x<=n and y==m}))
+    print(perims,'perimeters common to',m,'Pythagorean triangles')    
+\end{verbatim}
+
 \subsection{Problem 94} \textbf{Almost equilateral triangles}
 
 More Pythagorean triples, where this time we need only consider primitive triples. About 1.3 ms in Python.
@@ -258,6 +385,7 @@ def aet(pmax):
     print(sum([2*(v[0]+v[2]) for k,v in L.items()]))
     return L
 \end{verbatim}
+
 \subsection{Problem 114}
 
 $50-100 \mu\text{s}$ in Python, using recursion and a memo. For block lengths up to 3 units I worked out the number of solutions that had a red left-most block, or a black left-most block, and put these pairs of values in a dictionary with the block length as key. Then, working upwards in block lengths one unit at a time, I imagined placing $k=1$ to $n$ black blocks at  the left-most end. For each value $k$, this  gave a rightward space of $n-k$ blocks in length that had to be filled with  any allowed combination of sub-blocks that had a red left-most edge. I could look this value up in the dictionary. The sum of these values for each $k$ then gave the number of solutions for blocks of length $n$ with a black left edge. To find the solutions for $n$ units that have a red edge, I do the same, starting this time with a red block of 3 units at the left edge.
@@ -537,5 +665,20 @@ def oddTotientSum(N):
     return totientSum(N)-evenTotientSum(N)
 \end{verbatim}
 The key insight I got from chsl95 is how to calculate the sum of totients of even numbers.
+
+\subsection{Problem 613}\textbf{Pythagorean Ant}
+
+I imagined four quadrants, with axes parallel to the triangle sides of length 3 and 4. If the ant walked off in the quadrant facing the hypotenuse it was certain to exit the triangle on that side, and if it walked off towards the right angle, it was certain not to. That left the other two quadrants. For each of these I derived an expression for the probability of exit across the hypotenuse,  to find:
+
+
+$$P(\text{exit})=\frac{1}{4}\left(1+\frac{2}{\pi}\left(\frac{1}{4} \int^4_0\tan^{-1}\frac{x}{3} dx + \frac{1}{3} \int^3_0\tan^{-1}\frac{x}{4} dx\right)\right)$$
+
+which, with Mathematica's help, I find integrates to:
+
+$$\frac{1}{2}+\frac{-25\log{5}+9\log{3}+32\log{2}}{24\pi}$$
+
+where we use the fact that the two smaller angles of the triangle sum to $\pi/2$.
+
+
 
 \end{document}  

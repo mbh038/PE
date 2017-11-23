@@ -28,7 +28,9 @@ def fib(n):
     return matrix_pow(a, n)[0][1]    
 
         
-#from Guttag p 254 - 100x faster than matrix method up to n=1000ish - then hits 
+#with memoization
+#from Guttag p 254
+#100x faster than matrix method up to n=1000ish - then hits 
 #recursion depth limit
 def fastFib(n, memo = {}):
     """Assumes n is an int >= 0, memo used only by recursive calls
@@ -57,7 +59,47 @@ def dijkFib(n,memo={}):
             result=(2*dijkFib((n-1)//2,memo)+dijkFib((n+1)//2,memo))*dijkFib((n+1)//2)
         memo[n]=result
         return result
-    
+
+
+#using a  decorator to implement memoization
+#as fast as FastFib
+from functools import wraps
+
+def memo(func):
+    cache = {}
+    @wraps(func)
+    def wrap(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return wrap
+
+@memo
+def fib_decorator(n):
+    if n<2: return 1
+    return fib_decorator(n-1) + fib_decorator(n-2)
+
+def fibonacci_doubling(n):
+    """ Calculate the Nth Fibonacci number using the doubling method. """
+    return _fibonacci_doubling(n)[0]
+
+
+def _fibonacci_doubling(n):
+    """ Calculate Nth Fibonacci number using the doubling method. Return the
+    tuple (F(n), F(n+1))."""
+    if n == 0:
+        return (0, 1)
+    else:
+        a, b = _fibonacci_doubling(n >> 1)
+        c = a * ((b << 1) - a)
+        d = a * a + b * b
+        if n & 1:
+            return (d, c + d)
+        else:
+            return (c, d)
+
+
+        
 def fastTrib(n,a=(0,0,1),memo={}):  
     """returns generailised nth tribonacci term, starting a=(a0,a1,a2)"""
     if n<=2:
@@ -100,49 +142,19 @@ def Tribmod(n,m,a=(0,0,1), memo = {}):
         memo[(n,m)] = result
         return result
         
+
+
+
 def test(n):
     t=time.clock()
     for i in range(n):
-        a000213(8000)
+        fastFib(300)
     print(time.clock()-t)
     t=time.clock()
     for i in range(n):
-        dijkTrib(8000,(0,0,1))
+        fib_decorator(300)
     print(time.clock()-t)
-    
+    for i in range(n):
+        dijkFib(300)
+    print(time.clock()-t)    
 
-#from OEIS - tribonacci generators using itertools
-#MUCH slower than dijkTrib
-import itertools as it
-__all__ = ('a000213_offset', 'a000213_list', 'a000213_list_pairs', 'a000213_list_upto', 'a000213', 'a000213_gen')
-__author__ = 'Nick Hobson <nickh@qbyte.org>'
-
-a000213_offset = offset = 0
-
-def a000213_gen():
-    """Generator function for OEIS sequence A000213."""
-    x = y = 0
-    z=1
-    while True:
-        yield x
-        x, y, z = y, z, x + y + z
-
-def a000213_list(n):
-    """Returns a list of the first n >= 0 terms."""
-    if n < 0: raise ValueError ('Input must be a non-negative integer')
-    return list(it.islice(a000213_gen(), n))
-
-def a000213_list_pairs(n):
-    """Returns a list of tuples (n, a(n)) of the first n >= 0 terms."""
-    if n < 0: raise ValueError ('Input must be a non-negative integer')
-    return list(zip(range(offset, n+offset), a000213_gen()))
-
-def a000213_list_upto(m):
-    """Returns a list of all terms not exceeding m >= 0."""
-    if m < 0: raise ValueError ('Input must be a non-negative integer')
-    return list(it.takewhile(lambda t: t <= m, a000213_gen()))
-
-def a000213(n):
-    """Returns the term with index n >= 0; offset 0."""
-    if n < offset: raise ValueError ('Input must be an integer >= offset = ' + str(offset))
-    return list(it.islice(a000213_gen(), n-offset, n-offset+1)).pop()

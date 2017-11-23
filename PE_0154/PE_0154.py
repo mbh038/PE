@@ -5,6 +5,8 @@ PE_0154
 
 Exploring Pascal's Pyramid
 
+This takes half an hour!
+
 Created on Sat Dec 24 05:46:35 2016
 @author: mbh
 """
@@ -47,6 +49,8 @@ def facpfac(n):
         factors.append(exp)
     return factors    
     
+#not used below here
+
 def nCk(n,k,memo={}):
     if n<k:
         return 0

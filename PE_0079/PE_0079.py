@@ -19,9 +19,9 @@ Created on Thu Jul 14 05:34:36 2016
 
 @author: Mike
 """
-from timeit import default_timer as timer
-def PE_0079(filename):
-    start=timer()
+import time
+def p79(filename='p079_keylog.txt'):
+    t=time.clock()
     with open(filename, 'r') as fh:
         logins=set([number[0:3] for number in fh])
 
@@ -42,8 +42,8 @@ def PE_0079(filename):
     for digit in pos:
         passcode[len(pos)-len(pos[digit][0])-1]=digit
     
-    print ''.join(x for x in passcode)
-    print 'Elapsed time: ',timer()-start,'s'
+    print (''.join(x for x in passcode))
+    print (time.clock()-t)
         
         
     
@@ -55,8 +55,8 @@ def parse_log(fname):
         xs = f.read()
     return xs.split()
 
-def run(fname):
-    start=timer()
+def run(fname='p079_keylog.txt'):
+    t=time.clock()
     logs = parse_log(fname)
     befors = dict()            #dictionary mapping a char to the chars that appear before it
     password = [None] * 10     #guess that the password will be at most 10 digits long
@@ -68,5 +68,5 @@ def run(fname):
     for k, v in befors.items():      #the index of a char in pwd is the num of chars before it 
         password[len(v)] = k
     code = ''.join(list(filter(lambda x: x is not None, password)))
-    print 'Elapsed time: ',timer()-start,'s'#removes digits never used
+    print (time.clock()-t)#removes digits never used
     return code                       #i think i spelled befors wrong

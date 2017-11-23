@@ -63,7 +63,7 @@ def p151():
         
     print(time.clock()-t)
     
-def P(a, b, c, d):
+def P(a=1, b=1, c=1, d=1):
 	""" a, b, c, d == A2, A3, A4, A5
 		Have to ignore the case when only a A5 paper is left.
 	"""
@@ -80,9 +80,34 @@ def P(a, b, c, d):
 	
 	#print('*', a, b, c, d, '->', p)
 
-	return p
+	print(p)
 
-#p151(4print(P(1, 1, 1, 1))
+
+def MrDrake():
+    m = [dict() for i in range(2 ** 4)]
+    m[1][(1, 1, 1, 1)] = 1.0
+    
+    for i in range(1, len(m) - 1):
+        for j in m[i]:
+            n = sum(j)
+            if j[0] > 0:
+                q = (j[0] - 1, j[1] + 1, j[2] + 1, j[3] + 1)
+                if q not in m[i + 1]: m[i + 1][q] = 0.0
+                m[i + 1][q] += m[i][j] * j[0] / n
+            if j[1] > 0:
+                q = (j[0], j[1] - 1, j[2] + 1, j[3] + 1)
+                if q not in m[i + 1]: m[i + 1][q] = 0.0
+                m[i + 1][q] += m[i][j] * j[1] / n
+            if j[2] > 0:
+                q = (j[0], j[1], j[2] - 1, j[3] + 1)
+                if q not in m[i + 1]: m[i + 1][q] = 0.0
+                m[i + 1][q] += m[i][j] * j[2] / n
+            if j[3] > 0:
+                q = (j[0], j[1], j[2], j[3] - 1)
+                if q not in m[i + 1]: m[i + 1][q] = 0.0
+                m[i + 1][q] += m[i][j] * j[3] / n
+    
+    print (m[8][(1,0,0,0)]+m[12][(0,1,0,0)]+m[14][(0,0,1,0)])
       
             
         

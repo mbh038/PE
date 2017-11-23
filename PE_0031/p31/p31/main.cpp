@@ -129,7 +129,7 @@ int main(int argc, char** argv)
     clock_t t;
     
     std::vector<int> deno = {1,2,5,10,20,50,100,200};
-    int n  = 1000;
+    int n  = 200;
     
     t = clock();
     std::cout << coin_change(n, deno)<<std::endl;

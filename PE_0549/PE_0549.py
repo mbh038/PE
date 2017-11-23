@@ -33,6 +33,46 @@ import math
 import numpy as np
 import itertools as it
 
+#returns s(p^k) = smallest n such that p^k divides n!
+def spk(p,k):
+
+    if p>7:
+        return p*k
+    n=p
+    while 1:
+        ksum=0
+        exp=1
+        term=None
+        while term is None or term>0:
+            term=n//(p**exp)
+            ksum+=term
+            exp+=1
+        if ksum>=k:
+            break
+        n+=p
+        
+    return n
+        
+def s(n):
+    
+    pfs=sorted([(k,v) for k,v in pfdic(n).items()])
+   
+    return s_recursive(pfs)
+
+def s_recursive(pfs):
+    
+    for p,exp in pfs:
+        result=spk(p,exp)
+        if len(pfs)>1:
+            result=(max(result,s_recursive(pfs[1:])))       
+        return result
+    
+def S(n):
+    t=time.clock()
+    print ( sum([s(n) for n in range(2,n+1)]))
+#    print ( sum([fhpf(n) for n in range(2,n+1)]))
+    print(time.clock()-t)
+
 def fump(limit):
     
     op={2:[2],3:[3,6]}
@@ -41,43 +81,7 @@ def fump(limit):
     for n in range(2,limit//2+1):
         if n in op: continue
     
-    
 
-def p549v3(limit):
-    
-    t=time.clock()   
-    psieve=np.ones(limit+1,dtype=bool)
-    for i in range(2, int((limit+1)**0.5+1)):
-        if psieve[i]:
-            psieve[2*i::i]=False
-    primes=np.nonzero(psieve)[0][2:]
-    print("Sieving primes",time.clock()-t)
-    
-    L=[0,1]+[0]*(limit-1)
-     
-    plow=primes[primes<limit**0.5]
-    for p in primes: 
-        nlim=min(p,limit//p+1)
-        for n in range(1,nlim):#<=min(limit,np.prod(fpf(min(primes[i],flim)))):
-            L[n*p]=p
-
-
-def p549v7(limit):
-    done=set()
-    
-    fp=fpfdic(2)
-    for n in range(2,limit//2+1): 
-        fp=fpfdic()
-        
-
-def p549(limit=1000):
-    
-    t=time.clock()
-    ps=set(mysieve(limit))
-    rest=set(list(range(2,limit)))
-    rest=rest.difference(ps)
-    print(sum([fhpf(n) for n in rest])+sum(ps))
-    print (time.clock()-t)
 
 def fexp(limit):
     
@@ -111,47 +115,7 @@ def fhpf(value):
             nmax=n
     return nmax
 
-#returns s(p^k) = smallest n such that p^k divides n!
-def spk(p,k):    
-    n=p
-    while 1:
-        ksum=0
-        exp=1
-        term=None
-        while term is None or term>0:
-            term=n//(p**exp)
-            ksum+=term
-            exp+=1
-        if ksum>=k:
-            break
-        n+=p
         
-    return n
-        
-def s(n):
-    
-    pfs=sorted([(k,v) for k,v in pfdic(n).items()])
-   
-    return s_recursive(pfs)
-
-def s_recursive(pfs):
-    
-    for p,exp in pfs:
-        result=spk(p,exp)
-        if len(pfs)>1:
-            result=(max(result,s_recursive(pfs[1:])))       
-        return result
-    
-def S(n):
-    t=time.clock()
-#    print ( sum([s(n) for n in range(2,n+1)]))
-    print ( sum([fhpf(n) for n in range(2,n+1)]))
-    print(time.clock()-t)
-
-
-        
-        
-    
 #returns highest power of prime p in n! n>=p            
 def s_prime(p,n):
     """"""
@@ -202,66 +166,6 @@ def fpfs():
             pfs[x]=pfs.get(x,0)+1
         yield n,pfs            
                     
-def powerset(L):
-    return set([tuple([x for x in it.compress(L,binLst)]) for binLst in it.product([0,1],repeat=len(L))][1:])       
-    
-#def s(n,primes):
-##    if n%2:
-##        if n in primes:
-##            return n
-#    x=biggest_prime_factor(n)
-#    while 1:
-#        if not math.factorial(x)%n:
-#            break
-#        x+=1
-#    return x
-
-def p549v2(limit):
-    S=[0]*(limit+1)
-    factorials=[(x,math.factorial(x)) for x in range(30)]
-    fpfs=[(x[0],prime_factors(x[1])) for x in factorials]
-    print(fpfs)
-    return
-    for prime in mysieve(limit):
-        n=1
-        for fpf in fpfs:
-           if check_subset([prime]*n, fpf[1]):
-               if prime**n>limit:
-                   break
-#               print(prime,n,prime**n,fpf)
-               S[prime**n]=fpf[0]
-               n+=1
-               continue
-
-#    print(S)
-    maxfac=min([x[0] for x in factorials if x[1]>limit])
-#    print(maxfac)
-    
-    for i in range(maxfac,1,-1):
-        ds=divisors(factorials[i][1])
-#        print(i,factorials[i][1],ds)
-        try:
-            for d in ds:
-                S[d]=i
-        except:
-            pass
-#    print(S)
-
-#    print([(x,s(x)) for x in range(len(S)) if S[x]>0])
-    primes=mysieve(limit)
-    for prime in primes:
-        for x in range(1,min(prime,1+limit//prime)):
-            S[x*prime]=prime 
-
-#    print(S)
-#    for x in range(2,len(S)):
-#        if S[x]==0:
-#            S[x]=s(x)
-    print(sum(S[2:]))
-    return([(x,s(x)) for x in range(len(S)) if S[x]==0])
-
-
-
 
         
     
@@ -276,7 +180,7 @@ def sv2(n):
         if check_subset(pfn,ppp):
             return m
 
-def mysieve(n):
+def primeSieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
@@ -341,13 +245,10 @@ def biggest_prime_factor(n):
     
 def test(n):
     t=time.clock()
-    a=fpfs()
-    for i in range(n):
-        print(next(a))
+    a=primeSieve(n)
     print(time.clock()-t)
     t=time.clock()
-    for i in range(n):
-        fpf(n)
+    b=prime_sieve(n)
     print(time.clock()-t)
     
 def divisors(n):
@@ -421,6 +322,9 @@ def isprime(n):
         w = 6 - w
     return True
 
+
+#from https://codereview.stackexchange.com/questions/129754/project-euler-549-divisibility-of-factorials
+#200s
 def e549(limit):
     
     t=time.clock()
@@ -466,7 +370,8 @@ def e549(limit):
     print(time.clock()-t)
     
     
-#from user Nore    
+#from user Nore  
+#100s  
 def v_p(n, p):
     k = 0
     while n % p == 0:
@@ -499,3 +404,115 @@ def nore(limit):
     l = sieve_ff(limit)
     print(sum(l[1:]))
     print(time.clock()-t)
+    
+#from user Min_25
+#1.1s - sublinear
+from math import sqrt
+from itertools import count
+
+def Min_25(limit):
+    t=time.clock()
+    prob549(limit)
+    print(time.clock()-t)
+
+def prime_sieve(N):
+  is_prime = [1] * (N + 1)
+  is_prime[0] = 0
+  v = isqrt(N)
+  for p in range(2, v + 1):
+    if not is_prime[p]:
+      continue
+    for k in range(p * p, N + 1, p):
+      is_prime[k] = 0
+  return [p for p in range(2, N + 1) if is_prime[p]]
+
+def isqrt(n):
+  x = int(sqrt(n * (1 + 1e-14)))
+  while True:
+    y = (x + n // x) >> 1
+    if y >= x:
+      return x
+    x = y
+
+def icbrt(n):
+  if n <= 0:
+    return 0
+  x = int(n ** (1. / 3.) * (1 + 1e-12))
+  while True:
+    y = (2 * x + n // (x * x)) // 3
+    if y >= x:
+      return x
+    x = y
+
+def tabulate_all_prime_sum(N):
+  def T(n):
+    return n * (n + 1) // 2 - 1
+
+  if N <= 1:
+    return [0, 0], [0, 0]
+
+  v = isqrt(N)
+
+  smalls = [T(i) for i in range(v + 1)]
+  larges = [0 if i == 0 else T(N // i) for i in range(v + 1)]
+
+  for p in range(2, v + 1):
+    if smalls[p - 1] == smalls[p]:
+      continue
+    p_sum = smalls[p - 1]
+    q = p * p
+    end = min(v, N // q)
+    for i in range(1, end + 1):
+      d = i * p
+      if d <= v:
+        larges[i] -= (larges[d] - p_sum) * p
+      else:
+        larges[i] -= (smalls[N // d] - p_sum) * p
+    for i in range(v, q - 1, -1):
+      smalls[i] -= (smalls[i // p] - p_sum) * p
+  return smalls, larges
+
+def prob549(N):
+  def rec(n, beg, s, primes):
+    ret = s
+    for pi in range(beg, len(primes)):
+      p = primes[pi]
+      if p > n:
+        break
+      if p > s and p * p > n:
+        ret += larges[N // n] if n > sqrtN else smalls[n]
+        ret -= smalls[p - 1 if p <= sqrtN else sqrtN]
+        break
+      q = 1
+      for e in count(1):
+        q *= p
+        if q > n:
+          break
+        ret += rec(n // q, pi + 1, max(s, ss[pi][e]), primes)
+    return ret
+
+  sqrtN = isqrt(N)
+  smalls, larges = tabulate_all_prime_sum(N)
+  primes = prime_sieve(sqrtN)
+  primes += [sqrtN + 1] # dummy
+
+  ans = 0
+  ss = []
+  for p in primes:
+    q = p
+    c, t, e = 0, 0, 1
+    seq = [0]
+    while q <= N:
+      while c < e:
+        t += p
+        s = t
+        while s % p == 0:
+          s //= p
+          c += 1
+      seq += [t]
+      q *= p
+      e += 1
+    ss += [seq]
+  ans += rec(N, 0, 0, primes)
+  print(ans)
+
