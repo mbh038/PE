@@ -577,27 +577,11 @@ def gen_curveprimes(a=1,b=1,c=1,n0=0,delta_n=1):
 
 
 p=34155007172832137
-from timeit import default_timer as timer
 def test(n):
-    start=timer()
-    for i in range(2,n):
-        is_prime1(p)
-    print ('Elapsed time for ip1: ',timer()-start)
-    start=timer()
-    for i in range(2,n):
-        isprime5(p)
-    print ('Elapsed time for ip5: ',timer()-start)
-    start=timer()
-    for i in range(2,n):
-        is_prime3(p)
-    print ('Elapsed time for mr: ',timer()-start)
-    start=timer()
-    for i in range(2,n):
-        mr(p,7)
-    print ('Elapsed time for mr from c++: ',timer()-start ) 
-#    start=timer()
-#    [prime_factors(x) for x in squarefree(n)]
-#    print ('Elapsed time for squarefree: ',timer()-start )
+    t=time.clock()
+    ps=primeSieve(n)
+    print(len(ps),time.clock()-t)
+
 
 
         

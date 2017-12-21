@@ -13,6 +13,7 @@ Created on Wed Jul 20 12:55:25 2016
 """
 from timeit import default_timer as timer
 from fractions import Fraction #very slow
+import time
         
 # very slow -O(N2) and uses fractions
 def FareyNext(n,lim,memo={}):
@@ -70,17 +71,21 @@ def farey( n, asc=True ):
     
 
 #about 4s, O(N2) - counts along the Farey sequence
-def myfarey(n):
+def p73(n): #myfarey
+    t=time.clock()
     a,b=1,3 
     c0,d0=1,2
-    c=c0+a*(n-d0)/b
-    d=d0+b*(n-d0)/b
+    c=c0+a*((n-d0)//b)
+    d=d0+b*((n-d0)//b)
+    print(c,d)
     count=0
-    while d>=2*c:
-        k=int((n+b)/d)
-        a,b,c,d=c,d,k*c-a,k*d-b
+    while (c!=1 and d!=2):
+        k=(n+b)//d
+        e=k*c-a
+        f=k*d-b
+        a,b,c,d=c,d,e,f
         count+=1   
-    print (count)
+    print (count,time.clock()-t)
 
     
 

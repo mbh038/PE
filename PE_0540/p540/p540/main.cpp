@@ -5,53 +5,83 @@
 //  Created by Michael Hunt on 20/11/2017.
 //  Copyright © 2017 Michael Hunt. All rights reserved.
 //
+//// clang++ main.cpp -o p540 -lprimesieve -std=c++11
 
 #include <iostream>
+#include <cmath>
+#include<vector>
+#include <primesieve.hpp>
 using namespace std;
 
-// Limit
-//#define limit 3141592653589793
-//#define LSQ 56049912
-
-#define limit 10000000000
-#define LSQ 100000
+#define N 3141592653589793
 
 typedef long long int int64;
 
-int64 gcd(int64 a, int64 b){
-    int64 r = a % b;
-    while (r>0){
-        a=b;
-        b=r;
-        r=a%b;
+void moebius(int64 n, vector <int> &L){
+    vector<int64 > ps;
+    primesieve::generate_primes(n, &ps);
+    
+    for (int64 i=0;i<n;i++){
+        L.push_back(1);
     }
-    return b;
-}
-
-//a^2 +b^2 =c^2
-//c<limit
-//need m and n  coprime, different parity
-int64 primitiveTriples(){
-    int64 valid=0;
-    int64 c;
-    for(int64 n=1; n<=LSQ; n++){
-        for(int64 m=1; m<n; m++){
-            if(gcd(m,n) != 1) continue;
-            if(m%2==n%2) continue;
-//            a = n*n-m*m;
-//            b = 2*m*n;
-            c = n*n+m*m;
-            
-            if(c > limit) break;
-//            cout<<c<<'\n';
-            valid += 1;
+    
+    for (int i=0;i<ps.size();i++){
+        for (int64 j=ps[i];j<L.size();j+=ps[i]){
+            L[j]*=-1;
+        }
+        for (int64 j=ps[i]*ps[i];j<L.size();j+=ps[i]*ps[i]){
+            L[j]=0;
         }
     }
-    return valid;
+}
+
+int64 C_oe(int64 n){
+    int64 c=0;
+    for (int64 q=2;q*q<=n;q+=2){
+        c+=int64(((pow(n-q*q,0.5))+1)/2);
+    }
+    return c;
+}
+
+int64 cntPPT(int64 n){
+    
+    vector <int> L;
+    moebius(int64(pow(n,0.5))+1,L);
+    int64 c = 0;
+    int64 c5=0;
+    for (int64 d = 1; d<=L.size(); d += 2){
+        if (n/d/d<5) break;
+        if (n/d/d==5){
+            c5+=1;
+            c+=L[d];
+            continue;
+        }
+        if (L[d]==0) continue;
+        int64 dc=L[d] * C_oe(n/d/d);
+        c += dc;
+//        cout<<dc<<'\n';;
+    }
+    cout<<"c5: "<<c5<<'\n';
+    return c;
 }
 
 int main() {
-    int64 np=primitiveTriples();
-    cout<<np<<'\n';
-    return 0;
+    cout<<cntPPT(N)<<'\n';
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+int64 cAll(int64 n){
+    int64 c = 0;
+    for (int64 q = 1;q < pow(n/2,0.5); q++)
+        c += int64(pow(n - q*q,0.5)) - q;
+    return c;
+}
+
+int64 C_odd(int64 n){
+    int64 c=0;
+    for(int64 q=1;q<pow(n/2,0.5);q+=2){
+        c += int64((pow(n - q*q,0.5)+1)/2) - (q+1)/2;
+    }
+    return c;
 }

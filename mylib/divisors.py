@@ -245,10 +245,10 @@ def eulersigma3(n):
                 factors.append(n//i)
     return sum(factors)
 
-#use this for finding mobius numbers of a large range
-def mobius(limit):
-    """returns mobius numbers for integers from 1 to limit"""    
-    P=primesieve(limit+1) # or any sieve
+#use this for finding moebius numbers of a large range
+def moebius(limit):
+    """returns moebius numbers for integers from 1 to limit"""    
+    P=primeSieve(limit+1) # or any sieve
     L = np.ones(limit+1).astype(int)
     
     for p in P:
@@ -256,9 +256,9 @@ def mobius(limit):
         L[::p**2] *=  0 
     return L
 
-#use this to find mobius number of a single integer
+#use this to find moebius number of a single integer
 def mu(n):
-    """returns mobius number of integer n"""
+    """returns moebius number of integer n"""
     pfd=pfdic(n)
     for k,v in pfd.items():
         if v>=2:

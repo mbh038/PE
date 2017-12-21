@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{epstopdf}
 \usepackage{amsmath}
+\usepackage{mathtools}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
 \title{Brief Article}
@@ -278,7 +279,7 @@ def p74(n):
     print('Elapsed time',timer()-start)
 \end{verbatim}
 
-\subsection{Problem 75}\textbf{Singular integer right triangles}
+\subsection{Problem 75}\textbf{Singular integer right triangles}\newline
 
 
 Feels slow - about 4 s in Python.
@@ -346,7 +347,7 @@ def allL(n,L,m):
     print(perims,'perimeters common to',m,'Pythagorean triangles')    
 \end{verbatim}
 
-\subsection{Problem 94} \textbf{Almost equilateral triangles}
+\subsection{Problem 94} \textbf{Almost equilateral triangles}\newline
 
 More Pythagorean triples, where this time we need only consider primitive triples. About 1.3 ms in Python.
 
@@ -445,6 +446,165 @@ def F(m,n,memo={}):
         memo[(m,n)]=result
     print(m,n,sum(blocks[L]),time.clock()-t)
 \end{verbatim}
+
+\subsection{Problem 213: }\textbf{Flea Circus}\newline
+
+About 550ms in Python, without taking any symmetries into account..
+
+I use a Markov chain. First I construct the transition matrix $\mathbf{P}$, then for each flea I calculate the probability that it would not occupy each of the cells after $n$ bells. This is given by $1-\mathbf{P}^n\mathbf{t}$ where $\mathbf{t}$ is a column vector of zeros, except for $t_i=1$ when we consider the \textit{i}th flea. Starting with a value of 1 for the probability of any cell being empty, I multiply that at each stage by the probability for each flea not ending up there. After all fleas are accounted for, we have the probability that each cell is unoccupied after $n$ steps. The sum of these probabilities is the expected number of empty cells.
+
+\begin{verbatim}
+import time
+import numpy as np
+
+def p213(N,steps):
+    
+    t0=time.clock()
+    
+    nsq=N**2
+    P=tpm(N)
+    Psteps=np.linalg.matrix_power(P,steps)           
+    tcurrent=np.zeros([nsq,1])
+    tsum=np.ones([nsq,1])    
+     
+    for i in range(nsq):   
+        t=np.zeros([nsq,1])
+        t[i][0]=1
+        tcurrent=np.dot(Psteps,t)
+        tsum*=(1-tcurrent) 
+        
+    print(round(sum(tsum)[0],6))
+    print(time.clock()-t0)
+
+#construct transition matrix
+def tpm(N):
+    
+    P=np.zeros([N**2,N**2])
+
+    #corners (0,N-1,(N-1)*N+1,N**2):
+    P[0][1]=0.5
+    P[0][N]=0.5
+    P[N-1][N-2]=0.5
+    P[N-1][2*N-1]=0.5
+    P[(N-1)*N][(N-2)*N]=0.5
+    P[(N-1)*N][(N-1)*N+1]=0.5
+    P[N**2-1][N**2-2]=0.5
+    P[N**2-1][N**2-N-1]=0.5
+    
+    #top row
+    for i in range(1,N-1):
+        P[i][i-1]=1/3
+        P[i][i+1]=1/3
+        P[i][i+N]=1/3
+        
+    #bottom row
+    for i in range(N**2-N+1,N**2-1):
+        P[i][i-1]=1/3
+        P[i][i+1]=1/3
+        P[i][i-N]=1/3
+    
+    #left edge
+    for i in range(N,(N-1)*N,N):
+        P[i][i-N]=1/3
+        P[i][i+N]=1/3
+        P[i][i+1]=1/3
+
+    #right edge
+    for i in range(2*N-1,(N-1)*N,N):
+        P[i][i-N]=1/3
+        P[i][i+N]=1/3
+        P[i][i-1]=1/3
+        
+    #interior
+    for i in range(N+1,(N-1)*N,N):
+        for j in range(N-2):
+            P[i+j][i+j-1]=0.25
+            P[i+j][i+j+1]=0.25
+            P[i+j][i+j-N]=0.25
+            P[i+j][i+j+N]=0.25
+        
+    return P.transpose()
+\end{verbatim}
+
+\subsection{Problem 227}
+
+About 2.7 ms in Python.
+
+\begin{verbatim}
+import time
+import numpy as np
+from numpy import linalg as LA
+
+def p227(players):
+    
+    t0=time.clock()
+    
+    #if there are 2N players, distances between the dice-holding
+    # players will vary from 0 to N.
+    # We need a N+1 x N+1 transition matrix
+    
+    
+    N=(players+2)//2  
+    
+    #construct the transition matrix P
+    P=np.zeros([N,N])
+    P[N-1][N-1]=36
+    
+    P[0][0]=18
+    P[0][1]=16
+    P[0][2]=2
+       
+    P[1][0]=8
+    P[1][1]=19
+    P[1][2]=8
+    P[1][3]=1
+        
+    P[N-2][N-4]=1
+    P[N-2][N-3]=8
+    P[N-2][N-2]=19
+    P[N-2][N-1]=8
+                
+    for i in range(2,N-2):
+        P[i][i-2]=1
+        P[i][i-1]=8
+        P[i][i]=18
+        P[i][i+1]=8
+        P[i][i+2]=1
+            
+    #normalise P
+    P/=36
+       
+    #Q is the matrix of tranisitions between non-absorbing states   
+    qslice=[True]*(N-1)    
+    Q=np.compress(qslice,P,0)
+    Q=np.compress(qslice,Q,1)
+            
+    #I-Q
+    IMQ=np.identity(N-1)-Q
+    #N=inv(I-Q) is the fundamental matrix for P
+    #entry n_ij of N is expected number of times that chain will be in state s_j
+    #if it starts in state s_i    
+    Nm=LA.inv(IMQ) 
+    
+    c=np.ones([N-1,1])     
+    #Let ti be the expected number of steps before the chain is absorbed, given 
+    #that the chain starts in state s_i, and let t be the column vector whose 
+    #ith entry is t_i. Then
+    t=np.dot(Nm,c)
+    
+    #We start in state s_0 (maximum distance apart)
+    
+    print(round(t[0][0],6))
+    print(time.clock()-t0)
+\end{verbatim}
+
+This was clearly solvable as an absorbing Markov chain problem, so I spent a happy day or two reading more on them. [url=https://math.dartmouth.edu/~prob/prob/prob.pdf]Grinstead and Snell[/url] Chapter 11 was particularly useful.
+
+First, for $2N$ players I used pen and paper to construct the $N+1$ square transition matrix $\mathbf{P}$, with the element $p_{ij}$ being the probability for transition from a state where the dice are a distance $N-i$ apart to one where they are a distance $N-j$ apart. That is, a transition between states a distant $N$ apart is in the top left and the element for the transition that begins and ends on the absorbing  state of zero distance apart is in the bottom right. The top-left $N$ by $N$ sub-matrix of this is $\mathbf{Q}$.  It's elements give the probabilities of transitions between transitory states. 
+
+Then we construct $\mathbf{N}=(\mathbf{I}-\mathbf{Q})^{-1}$. Grinstead and Snell call $\mathbf{N}$ the [i]fundamental[/i] matrix for $\mathbf{P}$. An entry $n_{ij}$ of $\mathbf{N}$ is the expected number of times that the chain will be in state $s_j$ if it starts in state $s_i$. Finally, we let $t_i$ be the expected number of steps before the chain is absorbed, given that the chain starts in state $s_i$, and let $\mathbf{t}$ be the column vector whose [i]i[/i]th entry is $t_i$. Then
+$$\mathbf{t}=\mathbf{N}\mathbf{c}$$
+where $\mathbf{c}$ is a column vector all of whose entries are 1. The answer to our problem is given by $t_0$.
 
 \subsection{Problem 243}
 
@@ -666,7 +826,19 @@ def oddTotientSum(N):
 \end{verbatim}
 The key insight I got from chsl95 is how to calculate the sum of totients of even numbers.
 
-\subsection{Problem 613}\textbf{Pythagorean Ant}
+\subsection{Problem 540: }\textbf{}
+
+We use parametrization of Pythagorean triples: $a=p^2-q^2, b=2pq, c=p^2+q^2$, where $q<p$, $p$ and $q$ have different parity and are relatively prime. If we require that $c\leq n$ then the number of valid $p,q$ pairs, without restriction except that $p,q>0, q<p$, is:
+
+\begin{align*}
+C(n) &=\sum_{\mathclap{q<p, p^2+q^2\leq n} }1 \\
+&=  \sum_{\mathclap{2q^2<n}}{\left(\left\lfloor\sqrt{n-q^2}\right\rfloor-q\right)}
+\end{align*}
+
+We need to subtract from this the number of $p,q$ pairs that are either not  co-prime or have the same parity.
+
+
+\subsection{Problem 613: }\textbf{Pythagorean Ant}
 
 I imagined four quadrants, with axes parallel to the triangle sides of length 3 and 4. If the ant walked off in the quadrant facing the hypotenuse it was certain to exit the triangle on that side, and if it walked off towards the right angle, it was certain not to. That left the other two quadrants. For each of these I derived an expression for the probability of exit across the hypotenuse,  to find:
 
