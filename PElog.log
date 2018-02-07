@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.10)  13 DEC 2017 05:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.10)  8 JAN 2018 12:37
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -319,18 +319,37 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \makeMPintoPDFobject=\count112
 \everyMPtoPDFconversion=\toks28
 )
+Underfull \hbox (badness 10000) in paragraph at lines 20--21
+
+ []
+
 Missing character: There is no ± in font cmr10!
- [1{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--26
+
+ []
+
+[1{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-Overfull \hbox (156.36153pt too wide) in paragraph at lines 184--184
+Underfull \hbox (badness 10000) in paragraph at lines 112--113
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 122--123
+
+ []
+
+
+Overfull \hbox (156.36153pt too wide) in paragraph at lines 185--185
 []    \OT1/cmtt/m/n/10.95 #http://stackoverflow.com/questions/2068372/fastest-w
 ay-to-list-all-primes-below-n/3035188#3035188[] 
  []
 
 [3]
-Overfull \hbox (121.8694pt too wide) in paragraph at lines 184--184
+Overfull \hbox (121.8694pt too wide) in paragraph at lines 185--185
 []       \OT1/cmtt/m/n/10.95 if sum([x*10**(int(math.log10(y))+1)+y in pc for x
  in tt for y in tt if x!=y ])==m*(m-1):[] 
  []
@@ -339,37 +358,174 @@ Overfull \hbox (121.8694pt too wide) in paragraph at lines 184--184
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [4]
-Overfull \hbox (41.38777pt too wide) in paragraph at lines 221--221
+Underfull \hbox (badness 10000) in paragraph at lines 187--188
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 189--190
+
+ []
+
+
+Overfull \hbox (41.38777pt too wide) in paragraph at lines 222--222
 []    \OT1/cmtt/m/n/10.95 """returns number of  integers <=n that have odd-peri
 od continued fractions"""[] 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 224--225
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 227--228
+
+ []
+
 [5]
-Overfull \hbox (64.38252pt too wide) in paragraph at lines 280--280
+Overfull \hbox (29.8904pt too wide) in paragraph at lines 278--278
+[]    \OT1/cmtt/m/n/10.95 """returns fundamental solution for Pell equation x^2
+-ny^2 =1 for given n"""[] 
+ []
+
+
+Overfull \hbox (24.14171pt too wide) in paragraph at lines 278--278
+[]        \OT1/cmtt/m/n/10.95 nom,den=[anext*convergents[-1][j]+convergents[-2]
+[j] for j in range(2)][] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [6]
+Underfull \hbox (badness 10000) in paragraph at lines 280--281
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 284--285
+
+ []
+
+
+Overfull \hbox (41.38777pt too wide) in paragraph at lines 341--341
+[]    \OT1/cmtt/m/n/10.95 #The n-gon has a central ring and spurs. First get al
+l possible central rings.[] 
+ []
+
+
+Overfull \hbox (58.63383pt too wide) in paragraph at lines 341--341
+[]        \OT1/cmtt/m/n/10.95 #remove those rings where more than two neighbour
+ pairs sum to the same value[] 
+ []
+
+
+Overfull \hbox (64.38252pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #remove cyclical duplicates eg (1,2,3,4,5) is
+ the same ring as (2,3,4,5,1)[] 
+ []
+
+[7]
+Overfull \hbox (116.12071pt too wide) in paragraph at lines 341--341
+[]        \OT1/cmtt/m/n/10.95 spurs=[x for x in it.permutations(tuple(set(numli
+st).difference(set(ring))),len(ring))][] 
+ []
+
+
+Overfull \hbox (52.88515pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #for each list of pairs, append all possible 
+permutations of spur values[] 
+ []
+
+
+Overfull \hbox (18.39302pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 rows=[(spur[i],pairs[i][0],pairs[i][1]) for i
+ in range(len(spur))][] 
+ []
+
+
+Overfull \hbox (121.8694pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #as soon as we get different row sums, the n-
+gon cannot be magic, so ditch this ring[] 
+ []
+
+
+Overfull \hbox (70.13121pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #otherwise find the integer value of the cloc
+kwise concatenated row values,[] 
+ []
+
+
+Overfull \hbox (35.63908pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #with the rows cycled until that with the min
+imum spur value is first[] 
+ []
+
+
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 rows=recycle([int(''.join(str(x) for x in row
+)) for row in rows])[] 
+ []
+
+
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 341--341
+[]            \OT1/cmtt/m/n/10.95 #we only want 16 digit values - ie solutions 
+with '10' in a spur.[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 343--344
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 346--347
+
+ []
+
+[8]
+Overfull \hbox (87.37727pt too wide) in paragraph at lines 374--374
+[]    \OT1/cmtt/m/n/10.95 primes=set(mysieve(int(math.sqrt(n)*2))).difference(s
+et(mysieve(int(math.sqrt(n)/2))))[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--384
+
+ []
+
+[9]
+Overfull \hbox (64.38252pt too wide) in paragraph at lines 434--434
 []    \OT1/cmtt/m/n/10.95 for number in itertools.combinations_with_replacement
 ('0123456789',len(str(n-1))):[] 
  []
 
 
-Overfull \hbox (12.64433pt too wide) in paragraph at lines 280--280
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 434--434
 []                    \OT1/cmtt/m/n/10.95 chainlengths[candidate]=len(chain)-ch
 ain.index(candidate)[] 
  []
 
 
-Overfull \hbox (1.14696pt too wide) in paragraph at lines 280--280
+Overfull \hbox (1.14696pt too wide) in paragraph at lines 434--434
 []                    \OT1/cmtt/m/n/10.95 chainlengths[number]=len(chain)+chain
 lengths[candidate][] 
  []
 
 
-Overfull \hbox (93.12596pt too wide) in paragraph at lines 280--280
+Overfull \hbox (93.12596pt too wide) in paragraph at lines 434--434
 []                    \OT1/cmtt/m/n/10.95 chainlengths[chain[j]]=chainlengths[c
 andidate]+chain.index(candidate)-j[] 
  []
 
 
-Overfull \hbox (24.14171pt too wide) in paragraph at lines 280--280
+Overfull \hbox (24.14171pt too wide) in paragraph at lines 434--434
 []                    \OT1/cmtt/m/n/10.95 chainlengths[chain[j]]=chainlengths[c
 andidate]+len(chain)-j[] 
  []
@@ -377,105 +533,131 @@ andidate]+len(chain)-j[]
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [6]
-Underfull \hbox (badness 10000) in paragraph at lines 282--283
+ [10]
+Underfull \hbox (badness 10000) in paragraph at lines 436--437
 
  []
 
 
-Overfull \hbox (35.63908pt too wide) in paragraph at lines 348--348
+Underfull \hbox (badness 10000) in paragraph at lines 441--442
+
+ []
+
+
+Overfull \hbox (35.63908pt too wide) in paragraph at lines 502--502
 []    \OT1/cmtt/m/n/10.95 Pythagorean triangles less than n, and v are the numb
 er primitives that share[] 
  []
 
-[7]
-Overfull \hbox (41.38777pt too wide) in paragraph at lines 348--348
+[11]
+Overfull \hbox (41.38777pt too wide) in paragraph at lines 502--502
 []    \OT1/cmtt/m/n/10.95 returns the number of perimeters less than n shared b
 y m Pythagorean triangles[] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 350--351
+Overfull \hbox (236.84315pt too wide) in paragraph at lines 527--527
+[]        \OT1/cmtt/m/n/10.95 result=sum([(-1)**(k-1)*(p2(n-k*(3*k-1)//2,memo)+
+p2(n-k*(3*k+1)//2,memo)) for k in range(1,int(sqrt(n)+1))])[] 
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 532--533
 
  []
 
 
-Overfull \hbox (12.64433pt too wide) in paragraph at lines 388--388
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 570--570
 []    \OT1/cmtt/m/n/10.95 returns L, a dictionary of all the right-angle triang
 les a<b<c that, when[] 
  []
 
 
-Overfull \hbox (24.14171pt too wide) in paragraph at lines 388--388
+Overfull \hbox (24.14171pt too wide) in paragraph at lines 570--570
 []    \OT1/cmtt/m/n/10.95 mirrored on b, give an almost-equilateral triangle (c
 ,c,2a) where 2a=c+/-1,[] 
  []
 
 
-Overfull \hbox (35.63908pt too wide) in paragraph at lines 388--388
+Overfull \hbox (35.63908pt too wide) in paragraph at lines 570--570
 []    \OT1/cmtt/m/n/10.95 with perimeter less than or equal to pmax. These almo
 st-equilateral triangles[] 
  []
 
-[8] [9]
-Overfull \hbox (139.11546pt too wide) in paragraph at lines 448--448
+[13]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [14]
+Overfull \hbox (139.11546pt too wide) in paragraph at lines 630--630
 []            \OT1/cmtt/m/n/10.95 blocks.setdefault(L,[]).append(blocks[L-1][0]
 +blocks[L-m][1]) #red left-edged solutions[] 
  []
 
 
-Overfull \hbox (150.61284pt too wide) in paragraph at lines 448--448
+Overfull \hbox (150.61284pt too wide) in paragraph at lines 630--630
 []            \OT1/cmtt/m/n/10.95 blocks.setdefault(L,[]).append(blocks[L-1][0]
 +blocks[L-1][1]) #black left-edged solutions[] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 450--451
+Underfull \hbox (badness 10000) in paragraph at lines 632--633
 
  []
 
-[10]
+[15]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [11]
-[12]
+ [16]
+[17]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [13]
-Overfull \hbox (29.8904pt too wide) in paragraph at lines 599--599
+ [18]
+Overfull \hbox (29.8904pt too wide) in paragraph at lines 781--781
 []    \OT1/cmtt/m/n/10.95 #entry n_ij of N is expected number of times that cha
 in will be in state s_j[] 
  []
 
 
-Overfull \hbox (24.14171pt too wide) in paragraph at lines 599--599
+Overfull \hbox (24.14171pt too wide) in paragraph at lines 781--781
 []    \OT1/cmtt/m/n/10.95 #Let ti be the expected number of steps before the ch
 ain is absorbed, given[] 
  []
 
 
-Overfull \hbox (12.64433pt too wide) in paragraph at lines 599--599
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 781--781
 []    \OT1/cmtt/m/n/10.95 #that the chain starts in state s_i, and let t be the
  column vector whose[] 
  []
 
 
-Overfull \hbox (28.68443pt too wide) in paragraph at lines 601--602
+Overfull \hbox (28.68443pt too wide) in paragraph at lines 783--784
 \OT1/cmr/m/n/10.95 or two read-ing more on them. [url=https://math.dartmouth.ed
 u/ prob/prob/prob.pdf]Grinstead
  []
 
-[14]
+[19]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [15]
-Overfull \hbox (47.13646pt too wide) in paragraph at lines 741--741
+ [20]
+Overfull \hbox (208.09972pt too wide) in paragraph at lines 879--879
+[]        \OT1/cmtt/m/n/10.95 return (1/(4*k**2))*(-4-8*k+4*(k+1)*(-(k+1)**2+x)
+**0.5-np.pi*x+4*x*np.arctan((k+1)/(-(k+1)**2+x)**0.5))[] 
+ []
+
+
+Overfull \hbox (139.11546pt too wide) in paragraph at lines 879--879
+[]        \OT1/cmtt/m/n/10.95 return (1/(2*k**2))*(2-2*(-1+x)**0.5-x*float(mpma
+th.acsc(x**0.5))+x*np.arctan((-1+x)**0.5))[] 
+ []
+
+[21]
+Overfull \hbox (47.13646pt too wide) in paragraph at lines 974--974
 []    \OT1/cmtt/m/n/10.95 #Use the CRT to find m 'base' idempotent solutions fr
 om m prime factors p_i^a_i[] 
  []
 
-[16]
-Overfull \hbox (12.64433pt too wide) in paragraph at lines 741--741
+[22]
+Overfull \hbox (12.64433pt too wide) in paragraph at lines 974--974
 []    \OT1/cmtt/m/n/10.95 """returns multiplicative inverse of a mod n. a and n
  must be-co-prime"""[] 
  []
@@ -483,9 +665,9 @@ Overfull \hbox (12.64433pt too wide) in paragraph at lines 741--741
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [17]
-[18]
-Overfull \hbox (173.60759pt too wide) in paragraph at lines 826--826
+ [23]
+[24]
+Overfull \hbox (173.60759pt too wide) in paragraph at lines 1059--1059
 []\OT1/cmtt/m/n/10.95 #http://math.stackexchange.com/questions/316376/how-to-ca
 lculate-these-totient-summation-sums-efficiently[] 
  []
@@ -493,14 +675,18 @@ lculate-these-totient-summation-sums-efficiently[]
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [19]
-[20] (./PElog.aux) ) 
+ [25]
+Underfull \hbox (badness 10000) in paragraph at lines 1062--1063
+
+ []
+
+[26] (./PElog.aux) ) 
 Here is how much of TeX's memory you used:
- 3879 strings out of 493014
- 53274 string characters out of 6133350
+ 3882 strings out of 493014
+ 53307 string characters out of 6133350
  130746 words of memory out of 5000000
- 7207 multiletter control sequences out of 15000+600000
- 12222 words of font info for 47 fonts, out of 8000000 for 9000
+ 7209 multiletter control sequences out of 15000+600000
+ 12558 words of font info for 49 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
  42i,12n,31p,898b,316s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsf
@@ -518,10 +704,10 @@ fb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><
 /usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.p
 fb>
-Output written on PElog.pdf (20 pages, 185476 bytes).
+Output written on PElog.pdf (26 pages, 197923 bytes).
 PDF statistics:
- 125 PDF objects out of 1000 (max. 8388607)
- 88 compressed objects within 1 object stream
+ 145 PDF objects out of 1000 (max. 8388607)
+ 101 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

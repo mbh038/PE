@@ -17,12 +17,13 @@
 \begin{document}
 \maketitle
 \section{Problems}
-\subsection{Problem 50} \textbf{Consecutive prime sum}
+\subsection{Problem 50} \textbf{Consecutive prime sum}\newline
 
 Python, about 35 ms.
 I start with sums of primes from 2, and find the longest sequence of primes that sum to a prime, then do the same from 3, and stop once it is not possible to find a sequence longer than the longest already found, which starts from 7.
 
-I use a 3.5x faster version of David Epstein's very nice primes generator, and a simple 6n±1 test for primality that I have used on other problems.
+I use a 3.5x faster version of David Epstein's very nice primes generator, and a simple 6n±1 test for primality that I have used on other problems.\newline
+
 \begin{verbatim}
 import time
 import numpy as np
@@ -108,7 +109,7 @@ def isPrime(n):
     return True
 \end{verbatim}
 
-\subsection{Problem 60} \textbf{Prime pair sets}
+\subsection{Problem 60} \textbf{Prime pair sets}\newline
 
 Bah! I cannot get this to go any quicker than about 3.6 s. At least that is way faster than the 120 s+ I was getting when I first solved this.
 
@@ -118,7 +119,7 @@ Creating the dictionary takes 90\% of the total time.
 
 Creating primes is far faster than checking for primality - so if checking is what you want to do, then it can be faster to put lots of primes in a data structure with constant look-up time, such as a Python set or dictionary, then check whether your candidate prime is in that structure.
 
-This problem is clearly amenable to graph-theoretical analysis, and what I have done resembles looking for cliques in a graph. I look forward to pursuing this more explicitly.
+This problem is clearly amenable to graph-theoretical analysis, and what I have done resembles looking for cliques in a graph. I look forward to pursuing this more explicitly.\newline
 
 \begin{verbatim}
 def primesfrom2to(n):
@@ -183,9 +184,9 @@ def PE_0060(n,m):
     print ('Total elapsed time:',timer()-start1)
 \end{verbatim}
 
-\subsection{Problem 64}\textbf{Odd period square roots}
+\subsection{Problem 64}\textbf{Odd period square roots}\newline
 
-About 240 ms in Python
+About 240 ms in Python.\newline
 
 \begin{verbatim}
 import time
@@ -220,13 +221,166 @@ def sqcf(S):
             break
 \end{verbatim}
 
-\subsection{Problem 74} \textbf{Digit factorial chains}
+\subsection{Problem 66}\textbf{Diophantine equation} \newline 
+
+
+After first posting here my initial solution that took 6.6s, I had a closer look and now get the result in under 40 ms. Result! The key was to write a function that directly found and returned the stem and recurring sequence of the continued fraction for $\sqrt{n}$. From this, the fundamental solution to the Pell equation $x^2-ny^2=1$ is easily found.\newline
+
+\begin{verbatim}
+def PE_0066(nmax):
+    """
+    Returns D<nmax that gives the greatest value for x where(x,y) is the
+    fundamental solution for the Pell equation x^2-Dy^2=1.
+    """
+    Dmax=-1
+    xmax=-1    
+    for D in range(nmax):
+        try:
+            xn=Pellfs(D)[0]
+            if xn>xmax:
+                xmax=xn
+                Dmax=D
+        except:
+            pass        
+    print (Dmax)
+                        
+def Pellfs(n):
+    """returns fundamental solution for Pell equation x^2-ny^2 =1 for given n"""   
+    if sqrt(n)==int(sqrt(n)):
+        return None
+    anext,repeats=sqcf(n)    
+    rps=cycle(repeats)
+    convergents=[(0,1),(1,0)]
+    nom,den=0,0
+    while nom**2-n*den**2!=1:
+        nom,den=[anext*convergents[-1][j]+convergents[-2][j] for j in range(2)]
+        convergents.append((nom,den))
+        anext=next(rps)
+    return (nom,den)
+    
+def sqcf(S):
+    """
+    S is a natural number. Must not be a perfect square
+    
+    returns (a0,[r0,..,rn]) where a0 is the stem and [r0,...,rn] is the 
+    repeating part of the square root continued fraction of S
+    """
+    a=[int(sqrt(S))]#isqrt(S)    
+    d0,d=1,1
+    m=0      
+    while 1:
+        m=d*a[-1]-m
+        d=int((S-m**2)/d)
+        a.append(int((a[0]+m)/d))
+        if d==d0:
+            return (a[0],a[1:])
+            break
+\end{verbatim}
+
+\subsection{Problem 68: }\textbf{Magic 5-gon ring}\newline
+
+About 3 ms in Python. Quick, but not very concise, mind. The main time saving arose from recognising that the central ring had to consist of  digits 1 to [i]n[/i] for an [i]n[/i]-gon ring (if I don't make that assumption, then my code takes 2 s)  and a common task was to cycle lists and recognise when two lists were identical within a rotation of the n-gon. 
+
+I probably could use itertools-esque things to do some of the work in the code, and may do so when I find out how, but I did find that the lexicographic order you get from $\texttt{itertools.combinations()}$ messed up the required clockwise-ness of the ring when I tried to take all pairs within the ring that would form part of complete rows.\newline
+
+\begin{verbatim}
+from timeit import default_timer as timer
+import itertools as it
+def magicNgon(n):
+    """
+    Solves Project Euler 68 for magic n-gon ring, where n is the number
+    of vertices in the central ring, each vertex having a spur, giving 2n
+    positions in all, each filled by a unique integer in the range 1...2n
+    """
+    start=timer()
+    numlist=[x for x in range(1,2*n+1)]
+    ringlist=[x for x in range(1,n+1)]
+    #The n-gon has a central ring and spurs. First get all possible central rings.
+    #These must only contain the lowest n-digits.
+    rings=set()
+    for perm in it.permutations(ringlist,len(ringlist)):
+        #remove those rings where more than two neighbour pairs sum to the same value
+        ns=set([(perm[i]+perm[i+1]) for i in range(len(perm)-1)])
+        ns.add(perm[-1]+perm[0])
+        if len(ns)==len(perm):
+            #remove cyclical duplicates eg (1,2,3,4,5) is the same ring as (2,3,4,5,1)
+            plist=recycle(perm)
+            rings.add(tuple(plist)) 
+    rowcatmax=-1
+    for ring in rings:
+        #find the list of spur values for the given ring        
+        spurs=[x for x in it.permutations(tuple(set(numlist).difference(set(ring))),len(ring))]
+        #make list from the ring of possible pairs within n-gon 3-rows
+        pairs=[(ring[i],ring[i+1]) for i in range(len(ring)-1)]
+        pairs.append((ring[-1],ring[0]))
+        for spur in spurs:
+            #for each list of pairs, append all possible permutations of spur values
+            rows=[(spur[i],pairs[i][0],pairs[i][1]) for i in range(len(spur))]
+            rowtotals=set([sum(row) for row in rows])
+            #as soon as we get different row sums, the n-gon cannot be magic, so ditch this ring
+            if len(rowtotals)>1:
+                continue
+            #otherwise find the integer value of the clockwise concatenated row values,
+            #with the rows cycled until that with the minimum spur value is first
+            rows=recycle([int(''.join(str(x) for x in row)) for row in rows])
+            rowcat=''.join(str(row) for row in rows)
+            #we only want 16 digit values - ie solutions with '10' in a spur.
+            if len(rowcat)==17:
+                continue
+            rowcat=int(rowcat)
+            #find the  maximum concatenation of row values.
+            if rowcat>rowcatmax:
+                rowcatmax=rowcat 
+    print (rowcatmax)
+    print ('Elapsed time:',timer()-start,'s')
+                   
+def recycle(mylist):
+    """cycles a list of numerical values until list[0]=min(list)"""    
+    minval=mylist.index(min(mylist))   
+    return [mylist[(x+minval)%len(mylist)] for x in range(len(mylist))]
+\end{verbatim}
+
+\subsection{Problem 70: }\textbf{Totient permutation}\newline
+
+
+After first posting here my original solution which took 400s, here is an update that gets the answer in 0.75 s or so. It guesses that the minimal ratio of $\frac{n}{\phi(n)}$, if $n$ cannot be prime (since then $\phi(n)$ would be $n-1$ and it would not have the same digits as $n$) occurs when $n$ has two distinct prime factors, these both being around $\sqrt{n}$. I search for factors within a factor 3 of $\sqrt{n}$ and use the fact that, where a number $n$ has two distinct prime factors, $p_1$ and $p_2$, then $\phi(n)=(p_1-1)(p_2-1)$.\newline
+
+
+\begin{verbatim}
+import math
+import numpy as np
+
+    
+def mysieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 
+      
+def p70(n):   
+    primes=set(mysieve(int(math.sqrt(n)*2))).difference(set(mysieve(int(math.sqrt(n)/2))))
+    minratio=10
+    for p1 in primes:
+        for p2 in primes.difference([p1]):
+            if p1*p2<n:
+                pp=p1*p2
+                phi=(p1-1)*(p2-1)
+                if pp/phi<minratio:
+                    if sorted(str(phi))==sorted(str(pp)):
+                        minratio=pp/phi
+                        print (pp,phi,pp/phi,p1,p2)  
+\end{verbatim}
+
+
+\subsection{Problem 74: } \textbf{Digit factorial chains}\newline
 
 About 50 ms*, in Python.
 
 I only check for numbers with integers that increase in order, then find the number of valid permutations of those digits - all permutations must have the same chain length. To speed things up when working through chains, I develop a dictionary of the chain lengths found for all numbers that have appeared in chains before, and stop when I get to one of these numbers, because the chain length of the present number can now be calculated directly. This saves a lot of time.
 
-When I first solved the problem using brute force, my code required 70 s. Getting the dictionary/cache method to work correctly (which took me ages!) brought that down by a factor of 20 to 3.5 s, then the realisation that digit order did not matter brought the time down by a further factor of 70, to 50 ms.
+When I first solved the problem using brute force, my code required 70 s. Getting the dictionary/cache method to work correctly (which took me ages!) brought that down by a factor of 20 to 3.5 s, then the realisation that digit order did not matter brought the time down by a further factor of 70, to 50 ms.\newline
 
 \begin{verbatim}
 def p74(n):
@@ -284,7 +438,7 @@ def p74(n):
 
 Feels slow - about 4 s in Python.
 
-I use the three generating matrices to generate a ternary tree of primitive triads, then add in the non-primitives. Nothing more clever going on.
+I use the three generating matrices to generate a ternary tree of primitive triads, then add in the non-primitives. Nothing more clever going on.\newline
 
 \begin{verbatim}
 import numpy as np
@@ -346,6 +500,34 @@ def allL(n,L,m):
     perims= (len({x:y for x,y in AllPT.items() if x<=n and y==m}))
     print(perims,'perimeters common to',m,'Pythagorean triangles')    
 \end{verbatim}
+
+\subsection{Problem 78} \textbf{Coin partitions}
+
+In Python, with much the same recursive code that I used for Problem 76, based on generalised pentagonal numbers and using memoization. To speed things up I take the observation of Ramanujan that if $n$ ends in 4 or 9, then $p(n)$ is divisible by 5, and hence this will capture all the $p(n)$ that are divisible by powers of 10.
+
+\begin{verbatim}
+def p2(n,memo={}):
+    if n<0:
+        return 0
+    if n==0:
+        return 1
+    try:
+        return memo[n]
+    except:       
+        result=sum([(-1)**(k-1)*(p2(n-k*(3*k-1)//2,memo)+p2(n-k*(3*k+1)//2,memo)) for k in range(1,int(sqrt(n)+1))])
+        memo[n]=result
+        return result
+            
+def PE_0078(ll,ul,divisor):
+    for n in range(ll+4,ul+4,5):
+        a=p2(n)
+        if a%divisor==0:
+            print (n,a)
+            break
+\end{verbatim}
+
+Most of my problems here were not with this code, but with the Python, or maybe Spyder environment. The first time I run this it takes about 15s, but the next time it only needs a few ms. I don't know why. For a lot of today, the kernel kept dying while I attempted less than  I have posted here, for example in computing $p(10000)$, while earlier it had managed much more, which is why I know that $p(846699)$ and $p(488324)$ are also divisible by 1 million. Finally, I found that if I crept slowly upwards in the value of $n$ before I run the code, all was fine. Why is that? Anyway, very interesting problem.
+
 
 \subsection{Problem 94} \textbf{Almost equilateral triangles}\newline
 
@@ -659,6 +841,57 @@ def prime_factors(n):
     return factors 
 \end{verbatim}
 
+\subsection{Problem 285}
+
+I took an unreasonably long time to solve this, and the code takes about 15s, but I have had fun times reading up on transformed distributions. Larry Wasserman's book 'All of Statistics' is great for this. I spent a long time staring at a $(1,(k+1)^2)$ square, but missed the key insight of the first post of this forum!
+
+I tried and failed to find the cdf  for the transformed distribution $Y=(kx_1+1)^2+(kx_2+1)^2$ where $x_1$ and $x_2$ are uniformly distributed on $(0,1)$. Eventually, I asked Mathematica to do the job for me for $k=1,2,3,4...$, and pieced together the general expression for the cdf $F$ from them. The expected score then followed easily as $$\sum_{k=1}^{100000}{k\cdot \left(F\left[(k+0.5)^2\right]-F\left[(k-0.5)^2\right]\right)}$$
+
+\begin{verbatim}
+[code=Python]
+
+import time
+import numpy as np
+import mpmath
+
+def p285(limit):
+    
+    t=time.clock()
+    
+    score =0
+    for k in range(1,limit+1):
+        score+=k*(cdf((k+0.5)**2,k)-cdf((k-0.5)**2,k))
+        
+    print (limit,round(score,5))
+    print(time.clock()-t)
+
+def cdf(x,k):
+    
+    if x>=2*(k+1)**2:
+        return 1
+    if x>=(k+1)**2+1 and x<2*(k+1)**2:
+        return (1/(4*k**2))*(-4-8*k+4*(k+1)*(-(k+1)**2+x)**0.5-np.pi*x+4*x*np.arctan((k+1)/(-(k+1)**2+x)**0.5))
+    if x>=2 and x <(k+1)**2+1:
+        return (1/(2*k**2))*(2-2*(-1+x)**0.5-x*float(mpmath.acsc(x**0.5))+x*np.arctan((-1+x)**0.5))
+    else:
+        return 0
+[/code]
+\end{verbatim}
+
+\begin{verbatim}
+[code=Mathematica]
+
+TransformedDistribution[(x1 + 1)^2 + (x2 + 1)^2, {x1 \[Distributed] 
+   UniformDistribution[{0, 1}], 
+  x2 \[Distributed] UniformDistribution[{0, 1}]}]
+
+CDF[TransformedDistribution[(1 + \[FormalX]1)^2 + (1 + \
+\[FormalX]2)^2, {\[FormalX]1 \[Distributed] 
+    UniformDistribution[{0, 1}], \[FormalX]2 \[Distributed] 
+    UniformDistribution[{0, 1}]}], x]
+[/code]
+\end{verbatim}
+
 \subsection{Problem 407}
 \par
 Just meeting the 1000s rule in Python. :( 
@@ -826,7 +1059,7 @@ def oddTotientSum(N):
 \end{verbatim}
 The key insight I got from chsl95 is how to calculate the sum of totients of even numbers.
 
-\subsection{Problem 540: }\textbf{}
+\subsection{Problem 540: }\textbf{Counting primitive Pythagorean triples}\newline
 
 We use parametrization of Pythagorean triples: $a=p^2-q^2, b=2pq, c=p^2+q^2$, where $q<p$, $p$ and $q$ have different parity and are relatively prime. If we require that $c\leq n$ then the number of valid $p,q$ pairs, without restriction except that $p,q>0, q<p$, is:
 

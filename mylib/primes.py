@@ -281,7 +281,7 @@ def primeSieve(n):
 #Legendre's theorem
 def facpfac(n):
     """returns prime factors of n!"""
-    ps=primesieve(n)
+    ps=primeSieve(n)
     factors={}
     for prime in ps:
         exp=0
@@ -297,7 +297,7 @@ def facpfac(n):
 def fpf(n):
     """returns prime factors of n! list version"""
     pfs=[]
-    for p in primesieve(n):        
+    for p in primeSieve(n):        
         exp=1
         while 1:
             term=n//(p**exp)
@@ -309,7 +309,7 @@ def fpf(n):
 def fpfdic(n):
     """returns prime factors of n! dict version"""
     pfs={}
-    for p in primesieve(n):
+    for p in primeSieve(n):
         pexp=0        
         exp=1
         while 1:

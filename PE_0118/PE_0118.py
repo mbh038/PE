@@ -58,7 +58,7 @@ def p118():
     count=0
     prime_sets=0
     digits=set([x for x in range(1,10)])  
-    primes=trial(9)#set(mysieve(987654321))
+    primes=set(primeSieve(987654321))
     print(time.clock()-t)
     pdic={}
     for n, p in enumerate(partitions(digits), 1):
@@ -96,7 +96,16 @@ def partitions(A):
             yield partition + [[a]]
             for i, subset in enumerate(partition):
                 yield partition[:i] + [subset + [a]] + partition[i+1:]
-    
+                
+def primeSieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 
+
+
 #code by Alexis, Stack Exchange, May 8 2015
 def partition(collection):
     """return all partitions of a set"""
@@ -108,26 +117,6 @@ def partition(collection):
         for n, subset in enumerate(smaller):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
-
-
-                
-def mysieve(n):
-    """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
-    for i in range(2, int((n+1)**0.5+1)):
-        if sieve[i]:
-            sieve[2*i::i]=False
-    return np.nonzero(sieve)[0][2:] 
-
-def primesfrom2to(n):
-    """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = np.ones(n//3 + (n%6==2), dtype=np.bool)
-    for i in range(1,int(n**0.5/3)+1):
-        if sieve[i]:
-            k=3*i+1|1
-            sieve[       k*k//3   ::2*k] = False
-            sieve[k*(k-2*(i&1)+4)//3::2*k] = False
-    return np.r_[2,3,((3*np.nonzero(sieve)[0][1:]+1)|1)]
     
 def is_prime(n):
     """Returns True if n is prime."""

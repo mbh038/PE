@@ -93,7 +93,7 @@ def p280v2(N,start):
             for cells in it.combinations(bottomEdge,targetCells):
 #                print(n,cells,countSteps(n,cells,P))
                 newSteps.append(countSteps(n,cells,P))
-        print(targetCells,2*np.mean(newSteps),len(newSteps))
+#        print(targetCells,2*np.mean(newSteps),len(newSteps))
         steps+=2*np.mean(newSteps)
         
     print (round(steps,6))
@@ -125,7 +125,7 @@ def p280v1(N,start):
     for p in pUp:
 #        count+=1
         for d in dOff:
-            print(p,d,firstSteps[p[0]])
+#            print(p,d,firstSteps[p[0]])
             steps=firstSteps[p[0]]
             ct+=1
             for i in range(N):

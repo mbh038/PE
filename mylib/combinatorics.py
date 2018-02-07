@@ -122,7 +122,8 @@ def nCk_2(n,k,memo={}):
     return result
 
 #using scipy    
-#sc.misc.comb(n,k) is faster
+#from scipy.special import comb is faster
+# comb (n.k)
 
 #power sets
 #Stack Exchange
