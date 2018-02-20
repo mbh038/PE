@@ -19,6 +19,7 @@ Created on Tue Dec  5 18:59:06 2017
 """
 
 import time
+import numba as nb
 
 def p167(n):
     
@@ -37,6 +38,7 @@ def ulamTerm(v,n):
     
 #returns first period of ulam (2,v) sequence, following second even term
 #plus the period and 'fundamental difference'        
+
 def p2v(v):
     
     def getTerms(v,nextTerm,lastResults,result):   

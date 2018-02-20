@@ -16,9 +16,9 @@ Created on Fri Sep 22 05:00:56 2017
  
 import time
        
-def p346(limit):
+def p346(limit=10**12):
 
-    t=time.clock()
+    t=time.clock() 
     bases=set([1])
     for b in range(2,int(limit**(1/2)+1)):
         n=2      
@@ -27,8 +27,7 @@ def p346(limit):
             val=(b**n-1)//(b-1)
             if val>limit: break
             bases.add(val)
+    print (sum(bases))   
+    print (time.clock()-t)
 
-    print(sum(bases))
-    print(time.clock()-t)
-            
 

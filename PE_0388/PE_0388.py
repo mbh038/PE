@@ -9,6 +9,7 @@ Created on Wed Jan 25 13:24:47 2017
 
 import math
 import numpy as np
+import numba as nb
 import time
 
 #23s! Uisng sub-linear alogorithm for R(n) from Daniel Fischer
@@ -49,28 +50,23 @@ def fast_moebius(N,t):
    for j in range(K-1,-1,-1):
       R(N//(2*j+1))
    return rlarge[0]
-    
-#solves 10^10 in 6575s
-#O(n^3/4) I think
-def p388(n):
-    t0=time.clock()
-    L =int(n**0.5)
-    moebius=MoebiusSieve(L) 
-    res=0
-    for d in range(1,L+1):
-        res+=int(moebius[d])*t(n//d)
-    for z in range(1,L+1):
-        if z != n//z:
-            res += (Mertens(n//z)-Mertens(n//(z+1)))*t(z)
-    print(res)
-    ans=str(res)
-    print(ans[:9]+ans[-9:])
-    print(time.clock()-t0)
 
-def t(n):
-    return (n+1)**3-1
+@nb.jit(nopython=True)
+def MoebiusSieve(limit):
+    """returns moebius numbers for integers from 1 to limit"""  
+    sieve=np.ones(limit+1,dtype=np.int64)
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=0
+    P= np.nonzero(sieve)[0][2:]  
+    L = np.ones(limit+1).astype(np.int64)   
+    for p in P:
+        L[::p]    *= -1
+        L[::p**2] *=  0 
+    return L.astype(np.int64)
 
 #returns sum of Moebius(n) up to n
+@nb.jit(nopython=True)
 def Mertens(n):
     
     L =int(n**0.5)
@@ -102,6 +98,42 @@ def Mertens(n):
         bigM[x]=res
        
     return int(bigM[1])
+    
+#solves 10^10 in 6575s
+#O(n^3/4) I think
+def p388(n):
+    t0=time.clock()
+    L =int(n**0.5)
+    moebius=MoebiusSieve(L) 
+    print(time.clock()-t0)
+    res=0
+    for d in range(1,L+1):
+        res+=int(moebius[d])*t(n//d)
+    mdic={}
+    for z in range(1,L+1):
+        v0,v1=n//z,n//(z+1)
+        if z != v0:
+            if v0 in mdic:
+                temp=mdic[v0]
+            else:
+                ans=Mertens(v0)
+                temp=ans
+                mdic[v0]=ans
+            if v1 in mdic:
+                temp-=mdic[v1]
+            else:
+                ans=Mertens(v1)
+                temp-=ans
+                mdic[v1]=ans
+            res+=temp*t(z)
+    ans=str(res)
+    print(ans[:9]+ans[-9:])
+    print(time.clock()-t0)
+
+def t(n):
+    return pow(n+1,3)-1
+
+
        
 def v7(n,L,sieve,memo):
     if n<=L:
@@ -161,20 +193,7 @@ def F2(n):
 #sum of totient(x) for x<=n
 def totientSum(n):
     return R(n)+1
-    
-def MoebiusSieve(limit):
-    """returns moebius numbers for integers from 1 to limit"""  
-    sieve=np.ones(limit+1,dtype=bool)
-    for i in range(2, int((limit+1)**0.5+1)):
-        if sieve[i]:
-            sieve[2*i::i]=False
-    P= np.nonzero(sieve)[0][2:]  
-    L = np.ones(limit+1).astype(int)   
-    for p in P:
-        L[::p]    *= -1
-        L[::p**2] *=  0 
-    return L.astype(int)
-    
+        
 def MertensSieve(n):
     merts=[0]*(n+1)
     moebs=MoebiusSieve(n)

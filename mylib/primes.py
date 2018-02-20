@@ -451,7 +451,7 @@ def gcd(a, b):
         r = a % b
     return b
     
-# code bystefan  http://stackoverflow.com/users/1209253/stefan
+# code by stefan  http://stackoverflow.com/users/1209253/stefan
 def prime_factors(n):
     """returns the prime factors of n"""    
     i = 2

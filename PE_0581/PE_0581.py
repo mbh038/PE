@@ -1,3 +1,4 @@
+#!/usr/bin/env pypy
 # -*- coding: utf-8 -*-
 """
 
@@ -49,6 +50,7 @@ import time
 import queue
 import itertools as it
 import matplotlib.pyplot as plt
+import numba as nb
 
 
 def p581(pmax):
@@ -64,7 +66,7 @@ def p581(pmax):
         for j in range(M[i>1000]):
             if i>12000 and M==1:break
             psol=next(pellsol)
-            if psol[0]>2**44:continue
+            if psol[0]>17592186044416:continue #17592186044416=2^44
             x=(psol[0]-1)//2
 #            lasty=y
 #            y=psol[1]
@@ -78,10 +80,12 @@ def p581(pmax):
     print(nsum)
     print(time.clock()-t)
 
-
+@nb.jit(nopython=True)
 def Pell1(D,s):
     """Solves Pell equation x^2-Dy^2=s where s=+/-1"""
 
+    k=0
+    
     P0,P1,Q0,Q1,A1,A2,B1,B2=0,0,1,1,1,0,0,1
     G1,G2=Q0,-P0
     result=PQa(D,P0,P1,Q0,Q1,A1,A2,B1,B2,G1,G2)
@@ -134,6 +138,7 @@ def Pell1(D,s):
     
 #this implements the PQa algorithm described by John D. Robertson
 #http://www.jpr2718.org/pell.pdf , page 4
+@nb.jit(nopython=True)
 def PQa(D,P0,P1,Q0,Q1,A1,A2,B1,B2,G1,G2):
             
     a0=int((P1+D**0.5)/Q1)
@@ -197,6 +202,7 @@ def squareFrees(primes,maxpr, product, pindex):
         yield product
         yield product*maxpr
 
+@nb.jit(nopython=True)
 def isPsmooth(x,primes):
     if x==1:
         return True
@@ -261,4 +267,32 @@ def sf(primes):
             sfs.append(np.prod(a))
     print (sfs)
         
+
+#code from user lscrd. Takes 7.5s using numba(). He/she claims 1.5s using pypy.
+
+def lscrd():
+    t=time.clock()
+    print(lscrd_code())
+    print(time.clock()-t)
     
+#@nb.jit(nopython=True)
+def lscrd_code():
+    N = 10000000000000
+    
+    DIVIDERS = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+    
+    multiples = [1]
+    
+    for d in DIVIDERS:
+        for idx in range(len(multiples)):
+            m = multiples[idx] * d
+            while m <= N:
+                multiples.append(m)
+                m *= d
+        multiples.sort()
+    
+    result = 0
+    for i, m in enumerate(multiples[:-1]):
+        if multiples[i + 1] == m + 1:
+            result += m
+    return result   

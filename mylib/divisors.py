@@ -8,6 +8,7 @@ import time
 import math
 import numpy as np
 
+
 def primeSieve(n):
     """return array of primes 2<=p<=n"""
     sieve=np.ones(n+1,dtype=bool)

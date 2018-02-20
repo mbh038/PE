@@ -2259,7 +2259,7 @@ def dr(m):
     has more than m solutions
     &quot;&quot;&quot;
     start=timer()
-    print('Diophantine reciprocal eequation: 1/x + 1/y = 1/n')
+    print('Diophantine reciprocal equation: 1/x + 1/y = 1/n')
     primes=[]
     prime=erat2a()
     while 1:
@@ -4070,6 +4070,367 @@ def magicWithDuplicates(S,maxDigit):
     
     return count</code></pre>
 </div>
+<div id="problem-167-investigating-ulam-sequences" class="section level3">
+<h3>Problem 167: Investigating Ulam sequences</h3>
+<p>About 10s in Python.</p>
+<pre class="python"><code>import time
+def p167(n):
+    
+    t=time.clock()    
+    total=0    
+    for v in range(5,23,2):
+        total+=ulamTerm(v,n)       
+    print(total,time.clock()-t)
+#returns nth term of (2,v) 1-additive sequence  for 5&lt;=v&lt;=21
+def ulamTerm(v,n):
+    
+    vseq,period,fD=p2v(v)    
+    n0=(v+7)//2        
+    return vseq[(n-n0)%period-1]+((n-n0)//period)*fD
+    
+#returns first period of ulam (2,v) sequence, following second even term
+#plus the period and 'fundamental difference'        
+def p2v(v):
+    
+    def getTerms(v,nextTerm,lastResults,result):   
+        score=0
+        if nextTerm-2 in lastResults:
+            score+=1
+        if nextTerm-(2*v+2) in lastResults:
+            score+=1
+        if score==1:
+            result.append(nextTerm)
+            lastResults.append(nextTerm)
+            if len(lastResults)&gt;=2*v+2:
+                lastResults.pop(0)
+        nextTerm+=2
+        return nextTerm,lastResults,result   
+        
+    result=[2,v]+[n+2 for n in range(v,2*v+1,2)]+[2*v+2]    
+    lastResults=result[:]    
+    nextTerm=result[-1]+1
+    while lastResults[-1]-lastResults[-2]&lt;2*v+2:
+        nextTerm,lastResults,result=getTerms(v,nextTerm,lastResults,result)
+    for _ in range((v+1)//2):
+        nextTerm,lastResults,result=getTerms(v,nextTerm,lastResults,result)
+    result=result[(v+7)//2:]
+    period=len(result)
+    fundamentalDifference=nextTerm-2*v-3
+    
+    print (v,period,fundamentalDifference )
+    return result,period,fundamentalDifference  </code></pre>
+<p>So, slower than others’ Python code here, but I do find the periods and differences of each of the <span class="math inline">\((2,v)\)</span> sequences rather than look them up (in, say, the <a href="https://projecteuclid.org/download/pdf_1/euclid.em/1048709116">Finch paper</a>, using only the fact that each sequence will contain only one other even number besides 2, and that the period and difference of any sequence can be found by looking for when the difference between successive elements is equal to the larger even number it contains.</p>
+</div>
+<div id="problem-169-exploring-the-number-of-different-ways-a-number-can-be-expressed-as-a-sum-of-powers-of-2" class="section level3">
+<h3>Problem 169: Exploring the number of different ways a number can be expressed as a sum of powers of 2</h3>
+<p>Finally, after much fiddling around with sequences, I came across the term hyper-binary representation in Aigner and Ziegler’s <em>Proofs from the Book</em>, p126. From then, it was trivial to code the recursion with a memo. It takes less than 1ms.</p>
+<pre class="python"><code>import time
+def hb(n,memo={}):
+    if n==0:
+        return 0
+    if n==1:
+        return 1
+    try:
+        return memo[n]
+    except KeyError:
+        if n%2:
+            result=hb((n-1)//2,memo)+hb((n+1)//2,memo)
+        else:
+            result=hb(n//2,memo)
+        memo[n]=result
+        return result
+    
+def p169(n):
+    t=time.clock()
+    print( hb(n+1),time.clock()-t)</code></pre>
+<p>Along the way, I noticed that, <span class="math inline">\(f(2^n)=n+1\)</span>, <span class="math inline">\(f(2^n-1)=1\)</span>, that the maximum value of <span class="math inline">\(f(n)\)</span> for <span class="math inline">\(2^k\le n \le 2^{k+1}\)</span> is <span class="math inline">\(F(k+2)\)</span> where <span class="math inline">\(F\)</span> is the Fibonacci sequence and that this occurs for <span class="math inline">\(n\)</span> one third of the way in between the two powers of two.</p>
+</div>
+<div id="problem-173-using-up-to-one-million-tiles-how-many-different-hollow-square-laminae-can-be-formed" class="section level3">
+<h3>Problem 173: Using up to one million tiles how many different “hollow” square laminae can be formed?</h3>
+<p>260 ms in Python</p>
+<pre class="python"><code>import math
+import time
+def p173(n):
+    t=time.clock()
+    amin=3
+    amax=(n+4)//4
+    total=0
+    for a in range(amin,amax+1):
+        bsqmin=a**2-n
+        b=2-a%2
+        if bsqmin&gt;1:
+            b=max(b,math.ceil((bsqmin)**.5))
+        total+=(a-b)//2
+    print(total,time.clock()-t)</code></pre>
+</div>
+<div id="problem-174-counting-the-number-of-hollow-square-laminae-that-can-form-one-two-three-distinct-arrangements" class="section level3">
+<h3>Problem 174: Counting the number of “hollow” square laminae that can form one, two, three, … distinct arrangements</h3>
+<p>About 750 ms in Python. I start with a 1x1 hole. With this hole I add layers 1 tile thick until I have reached the limit, note each time how many tiles there are altogether and increase the tally for that number by one. Then I move to a 2x2 hole, and so on.</p>
+<pre class="python"><code>import time
+def p174(n):
+    
+    t=time.clock()
+    
+    tallies=[0]*(n+1)    
+    for i in range(8,n,4):
+        j=0
+        total=0
+        while 1:
+            total+=i+j*8
+            if total&gt;n:
+                break
+            tallies[total]+=1
+            j+=1
+    nsum=0
+    for i in range(1,11):
+        nsum+=len([x for x in tallies if x==i])
+    print (nsum)
+    
+    print (time.clock()-t)</code></pre>
+</div>
+<div id="problem-179-consecutive-positive-divisors" class="section level3">
+<h3>Problem 179: Consecutive positive divisors</h3>
+<p>33 s in Python. I use a sieve to determine the number of divisors.</p>
+<pre class="python"><code>import time
+import numpy as np
+   
+def p179(limit=100):
+    t=time.clock()
+    a1=np.ones(limit,dtype=int)
+    for divisor in range(1,limit):
+        a1[divisor::divisor]+=1
+    print(sum([a1[i] == a1[i+1] for i in range(2,len(a1)-1)]))
+    print (time.clock()-t)</code></pre>
+</div>
+<div id="problem-187-semiprimes" class="section level3">
+<h3>Problem 187: Semiprimes</h3>
+<p>I had the same idea as the very first post in the forum, that the number we need is primepi(limit/prime)-primepi(prime)+1 summed over all primes up to the square root of limit.</p>
+<p>(where primepi(x) = number of primes less than or equal to x)</p>
+<p>Using my own prime and primepi sieves, it takes 0.8s.</p>
+<pre class="python"><code>import time
+import numpy as np
+def p187(limit):
+    t=time.clock() 
+    primes=myprimes(int(limit**0.5)+1)
+    primepis=myprimepi(limit//2+1)
+    count=0
+    for prime in primes:
+        count+=primepis[limit//prime-2]-primepis[prime-2] +1   
+    print(count,time.clock()-t)
+    
+def myprimepi(n):
+    &quot;&quot;&quot;return array of primepi(x) for 2 &lt;x&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.cumsum(sieve[2:])
+    
+def myprimes(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]  </code></pre>
+<p>Alternatively, and more easily understood, by me at least, in 3.2 s, it is <span class="math inline">\(\sum_{\text{primes}\ p&lt;n/2}{p\pi(\min(p,n/p))}\)</span>, where <span class="math inline">\(\pi(n)\)</span> is the primepi function.</p>
+<pre class="python"><code>def p187(n):
+    t=time.clock()
+    primes=myprimes(n//2)
+    pis=myprimepi(n//2)
+    count=0
+    for prime in primes:
+        pmin=min(n//prime,prime)
+        count+=pis[pmin-2]
+    print(count,time.clock()-t)</code></pre>
+</div>
+<div id="problem-193-squarefree-numbers" class="section level3">
+<h3>Problem 193: Squarefree Numbers</h3>
+<p>7.7 s in Python. I use the identity: <span class="math display">\[Q(n)=\sum^n_{k=1} \mu (k)\left\lfloor\frac{n}{k^2}\right\rfloor=\sum^{\lfloor\sqrt{n}\rfloor}_{k=1} \mu (k)\left\lfloor\frac{n}{k^2}\right\rfloor\]</span> In the code I use a sieve to generate the Moebius numbers and vectorise where possible to avoid loops. 90% of the time is taken up in the Moebius sieve, in the part where I do use a loop. I can’t see how to avoid this. As it is, though, the sieve is about three times faster than my implementation in Python of Marcus Andrews’ Moebius sieve, listed as Algorithm 9 in his fantastic overview to problem 351.</p>
+<pre class="python"><code>import numpy as np
+import time
+#find Q, the number of square-free numbers less than n
+def p193(n):
+    t=time.clock()
+    moebs=moebiusSieve(int(n**.5)+1)
+    ks=np.arange(1,len(moebs)+1)
+    floors=n//(ks*ks)
+    Q=np.sum(moebs*floors)
+    print(Q,time.clock()-t)
+def moebiusSieve(limit):
+    &quot;&quot;&quot;returns array of moebius numbers 1&lt;=n&lt;=limit&quot;&quot;&quot;    
+    P=primeSieve(limit+1) # or any sieve
+    L = np.ones(limit+1).astype(int)    
+    for p in P:
+        L[::p]*= -1
+        L[::p**2]=0 
+    return L[1:]
+    
+def primeSieve(n):
+    &quot;&quot;&quot;returns array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]</code></pre>
+</div>
+<div id="problem-203-squarefree-binomial-coefficients" class="section level3">
+<h3>Problem 203: Squarefree Binomial Coefficients</h3>
+<p>About 4 ms in Python.</p>
+<pre class="python"><code>import time
+def p203(rows):
+    t=time.clock()
+    sfs=set()
+    for n in range(rows):
+        for k in range(n+1):
+            c=nCk(n,k)
+            if squareFree(c):
+                sfs.add(c)
+    print(sum(sfs),time.clock()-t)
+        
+def nCk(n,k,memo={}):
+    &quot;&quot;&quot;returns n Choose k&quot;&quot;&quot;
+    if n&lt;k:
+        return 0
+    if n==0 or k==0 or k==n:
+        return 1
+    try:
+        return memo[(n,k)]
+    except KeyError:
+        result=nCk(n-1,k-1,memo)+nCk(n-1,k)
+        memo[(n,k)]=result
+    return result
+    
+def squareFree(n):
+    &quot;&quot;&quot;returns True if n is square-free, False if not&quot;&quot;&quot;    
+    i = 2
+    factors = set()
+    while i * i &lt;= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            if i in factors:
+                return False
+            factors.add(i)
+    if n &gt; 1:
+        if n in factors:
+            return False
+    return True</code></pre>
+<p>I use recursion to find the <span class="math inline">\({n \choose k}\)</span>s, but could have used factorials directly at about the same speed.</p>
+</div>
+<div id="problem-204-generalised-hamming-numbers" class="section level3">
+<h3>Problem 204: Generalised Hamming Numbers</h3>
+<p>Disappointingly slow at 42 s, in Python. For each prime <span class="math inline">\(p\le 100\)</span> I create the list <span class="math inline">\([1,p,..,p^n]\)</span> such that <span class="math inline">\(p^n\)</span> is the greatest power of <span class="math inline">\(p\)</span> that is less than <span class="math inline">\(10^9\)</span>, then multiply each member of this list with each member of the list for 3 to create a new list. Next I multiply each member of this list with the list for 5 and so on up to the list for 97. The final list contains all the 100-smooth numbers below <span class="math inline">\(10^9\)</span>.</p>
+<pre class="python"><code>import time
+import numpy as np
+def p204(k,n):
+    &quot;&quot;&quot; finds all k-smooth numbers less than or equal to n&quot;&quot;&quot;
+    t=time.clock()
+    pfs=[(x,int(np.log10(n)//np.log10(x))) for x in primesieve(k)]    
+    a=[(pfs[x][0],[pfs[x][0]**i for i in range(pfs[x][1]+1)]) for x in range(len(pfs))]
+    mults=[]
+    for i in range(len(a)-1):
+        if mults==[]:
+            mults=[a[i][1][x]*a[i+1][1][y] for x in range(len(a[i][1])) for y in range(len(a[i+1][1])) if a[i][1][x]*a[i+1][1][y]&lt;=n]
+        else:
+            mults=[mults[x]*a[i+1][1][y] for x in range(len(mults)) for y in range(len(a[i+1][1])) if mults[x]*a[i+1][1][y]&lt;=n]        
+    print(len(mults),time.clock()-t)
+def primesieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]</code></pre>
+<p>Using Assato’s recursive result that <span class="math inline">\(h(n,p_i)=h(n,p_{i-1})+h(n/p_i,p_i)\)</span>, with <span class="math inline">\(h(n,2)=\lfloor(\log(n)/\log(2)\rfloor\)</span> and <span class="math inline">\(h(0,p_i)=0\)</span>, where <span class="math inline">\(h(n,p)\)</span> is the number of generalised Hamming numbers of type <span class="math inline">\(p\)</span> that are less than <span class="math inline">\(n\)</span>, I get the result in about 65 ms in C++. The same code in Python takes 1.7s.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+const long long M=1000000000;
+
+const vector&lt;int&gt; primes ={
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
+    43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
+
+long long ghamming(int k,long long n){
+    if (k==0) return log(n)/log(2) + 1;
+    if (n==0) return 0;
+    return ghamming(k-1,n) + ghamming(k,n/primes[k]);
+}
+
+int main()
+{
+    cout&lt;&lt;ghamming(primes.size()-1,M)&lt;&lt;&quot;\n&quot;;
+    return 0;
+}</code></pre>
+<p>my-MBP:p204 mbh$ clang++ p204.cpp -o p204 -std=c++11<br />
+my-MBP:p204 mbh$ time ./p204<br />
+2944730</p>
+<p>real 0m0.062s<br />
+user 0m0.058s<br />
+sys 0m0.002s</p>
+</div>
+<div id="problem-205-dice-game" class="section level3">
+<h3>Problem 205: Dice Game</h3>
+<p><span class="math inline">\(570 \mu\text{s}\)</span> in Python.</p>
+<p>I find the probability that Colin gets any score from 6 to 36, multiply each of these by the probability that Peter exceeds that score, and sum.</p>
+<pre class="python"><code>import math
+import time
+def p205():
+    
+    t=time.clock()
+    
+    cc=[pns(p,6,6) for p in range(6,37)]
+    cdic={x:y for x,y in zip(range(6,37),cc)}
+    
+    pp=[pns(p,9,4) for p in range(9,37)]
+    cpp=[1-sum(pp[:i+1]) for i in range(len(pp))]    
+    pdic={x:y for x,y in zip(range(9,37),cpp)}
+    for i in range(6,9):
+        pdic[i]=1
+    total=0
+    for x in range(6,37):
+        total+=cdic[x]*pdic[x]
+    print(round(total,7),time.clock()-t)
+ 
+    
+def pns(p,n,s):
+    &quot;&quot;&quot;probability of score p from n s-sided dice&quot;&quot;&quot;    
+    P=0
+    for k in range((p-n)//s+1):
+        P+=((-1)**k)*nCk(n,k)*nCk(p-s*k-1,n-1)        
+    return P/s**n
+        
+def nCk(n,k):
+    &quot;&quot;&quot; n choose k&quot;&quot;&quot;
+    return int(math.factorial(n)/(math.factorial(n-k)*math.factorial(k)))</code></pre>
+</div>
+<div id="problem-206-concealed-square" class="section level3">
+<h3>Problem 206: Concealed Square</h3>
+<p>About 6 s in Python, so comfortably within one minute, but nothing special, and I will return to it when I think of further restrictions on the values that <span class="math inline">\(n\)</span> can take.</p>
+<p>As many others have noted, <span class="math inline">\(n^2\)</span> ends in 0, thus so does <span class="math inline">\(n\)</span>, and since <span class="math inline">\(n^2 \mod 100\)</span> is 9, the last two digits of <span class="math inline">\(n\)</span> must be 30 or 70. We also know that <span class="math inline">\(n\)</span> must lie between <span class="math inline">\(1\times 10^9\)</span> and <span class="math inline">\(\sqrt{2}\times 10^9\)</span>, since <span class="math inline">\(n^2\)</span> starts with a 1 and has 19 digits.</p>
+<pre class="python"><code>import time
+def p206():
+    t=time.clock()
+    x3=range(10*(int(1e8)+3),int(1e9*2**0.5),100)
+    x7=range(10*(int(1e8)+7),int(1e9*2**0.5),100)
+    xs=list(x3)+list(x7)
+    cand=[]
+    pos=0
+    digits=[0,9,8,7,6,5,4,3,2,1]
+    p10s=[10**(2*pos) for pos in range(len(digits))]
+    for pos in range(2,10):
+        cand=[]
+        for x in xs:
+            if x**2//p10s[pos] % 10 ==digits[pos]:
+                cand.append(x)
+        xs=cand[:]
+                
+    print(xs[0],time.clock()-t)</code></pre>
+</div>
 <div id="problem-213-flea-circus" class="section level3">
 <h3>Problem 213: Flea Circus</h3>
 <p>About 550ms in Python, without taking any symmetries into account..</p>
@@ -4140,6 +4501,194 @@ def tpm(N):
             P[i+j][i+j+N]=0.25
         
     return P.transpose()</code></pre>
+</div>
+<div id="problem-214-totient-chains" class="section level3">
+<h3>Problem 214: Totient Chains</h3>
+<p>About 17 s with this (after a lot of effort to get it within 1 minute, never mind that low!), in Python 3. About 8 s of the time is spent in the euler totient sieve for n=20,000,000. The prime sieve, on the other hand, takes 250 ms for n=40,000,000. Animus says his/her code runs in 4 s using PyPy. Without PyPy, that code runs in 53 s on my machine.</p>
+<p>I create an array of totient values and, starting from each prime, iterate my way through this until I arrive at a power of two. So far, when I have tried to memoise this part of the task beyond dipping out when I hit a power of two, I have not been able to get the overhead down to the point where it was worth the effort.</p>
+<pre class="python"><code>def pe214(n,length):
+    t=time.clock()
+    primes=primesieve(n)
+    lowprimes=primes[primes[:] &lt;=n//2]
+    highprimes=primes[primes[:] &gt; n//2]
+    ets=etsieve(n//2,lowprimes)
+    lowprimes=lowprimes[lowprimes[:] &gt;2**(length-2)]
+    chains2={2**x:x+1 for x in range(25)}
+    csum=0       
+    def clength(pos,ets,count,required):
+        while 1:
+            if pos in chains2:
+                count+=chains2[pos]
+                break
+            count+=1
+            pos=ets[pos]
+        return count==required
+    for prime in lowprimes:
+        if clength(prime-1,ets,1,length): csum+=prime
+            
+    tf={0:2,2:1}       
+    for prime in highprimes:
+        if clength((prime-1)//2,ets,tf[(prime-1)%4],length): csum+=prime        
+    print(csum,time.clock()-t)
+    
+def primesieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+def etsieve(n,primes):
+    &quot;&quot;&quot;return array of totient(x) for x from 2 to n&quot;&quot;&quot;
+    sieve=np.array(range(n+1),dtype=float)
+    for i in primes:  
+        if sieve[i]==i:
+            sieve[i::i]*=(1-1/i)
+    return sieve.astype(int)</code></pre>
+<p>Here is the distribution of full chain lengths for all the primes up to 40,000,000 :</p>
+<p>{2: 1, 3: 1, 4: 2, 5: 3, 6: 6, 7: 12, 8: 23, 9: 46, 10: 94, 11: 198, 12: 424, 13: 854, 14: 1859, 15: 3884, 16: 8362, 17: 17837, 18: 38977, 19: 84182, 20: 182645, 21: 381602, 22: 657938, 23: 684239, 24: 317448, 25: 51147, 26: 1868, 27: 2}</p>
+<p>Here is the distribution of lengths of that part of the chain up to where a power of two is met:</p>
+<p>{1: 6, 2: 48, 3: 1777, 4: 43134, 5: 342051, 6: 764656, 7: 676189, 8: 374848, 9: 158672, 10: 54270, 11: 14334, 12: 3124, 13: 484, 14: 58, 15: 3}</p>
+<p>and here, with full memoisation, is the distribution of chain lengths up to the point where a previously encountered term is met, starting with the lowest prime:</p>
+<p>{1: 46830, 2: 1784734, 3: 582148, 4: 19245, 5: 668, 6: 28, 7: 1}</p>
+</div>
+<div id="problem-216-investigating-the-primality-of-numbers-of-the-form-2n2-1" class="section level3">
+<h3>Problem 216: Investigating the primality of numbers of the form <span class="math inline">\(2n^2-1\)</span></h3>
+<p>About 48s in Python. It has taken me a few days to get a solution that works in under a minute. Along the way I have learned a lot about modular square roots, quadratic residues and the like and thus, in the end, it has been a rewarding process.</p>
+<p>I start with the premise that if <span class="math inline">\(n=ak+b\)</span>, then if a prime <span class="math inline">\(p\)</span> divides <span class="math inline">\(a\)</span> and <span class="math inline">\(2b^2\equiv 1\textrm{ mod } p\)</span>, <span class="math inline">\(2n^2-1\)</span> is composite for all <span class="math inline">\(k\)</span>. This is easy to show. Next, we find that there will only be solutions for <span class="math inline">\(b\)</span> if <span class="math inline">\(p\textrm{ mod }8=7\textrm{ or }1\)</span>. The fun bit was to realise, using modular arithmetic, that <span class="math inline">\(2b^2\equiv 1\textrm{ mod } p\)</span> implies that <span class="math inline">\(b=\sqrt{8}\times(4)^{-1}\textrm{ mod }p\)</span>, where the root is mod <span class="math inline">\(p\)</span> and <span class="math inline">\((4)^{-1}\)</span> means the multiplicative inverse of 4 mod <span class="math inline">\(p\)</span>. Thus the problem has two parts. First solve the modular square root <span class="math inline">\(x^2\equiv 8\textrm{ mod }p\)</span> for each of our candidate primes <span class="math inline">\(p\)</span>, then solve the linear diophantine equation <span class="math inline">\(ap-4b=1\)</span>. I used the Tonelli-Shanks algorithm to solve the modular square root, and a recursive algorithm based on one by <a href="http://www.math.utah.edu/~carlson/hsp2004/PythonShortCourse.pdf">Jim Carlson</a> to solve the linear diophantine equation.</p>
+<p>That apart, I use a sieve method and avoid any primality testing. For Python coders: using <code>pow(x,y,p)</code> in the modular square root code instead of <code>x**y%p</code> sped things up by a factor of 50 or so.</p>
+<pre class="python"><code>import time
+import numpy as np
+   
+def p216(limit):
+    t=time.clock()
+    primes=primesieve(int(1.5*limit))
+    primes=np.array([x for x in primes if x%8==1 or x%8==7])
+    az=np.ones(limit,dtype=bool)
+    for a in primes:
+        b=bsolve(int(a))
+        az[a-b::a]=False
+        az[a+b::a]=False    
+    trials=np.nonzero(az)[0][2:]
+    print (len(trials))    
+    print(time.clock()-t)
+def bsolve(prime):
+    &quot;&quot;&quot;returns solution b to 2b^2=1 mod prime&quot;&quot;&quot;
+    x=ts(8,prime)
+    y=primeLD(prime,-4,1)[1]
+    solution= x*y%prime
+    if solution&gt;prime/2:
+        return prime-solution
+    return solution        
+              
+def legendre_symbol(a,p):
+    return pow(a,(p-1)//2,p)
+        
+def ts(n,p):
+    &quot;&quot;&quot;Tonnelli-Shanks algorithm. returns R: R^2=n mod p&quot;&quot;&quot;    
+    #check first that a solution exists. Return 0 if not.
+#    if legendre_symbol(n,p)==-1:
+#        return 0
+    if p%4==3:
+        return  pow(n,(p+1)//4,p) 
+    # this means p%4==1...   
+    #find Q,S: Q.2^s=p-1
+    Q=p-1
+    S=0
+    while not Q%2:
+        S+=1
+        Q//=2 
+        
+    #find z - lowest quadratic non-residue of p, using Euler's criterion
+    z=2
+    while pow(z,(p-1)//2,p)==1:
+        z+=1
+        
+    c=pow(z,Q,p)
+    R=pow(n,(Q+1)//2,p)
+    t=pow(n,Q,p)
+    M=S
+    while not t%p==1:
+        i=1
+        while not pow(t,pow(2,i),p)==1:
+            i+=1
+        b=pow(c,pow(2,M-i-1),p)
+        R=b*R%p
+        t=t*pow(b,2)%p
+        c=pow(b,2,p)
+        M=i
+    return R
+            
+def primeLD(a,b,c):
+    &quot;&quot;&quot;finds a solution to diophantine equation ax+by=c&quot;&quot;&quot;
+    q,r=a//b,a%b
+    if r==0:
+        return 0,c//b
+    u,v=primeLD(b,r,c)
+    return v,u-q*v      
+def primesieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] </code></pre>
+</div>
+<div id="problem-218-perfect-right-angled-triangles" class="section level3">
+<h3>Problem 218: Perfect right-angled triangles</h3>
+<p>I resorted to code :( About 6.7s in C++, or 102 s in Python. Since <span class="math inline">\((a,b,c)\)</span> is <span class="math inline">\((a,b,r^2)\)</span> we can parametrise this as <span class="math inline">\((m^2-n^2,2mn,m^2+n^2)\)</span>, from which we see that <span class="math inline">\(r^2=m^2+n^2\)</span>, so this can be parametrised again in the same way. I then brute forced up to the limit for <span class="math inline">\(r\leq10^8\)</span> and counted the <span class="math inline">\(a,b\)</span> pairs for which <span class="math inline">\(ab\)</span> was not divisible by 3 and 7. There were none.</p>
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+// Square root of limit
+#define rLimit 100000000
+typedef long long int int64;
+
+int64 gcd(int64 a, int64 b)
+{
+    int64 c = a % b;
+    while(c != 0)
+    {
+        a = b;
+        b = c;
+        c = a % b;
+    }
+    return b;
+}
+
+int main()
+{
+    
+    int64 count=0;
+    for(int64 p=1; p&lt;rLimit; p++){
+        
+        int64 p2=p*p;
+        int64 p4=p2*p2;
+        
+        for(int64 q=1; q&lt;p; q++){
+            
+            int64 q2=q*q;
+            int64 r=p2+q2;
+            
+            if(r &gt; rLimit)
+                break;
+            if(gcd(p,q) != 1)
+                continue;
+            if(p%2==q%2)
+                continue;
+            
+            int64 q4=q2*q2;
+            int64 a = abs(p4+q4-6*p2*q2);
+            int64 b = abs(4*p*q*(p2-q2));
+            
+            if ((a%3==0 ||b%3==0) &amp;&amp; (a%7==0 ||b%7==0))
+                continue;
+            
+            count+=1;
+        }
+    }
+    cout&lt;&lt;count&lt;&lt;'\n';
+}</code></pre>
 </div>
 <div id="problem-225tribonacci-non-divisors" class="section level3">
 <h3>Problem 225:Tribonacci non-divisors</h3>
@@ -4278,6 +4827,155 @@ def p227(players):
     print(round(t[0][0],6))
     print(time.clock()-t0)</code></pre>
 </div>
+<div id="problem-231-the-prime-factorisation-of-binomial-coefficients" class="section level3">
+<h3>Problem 231: The prime factorisation of binomial coefficients</h3>
+<p>4.6 s in Python, using the fact that if <span class="math inline">\(p\)</span> is a prime factor of $ ^nC_m$, then its exponent is the number of integer values of <span class="math inline">\(j\ge0\)</span> for which <span class="math inline">\(\text{frac}(m/p^j)&gt;\text{frac}(n/p^j)\)</span></p>
+<pre class="python"><code>import time
+import numpy as np
+def p231(n,m):
+    t=time.clock()
+    factors=[]
+    primes=primesieve(n)
+    for p in primes:
+        count=0
+        j=0
+        while p**j&lt;n:
+            if (m/p**j)%1&gt;(n/p**j)%1:
+                count+=1
+            j+=1
+        if count&gt;0:
+            factors.append((p,count))            
+    print(sum([x[0]*x[1] for x in factors]),time.clock()-t)
+def primesieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]</code></pre>
+</div>
+<div id="problem-233-lattice-points-on-a-circle" class="section level3">
+<h3>Problem 233: Lattice points on a circle</h3>
+<p>About 6.2s in Python, using the sum of squares function applied to <span class="math inline">\(2n^2\)</span> (arrived at without rescaling the circle - hope that wasn’t an error and I just got lucky), having transposed the circle centre to the origin. Several days of effort!</p>
+<pre class="python"><code>import numpy as np
+import time
+def p233(limit):
+    t=time.clock()
+    
+    qs=pairs(limit)+trios(limit)
+    ns=[]
+    for q in qs:
+       while q&lt;=limit:
+           ns.append(q)
+           q*=2
+    pgood=notPrime4k1Factor(limit//min(ns)+1)    
+    
+    nfinal=[]
+    for n in ns:
+        for p in pgood:
+            np=n*p
+            if np&gt;limit:
+                break
+            nfinal.append(np)
+    print (sum(nfinal))
+    print(time.clock()-t)
+   
+#(3,7) and (2,10) cases. No need to consider (1,17) case  
+def pairs(limit):
+    
+    q2s=[]
+    plim=int(max((10**11/5**10)**(1/2),(10**11/5**7)**(1/3)))
+    pfs=[int(p) for p in primeSieve(plim) if p%4==1]
+    
+    #(3,7) case
+    for q1 in pfs:
+        
+        for q2 in pfs:
+            if q2==q1: 
+                continue
+            
+            q2s.append(q1**3*q2**7)
+    #(2,10) case - need only consider p^2x5^10 since 5^2x13^10&gt;10^11
+    for q1 in pfs[1:]: 
+              
+        q2s.append(q1**2*9765625)
+        
+    return q2s
+        
+#(1,2,3) case
+#Finds trios of 4k+1 primes: q1*q2^2*q3^3 &lt;= limit
+def trios(limit):
+    
+    qs=primeSieve(limit//(5**3*13**2)+1)
+    qs=qs[qs%4==1]    
+    trioList=[]
+    
+    for q1 in qs:
+        
+        q2lim=(limit/(q1*125))**(1/2)
+        for q2 in qs:
+            
+            if q2==q1:
+                continue
+            if q2&gt;q2lim:
+                break
+            
+            q2sq=q2**2
+            q3lim=(limit/(q1*q2sq))**(1/3)            
+            for q3 in qs:
+                
+                if q3==q1 or q3==q2:
+                    continue
+                if q3&gt;q3lim:
+                    break                
+                trioList.append(q1*q2sq*q3**3)
+                
+    return trioList
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+def notPrime4k1Factor(n):
+    &quot;&quot;&quot;return array of numbers not divisible by 2 or primes p = 1 mod 4&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    ps=primeSieve(n)
+    ps=ps[ps%4==1]
+    for i in ps:
+        if sieve[i]:
+            sieve[i::i]=False
+    ps= np.nonzero(sieve)[0]
+    
+    return ps[ps%2==1]</code></pre>
+</div>
+<div id="problem-235-an-arithmetic-geometric-sequence" class="section level3">
+<h3>Problem 235: An Arithmetic Geometric sequence</h3>
+<p>About 60 ms in Python, in 33 iterations using a bisection search starting with low and high bounds for <span class="math inline">\(r\)</span> of 1.0 and 1.1 respectively. 36 iterations are required if the initial bounds for <span class="math inline">\(r\)</span> are <span class="math inline">\(1.0&lt;r&lt;1.2\)</span>, and 40 iterations and 67 ms if I start with bounds <span class="math inline">\(0&lt;r&lt;1.5\)</span>. In truth, I first found the answer manually by the same means.</p>
+<pre class="python"><code>import time
+def pe235(n=5000,target=-600000000000,low=0,high=1.5):
+    t=time.clock()
+    epsilon=1e-12
+    ans=(low+high)/2.    
+    val=s(ans,n) 
+    lastans=high
+    while abs(lastans-ans)&gt;epsilon:
+        lastans=ans
+        if val&gt;target:
+            low=ans
+        else:
+            high=ans
+        ans=(high+low)/2.0
+        val=s(ans,n)        
+    print (round(ans,12),time.clock()-t)
+    
+def s(r,n):
+    s=0
+    for k in range(1,n+1):
+        s+=(900-3*k)*r**(k-1)
+    return s        </code></pre>
+</div>
 <div id="problem-243-resilience" class="section level3">
 <h3>Problem 243: Resilience</h3>
 <p>About 0.3 ms in Python. I use the same ideas as many here, noting that <span class="math inline">\(R(d)=\frac{\phi(n)}{n-1}\approx \frac{\phi(n)}{n}\)</span> for large <span class="math inline">\(n\)</span>, and so is a function only of the prime factors of <span class="math inline">\(n\)</span>, independent of the exponents of those factors. The denominator will be minimised if <span class="math inline">\(n\)</span> is a primorial. Thus we look for the smallest primorial number for which <span class="math inline">\(\frac{\phi (n)}{n}&lt; \frac{15499}{94744}\)</span>and then multiply that successively by 2 until <span class="math inline">\(\frac{\phi(n)}{n-1}&lt; \frac{15499}{94744}\)</span>, knowing that by doing so we will not change the value of <span class="math inline">\(\frac{\phi(n)}{n}\)</span>.</p>
@@ -4326,6 +5024,50 @@ def prime_factors(n):
         factors.append(n)
     return factors </code></pre>
 </div>
+<div id="problem-265-binary-circles" class="section level3">
+<h3>Problem 265: Binary Circles</h3>
+<p>About 45s in Python, which is much slower than many of the Python solutions here, so I must be doing unnecessary work somewhere. As others have done, I sandwich <span class="math inline">\(2^N-N-2\)</span> bits between <span class="math inline">\(N\)</span> 0s and a 1 at the front end, plus a 1 at the back end, then look for candidates among numbers for which <span class="math inline">\(2^{N-1}-2\)</span> bits are high, using <a href="https://www.cl.cam.ac.uk/~am21/hakmemc.html">HAKMEM175</a> to step from one such number to the next. This uses bit manipulation, in a similar way to the <a href="https://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation">Bit Twiddling Hack</a> that fakesson uses.</p>
+<pre><code>import time
+import math
+
+def p265(N):
+
+    t=time.clock()        
+        
+    lMid=2**N-N-2
+    nHigh=2**(N-1)-2    
+    trial=int('0'*(lMid-nHigh)+'1'*nHigh,2)
+    trialHigh=int('1'*nHigh+'0'*(lMid-nHigh),2)    
+    high=2**N
+    highBits='0'*N+'1'
+    lowBits='1'+'0'*(N-1)
+    total=0
+    while trial &lt;= trialHigh:
+        flag=True
+        bits=highBits+'0'*(lMid-trial.bit_length())+bin(trial)[2:]+lowBits
+        seqs=set([bits[:N]])
+        start=1
+        while start&lt;high:
+            seq=bits[start:start+N]
+            if seq in seqs:
+                flag=False
+                break
+            seqs.add(seq)
+            start+=1            
+        if flag:
+            total+=int(bits[:-(N-1)],2)
+        trial=hm175(trial) 
+        
+    print(total)
+    print(time.clock()-t)
+
+#https://www.cl.cam.ac.uk/~am21/hakmemc.html
+#return next number higher than trial with same number of high bits as trial
+def hm175(a):
+    c = a &amp; -a
+    r=a+c
+    return (a^r)//c&gt;&gt;2 | r </code></pre>
+</div>
 <div id="problem-285-pythagorean-odds" class="section level3">
 <h3>Problem 285: Pythagorean odds</h3>
 <p>I took an unreasonably long time to solve this, and the code takes about 15s, but I have had fun times reading up on transformed distributions. Larry Wasserman’s book ‘All of Statistics’ is great for this. I spent a long time staring at a <span class="math inline">\((1,(k+1)^2)\)</span> square, but missed the key insight of the first post of this forum!</p>
@@ -4363,6 +5105,1406 @@ CDF[TransformedDistribution[(1 + \[FormalX]1)^2 + (1 + \
 \[FormalX]2)^2, {\[FormalX]1 \[Distributed] 
     UniformDistribution[{0, 1}], \[FormalX]2 \[Distributed] 
     UniformDistribution[{0, 1}]}], x]</code></pre>
+</div>
+<div id="problem-291-panaitopol-primes" class="section level3">
+<h3>Problem 291: Panaitopol Primes</h3>
+<p>I just brute forced this in 10 minutes using C++ and a fast Miller-Rabin primality checker, courtesy of Christian Stigen Larsen.</p>
+<pre><code>#includes
+/*
+many lines of Miller-Rabin code that I did not write.
+Credit to Christian Stigen Larsen,  http://csl.sublevel3.org
+Used here as isprime()
+*/
+
+ll p291(ll limit){
+    ll nPanaitopol=1;
+    ll result=0;
+    ll n=1;
+    int iteration = 5;
+    while (1){
+        result=n*n+(n+1)*(n+1);
+        if (result&gt;=limit) break;
+        if (result%10==5){
+            n+=1;
+            continue;
+        }
+        if (isprime(result,iteration)){
+            nPanaitopol+=1;
+        }
+        n+=1;
+    }
+    
+    return nPanaitopol;
+
+}
+
+int main(int argc, const char * argv[]) {
+    clock_t t;
+    t = clock();
+    
+    ll limit = 5*pow(10,10);
+    cout &lt;&lt; p291(limit)&lt;&lt;endl;
+    cout &lt;&lt; ((float)(clock()-t))/CLOCKS_PER_SEC&lt;&lt;&quot;\n&quot;;
+    return 0;
+}</code></pre>
+<p>I have already solved 216, so am annoyed I didn’t see that the sieve idea should work here. rng_58’s code (first post) runs in about 180s in Python and 12s in C++ on my MBPro.</p>
+</div>
+<div id="problem-297-zeckendorf-representation" class="section level3">
+<h3>Problem 297: Zeckendorf Representation</h3>
+<p>About 1ms, using recursion.</p>
+<pre class="python"><code>import time
+def p297(n):
+    
+    t=time.clock()
+    
+    fs=[0]+[dijkFib(k) for k in range(1,86)]
+    fSums=[0]+[fSum(k) for k in range(1,86)]
+    
+    print(zSum(n,fs,fSums))
+    print(time.clock()-t)
+    
+def zSum(n,fs,fSums):
+       
+    base=[0,0,1,2,3,5,6,8,10,11]
+    
+    if n&lt;10:
+        return base[n]
+    k=bisect(n,fs)
+    return fSums[k]+(n-fs[k])+zSum(n-fs[k],fs,fSums)
+#returns sum of 1s for all 0&lt;n&lt;F(k) where F(k) is the kth Fibonacci number
+def fSum(k,memo={}):
+    if k&lt;3:
+        return 0
+    if k==3:
+        return 1
+    if k==4:
+        return 2
+    try:
+        return memo[k]        
+    except KeyError:
+        result=2*fSum(k-1,memo)-fSum(k-3,memo)+dijkFib(k-4)
+        memo[k]=result
+        return result
+    
+# returns index of largest element of sortedList that is less than or equal to target.
+def bisect(target,sortedList):
+    
+    if target in sortedList:
+        return sortedList.index(target)
+    
+    low,high=0,len(sortedList)-1
+    ans=(high+low)//2
+    
+    while high-low&gt;1:
+        if target&gt;sortedList[ans]:
+            low=ans
+        else:
+            high=ans
+        ans=(high+low)//2
+    
+    return ans
+def dijkFib(n,memo={}):
+    &quot;&quot;&quot;returns nth Fibonacci term&quot;&quot;&quot;
+    if n==0 or n==1:
+        return n
+    try:
+        return memo[n]
+    except KeyError:
+        if n%2:
+            result=dijkFib((n-1)//2,memo)**2+dijkFib((n+1)//2,memo)**2
+        if not n%2:
+            result=(2*dijkFib((n-1)//2,memo)+dijkFib((n+1)//2,memo))*dijkFib((n+1)//2)
+        memo[n]=result
+        return result</code></pre>
+</div>
+<div id="problem-299-three-similar-triangles" class="section level3">
+<h3>Problem 299: Three similar triangles</h3>
+<p>I normally use Python but this seemed like a job for C++. About 10s of fun with parameterisation, divided between cases where AC and BD are parallel and those where they are non-parallel.</p>
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+// Limit
+#define limit 100000000
+typedef long long int int64;
+
+int64 gcd(int64 a, int64 b){
+    int64 r = a % b;
+    while (r&gt;0){
+        a=b;
+        b=r;
+        r=a%b;
+    }
+    return b;
+}
+
+//non parallel case.
+//x^2 +y^2 is perfect square
+//need m and n  coprime, different parity
+int64 nonParallel(){
+    int64 nonParallels=0;
+    int64 b,d;
+    for(int64 n=1; n&lt;limit/2; n++){
+        for(int64 m=1; m&lt;n; m++){
+            if(gcd(m,n) != 1) continue;
+            if(m%2==n%2) continue;
+            b = n*n-m*m;
+            d = 2*m*n;
+            if(b+d &gt;= limit) break;
+            nonParallels += 2*int(limit/(b+d));
+        }
+    }
+    return nonParallels;
+}
+
+//parallel case
+//x^2+2y^2 is perfect square
+int64 parallel(){
+    int64 parallels=0;
+    int64 y,c;
+   //need m and n coprime, n odd.
+    for(int64 n=1; n&lt;limit; n+=2){
+        for(int64 m=1; m&lt;limit; m++){
+            if(gcd(m,n) != 1) continue;
+            y = 2*m*n;
+            c=n*n+2*m*m;
+            if(2*(y+c) &gt; limit) break;
+            parallels += int((limit-1)/(2*(y+c)));
+        }
+    }
+    return parallels;
+}
+
+int main() {
+    int64 np=nonParallel();
+    cout&lt;&lt;np&lt;&lt;'\n';
+    int64 p=parallel();
+    cout&lt;&lt;p&lt;&lt;'\n';
+    cout&lt;&lt;np+p&lt;&lt;'\n';
+    return 0;
+}</code></pre>
+</div>
+<div id="problem-301-nim" class="section level3">
+<h3>Problem 301: Nim</h3>
+<p>I played for a while with bitwise operations in Python, then simply printed the sums of values for which <span class="math inline">\(X(n,2n,3n) =0\)</span> for <span class="math inline">\(n\le 2^k\)</span> for <span class="math inline">\(k\)</span> from 1 to 20. Et voila! One sees that for <span class="math inline">\(n \le2^n\)</span>, the answer is the <span class="math inline">\(n+2\)</span>th Fibonacci term. I don’t yet have an explanation for that, but here is the code, using Dijkstra’s algorithm for the Fibonacci numbers, from his 1978 note <a href="http://www.cs.utexas.edu/users/EWD/transcriptions/EWD06xx/EWD654.html">EWD654</a>. About <span class="math inline">\(50\mu\text{s}\)</span>.</p>
+<pre class="python"><code>import time
+def X(n1,n2,n3):    
+    return n1^n2^n3==0
+    
+def p301look(n):    
+    safe=1
+    print(0,1)
+    for i in range(1,n+1):
+        for j in range(2**(i-1)+1,2**i+1):
+            safe+=X(j,2*j,3*j)
+        print(i,safe)
+                
+def dijkFib(n,memo={}):
+    &quot;&quot;&quot;returns nth Fibonacci term&quot;&quot;&quot;
+    if n==0 or n==1:
+        return n
+    try:
+        return memo[n]
+    except KeyError:
+        if n%2:
+            result=dijkFib((n-1)//2,memo)**2+dijkFib((n+1)//2,memo)**2
+        if not n%2:
+            result=(2*dijkFib((n-1)//2,memo)+dijkFib((n+1)//2,memo))*dijkFib((n+1)//2)
+        memo[n]=result
+        return result
+def p301(n):
+    t=time.clock()
+    print (dijkFib(n+2))
+    print(time.clock()-t)</code></pre>
+<p>Kudos to armul for a very clear and helpful post!</p>
+</div>
+<div id="problem-304-primonacci" class="section level3">
+<h3>Problem 304: Primonacci</h3>
+<p>About 22s in Python. I find the first 100,000 primes greater than <span class="math inline">\(10^{14}\)</span> using a fast Miller-Rabin primality checker, then find <span class="math inline">\(\text{F}(n)\)</span> for each of these, mod 1234567891011, using a neat “doubling method” code I adapted for modular arithmetic from <a href="http://funloop.org/post/2017-04-14-computing-fibonacci-numbers.html">Linus Arver</a>. It is based on the identities <span class="math display">\[\begin{align*}\text{F}_{2n}&amp;=\text{F}_n(2\text{F}_{n+1}-\text{F}_n) \\
+\text{F}_{2n+1}&amp;=\text{F}_n^2+\text{F}_{n+1}^2 \end{align*}\]</span> This forum has reminded me about segmented sieves and reminded me too that I don’t know how to implement one.</p>
+<pre class="python"><code>import time
+import random as rd
+def p304(n=10**6,k=10**5,m=1234567891011):
+    
+    t=time.clock()
+    
+    small_primes=primeSieve(50)
+    
+    np=0 
+    bsum=0
+    if not n%2:
+        n+=1
+    while np&lt;k:
+        flag=True
+        for p in small_primes:
+            if not n%p:
+                flag=False
+                break
+        if flag:    
+            if mr(n,5):
+                bsum+=fibmod(n,m)
+                np+=1
+        n+=2
+            
+        
+    print(bsum%m)
+    print(time.clock()-t)
+#Adapted from Linus Arver Fibonacci Doubling
+#http://funloop.org/post/2017-04-14-computing-fibonacci-numbers.html    
+def fibmod(n,m):
+    return _fibmod(n,m)[0]
+def _fibmod(n,m):
+    &quot;&quot;&quot; Calculate Nth Fibonacci number mod m using the doubling method. Return the
+    tuple (F(n)%m, F(n+1)%m).&quot;&quot;&quot;
+    if n == 0:
+        return (0, 1)
+    else:
+        a, b = _fibmod(n &gt;&gt; 1,m)
+        c = (a%m * (((b &lt;&lt; 1)%m - a%m)%m))%m
+        d = ((a%m * a%m)%m + (b%m * b%m)%m)%m
+        if n &amp; 1:
+            return (d, c + d)
+        else:
+            return (c, d)
+#Miller-Rabin probabilistic primality test
+#Translated from C++ code by Christian Stigen Larsen, 2012-01-10
+def mr(n,k):
+    #n must be odd and greater than three  
+    if  n==2 or n==3:  return True
+    if  n&lt;=1 or not (n &amp; 1):  return False  
+    # Write n-1 as d*2^s by factoring powers of 2 from n-1
+    s = 0
+    m=n-1
+    while not m&amp;1:
+        s+=1
+        m&gt;&gt;=1
+    d = (n-1) // (1&lt;&lt;s)
+    for i in range(k):
+        flag=True
+        a=rd.randint(2,n-2)
+        x=pow(a,d,n)
+        
+        if x ==1 or x == n-1:
+            continue
+        
+        for r in range(1,s):
+            x=pow(x,2,n)
+            if x ==1 :
+                return False
+            if x == n-1:
+                flag=False
+                break
+        if flag: return False
+    # n is *probably* prime
+    return True
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] </code></pre>
+</div>
+<div id="problem-315-binary-clocks" class="section level3">
+<h3>Problem 315: Binary Clocks</h3>
+<p>Messily in Python in about 30s.</p>
+<pre class="python"><code>import numpy as np
+import time
+def p315(N):
+    
+    t=time.clock()
+    
+    ps=primeSieve(2*10**N)
+    ps=ps[ps&gt;10**N]
+        
+    d1dic={p:sum([int(d) for d in str(p)]) for p in ps}    
+    d1dests=set([v for k,v in d1dic.items()])
+    d2dic={p:sum([int(d) for d in str(p)]) for p in d1dests}
+    d1dic.update(d2dic)
+    d2dests=set([v for k,v in d2dic.items()])
+    d3dic={p:sum([int(d) for d in str(p)]) for p in d2dests}
+    d1dic.update(d3dic)
+   
+    bars={0:[1,1,1,1,1,1,0],1:[1,1,0,0,0,0,0],2:[0,1,1,0,1,1,1],3:[1,1,1,0,0,1,1],4:[1,1,0,1,0,0,1],
+          5:[1,0,1,1,0,1,1],6:[1,0,1,1,1,1,1],7:[1,1,1,1,0,0,0],8:[1,1,1,1,1,1,1],9:[1,1,1,1,0,1,1]}
+    barsums={k:sum(v) for k,v in bars.items()}
+    barDiffs={}
+    for k in bars:
+        barDiffs[k]=[]
+        for j in bars:
+            barDiffs[k].append(7-sum([a == b for a,b in zip(bars[k],bars[j])]))
+    #Sam
+    samSum=0
+    for p in ps:
+        psum=0
+        dest=p
+        trail=[p]
+        while dest&gt;=10:
+            dest=d1dic[dest]
+            trail.append(dest)
+        for n in trail:
+            for d in str(n):
+                psum+=2*barsums[int(d)]
+        samSum+=psum
+    print(samSum)
+  
+    #Max
+    maxSum=0
+    for p in ps:
+        psum=0
+        dest=p
+        trail=[p]
+        while dest&gt;=10:
+            dest=d1dic[dest]
+            trail.append(dest)
+        psum=sum([barsums[int(d)] for d in str(trail[0])])+sum([barsums[int(d)] for d in str(trail[-1])])
+        for i in range(len(trail)-1):
+            l0=len(str(trail[i]))
+            l1=len(str(trail[i+1]))
+            nextDigit=['0']*(l0-l1)+[d for d in str(trail[i+1])]
+            for d in str(trail[i])[:l0-l1]:
+                psum+=barsums[int(d)]
+            for j in range(l0-l1,len(str(trail[i]))):
+                psum+=barDiffs[int(str(trail[i])[int(j)])][int(nextDigit[j])]
+        maxSum+=psum
+    print(maxSum)
+    
+    print(samSum-maxSum)
+    print(time.clock()-t)</code></pre>
+</div>
+<div id="problem-317-firecracker" class="section level3">
+<h3>Problem 317: Firecracker</h3>
+<p>I couldn’t find the analytical solution, and a wholly numerical solution couldn’t get the required precision of one part in <span class="math inline">\(10^{10}\)</span>. But, assuming a parabolic shape for the envelope, I could find the volume of revolution of that around the y-axis by integration, needing only the maximum height reached and the maximum range of the firework particles. The first is easily found using elementary physics, and the second can be found numerically with arbitrary precision.</p>
+<pre class="python"><code>import time
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+def p317(v0=20,y0=100):
+    t=time.clock()
+    g=9.81
+    xmax=ranges(v0,y0)
+    ymax=v0**2/(2*g)    
+    k=(y0+ymax)/xmax**2    
+    vol=(np.pi/(2*k))*(y0**2+y0*v0**2/g+v0**4/(4*g**2))    
+    print(vol,time.clock()-t)
+#maximum range for a given v0 and y0
+def ranges(v0,y0,thetaMax=45,thetaRange=45):
+    
+    res=0.0000001
+    xmax=100
+    xmaxLast=0
+    while abs(xmax-xmaxLast)&gt;res:
+        xmaxLast=xmax
+        xmax=0
+        for theta in np.arange(thetaMax-thetaRange,thetaMax+thetaRange,2*thetaRange/100):
+            x=xRange(v0,y0,theta)
+            if x&gt;xmax:
+                xmax=x
+                thetaMax=theta
+        thetaRange/=10
+        
+    return xmax
+#range in the x direction given v0, y0 and theta
+def xRange(v0,y0,theta):
+    
+    g=9.81
+    thetaRad=math.radians(theta)
+    vx0=v0*math.cos(thetaRad)
+    vy0=v0*math.sin(thetaRad)
+    tRise=vy0/g
+    yRise=vy0*tRise-0.5*g*tRise**2
+    if y0&lt;0 and yRise&lt;abs(y0):
+        return 0
+    h=y0+yRise
+    tFall=(2*h/g)**0.5
+    tFlight=tRise+tFall
+    x_Range=vx0*tFlight
+    
+    return x_Range</code></pre>
+</div>
+<div id="problem-323-bitwise-or-operations-on-random-integers" class="section level3">
+<h3>Problem 323: Bitwise-OR operations on random integers</h3>
+<p>A one liner in Python:</p>
+<pre class="python"><code>#yer 'tis:
+print(round(sum([1-(1-1/2**m)**32 for m in range(100)]),10))
+#or, if using cdf/pdf terminology, as dawghaus does:
+#cdf is expected values of trials needed for first success (all ones)  
+def cdf(n,m):
+    return 1-(1-1/2**m)**n
+def pdf(n,m):
+    return cdf(n,m-1)-cdf(n,m)
+    
+#expected value
+def E(n):
+    print( round(sum([m*pdf(n,m) for m in range(1,100)]),10)) # about 0.2 ms</code></pre>
+<p>I (eventually) used dawghaus’s reasoning (more or less, I think, and apologies to dawghaus if I misrepresent it): Probability of any one bit being zero after <span class="math inline">\(m\)</span> turns: <span class="math inline">\(\frac{1}{2^m}\)</span> Probability of that bit being one after <span class="math inline">\(m\)</span> turns: <span class="math inline">\(1-\frac{1}{2^m}\)</span> Probability of all 32 bits being one after <span class="math inline">\(m\)</span> turns: <span class="math inline">\((1-\frac{1}{2^m})^{32}\)</span> Probability that at least one bit is 0 after m turns: <span class="math inline">\(1-(1-\frac{1}{2^m})^{32}\)</span> Expected value of m = <span class="math inline">\(\sum_{m=0}^\infty 1-(1-\frac{1}{2^m})^{32}\)</span></p>
+<p>Summing 50 or so terms gets the precision required.</p>
+</div>
+<div id="problem-329-prime-frog" class="section level3">
+<h3>Problem 329: Prime Frog</h3>
+<p>A clunky brute force solution in 9 minutes got me in here, but here is my Hidden Markov Model solution, that goes in about 3s. In my hands, the need to produce the answer as a rational number makes the code look a lot worse than it would otherwise, and I can’t see how to avoid it making me use loops rather than vectorised calculations, so that slows it down.</p>
+<p>Of the several explanations I have read of how this works, Richards O’Keefe’s : <a href="http://www.cs.otago.ac.nz/cosc348/hmm/hmm.pdf">An Introduction to Hidden Markov Models</a> was the most useful.</p>
+<pre class="python"><code>import time
+import numpy as np
+import itertools as it
+import math
+#using Hidden Markov Model expressing answer as rational number
+def p329hmmf(N=500,y=[0,0,0,0,1,1,0,0,0,1,0,0,1,0,1]):
+    
+    t0=time.clock()
+    
+    T=len(y) #length of sequence
+    
+    pinit=pif(N) #initial distribution
+    A=tpmf(N) # transmission matrix
+    B=epmf(N) # emission matrix
+    
+    alpha=np.zeros([T,N],dtype=object)
+    
+    # base case
+    for i in range(N):
+        alpha[0][i]=[B[y[0]][i][0]*pinit[i][0],B[y[0]][i][1]*pinit[i][1]]
+    for i in range(1,T):
+        for j in range(N):
+            alpha[i][j]=[0,0]
+    #step case
+    for t in range(1,T):
+        for i in range(N):
+            s = [0,0]
+            k=0
+            while 1:
+                if A[i][k][0]==0:
+                    k+=1
+                    continue
+                else:
+                    s[0] = A[i][k][0] * alpha[t-1][k][0]
+                    s[1] = A[i][k][1] * alpha[t-1][k][1]
+                    break
+            for j in range(k+1,N):
+                nnew=A[i][j][0] * alpha[t-1][j][0]
+                if nnew==0:
+                    continue
+                dnew=A[i][j][1] * alpha[t-1][j][1]
+                s[0]=s[0]*dnew+nnew*s[1]
+                s[1]=s[1]*dnew
+                gcd= math.gcd(s[0],s[1])
+                s[0],s[1]=s[0]//gcd,s[1]//gcd
+            alpha[t][i]=[0,0]    
+            alpha[t][i][0] = B[y[t]][i][0] * s[0]
+            alpha[t][i][1] = B[y[t]][i][1] * s[1]
+    #final probability  
+    s = [0,0];
+    s[0]=alpha[T-1][0][0]
+    s[1]=alpha[T-1][0][1]
+    for i in range(1,N):
+        nnew=alpha[T-1][i][0]
+        if nnew==0:
+            continue
+        dnew=alpha[T-1][i][1]
+        s[0]=s[0]*dnew+nnew*s[1]
+        s[1]=s[1]*dnew
+    gcd= math.gcd(s[0],s[1])
+    
+    print(str(s[0]//gcd)+'/'+str(s[1]//gcd))    
+    print(time.clock()-t0)
+    
+#initial distribution
+def pif(N):    
+    pi=(1/N)*np.ones(N,dtype=object) #initial probabilities
+    for i in range(N):
+        pi[i]=[1,N]        
+    return pi
+        
+#transmission probability matrix
+def tpmf(states):
+    A=np.zeros([states,states],dtype=object)
+    for i in range(states):
+        for j in range(states):
+            A[i][j]=[0,0]
+    A[1,0]=[1,1]
+    A[-2,-1]=[1,1]
+    for j in range(1,states-1):
+        A[j-1,j]=[1,2]
+        A[j+1,j]=[1,2]
+    return A
+    
+#emission probability matrix  
+def epmf(states):
+    B=np.zeros([2,states],dtype=object) 
+    primes=primeSieve(states)[1:]
+    for i in range(states):
+        if primes[i]:
+            B[0,i]=[2,3]
+            B[1,i]=[1,3]
+        else:
+            B[0,i]=[1,3]
+            B[1,i]=[2,3]
+    return B
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    sieve[0]=False
+    sieve[1]=False
+    return sieve</code></pre>
+</div>
+<div id="problem-345-matrix-sum" class="section level3">
+<h3>Problem 345: Matrix Sum</h3>
+<p>I recognised that this was an assignment problem, but then ended up lazily using the munkres module in Python to implement the Hungarian/Munkres algorithm, which gets the answer in 5 ms or so.</p>
+<p>Once here, I saw the genetic algorithm as explained by Eventhorizon:</p>
+<blockquote>
+<p>….with a starting population of 42400 random solutions, select best 400. Swap every column pair (105 swaps) of each solution for another 42400 solutions &gt;&gt; (including the original un-swapped 400), select best 400. Repeat until solution is stable.</p>
+</blockquote>
+<p>and had a go at coding that. It stabilises after about 2 seconds at the correct result, most of the time, after 7 or 8 iterations.</p>
+<pre class="python"><code>import random as rd
+import time
+#Implements genetic algorithm (idea from PE user Eventhorizon)    
+def p345genetic(fileName='pe345.txt'):
+    
+    t=time.clock()
+    
+    matrix=readMatrix(fileName)    
+    sols=[]
+    
+    for i in range(40000):
+        sols.append(rdsol(matrix))  #find large number of random solutions (for each row, choose columns randomly)  
+    sols.sort(key=lambda x: x[0])    
+    sols=sols[-400:]   #take the top 400
+    
+    newMax=sols[-1][0]
+    gen=0
+    while 1:
+        gen+=1
+        print(&quot;generation:&quot;,gen)
+        newSols=[]
+        for sol in sols:
+            newSol=colSwap(matrix,sol[1])
+            for solx in newSol:
+                newSols.append(solx)   
+        newSols.sort(key=lambda x: x[0]) 
+        newSols=newSols[-400:]        
+        if newSols[-1][0]==newMax:
+            print(newMax)
+            print(time.clock()-t)
+            break
+        newMax=newSols[-1][0]
+        sols=newSols[:]
+#return the (n(n-1)/2 +1 (including the original) tuples of (sum,colList) where the colLists are all 
+#the permutations possible by pairwise swapping of column values of the original            
+def colSwap(matrix,colList):
+    sols=[]
+    n=len(matrix)
+    msum=0
+    for k in range(n):
+        msum+=matrix[k][colList[k]]
+    sols.append((msum,colList))
+    for i in range(n-1):
+        for j in range(i+1,n):
+            newSol=colList[:]
+            newSol[i]=colList[j]
+            newSol[j]=colList[i]
+            sols.append((matrixSum(matrix,newSol),newSol))
+    return sols
+                   
+#pick a random solution
+def rdsol(matrix):    
+    n=len(matrix)
+    cols=list(range(n))
+    rd.shuffle(cols)
+    return matrixSum(matrix,cols),cols
+#return the sum of matrix[i][columns[i]], as defined by the problem rubric.
+def matrixSum(matrix,columns):
+    msum=0
+    for i in range(len(matrix)):
+        msum+=matrix[i][columns[i]]
+    return msum </code></pre>
+<p>Like Eventhorizon, I find it remarkable that this algorithm converges so quickly.</p>
+<p>I would try to code the many elegant implementations of dp I see on this forum, but I don’t yet understand them!</p>
+</div>
+<div id="problem-346-strong-repunits" class="section level3">
+<h3>Problem 346: Strong Repunits</h3>
+<p>About 1.5s in Python.</p>
+<p>All numbers that can be written as a repunit of length <span class="math inline">\(k\)</span> in base <span class="math inline">\(b\)</span> take the form <span class="math inline">\(\frac{b^k-1}{b-1}\)</span>. Hence, since all integers <span class="math inline">\(n\)</span> can be written as a repunit of length 2 in base <span class="math inline">\(n-1\)</span>, we need only calculate <span class="math inline">\(\frac{b^k-1}{b-1}\)</span> for <span class="math inline">\(k&gt;2\)</span> up to the given limit, and only for bases up the square root of the limit, since the expression approximates to <span class="math inline">\(b^{k-1}\)</span> for <span class="math inline">\(k \gg 1\)</span>. All these values must be strong repunits and there can be no others, apart from ‘1’, which is a repunit in any base.</p>
+<pre class="python"><code>import time
+       
+def p346(limit):
+    t=time.clock()
+    bases=set([1])
+    for b in range(2,int(limit**(0.5)+1)):
+        n=2      
+        while 1:
+            n+=1
+            val=(b**n-1)//(b-1)
+            if val&gt;limit: break
+            bases.add(val)
+    print(sum(bases))
+    print(time.clock()-t)</code></pre>
+</div>
+<div id="problem-347-largest-integer-divisible-by-two-primes" class="section level3">
+<h3>Problem 347: Largest integer divisible by two primes</h3>
+<p>About 15 s in Python. I generate primes using a sieve, then for each pair of primes <span class="math inline">\(p\)</span>, <span class="math inline">\(q\)</span>, such that <span class="math inline">\(p&lt;q\)</span> and <span class="math inline">\(pq&lt;10^7\)</span>. I find the highest number less than <span class="math inline">\(10^7\)</span> that is divisible only by <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>, by trying <span class="math inline">\(pq\left(10^7//pq-k\right)\)</span> for <span class="math inline">\(k = 0,1,2...\)</span></p>
+<p>Yet again I find that use of a standard library of functions can make a Project Euler solution much slower than it need be, because it does more work than is necessary. To get this one solved inside a minute I had to realise that I did not need to use my standard function to find the prime factors of <span class="math inline">\(pq\left(10^7//pq-k\right)\)</span>, but merely to determine whether <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> were the only prime factors, which is an easier task.</p>
+<pre class="python"><code>import time
+import numpy as np
+def p347(limit):
+    
+    t=time.clock()
+    
+    primesieve=np.ones(limit//2+1,dtype=bool)        
+    for i in range(2, int((limit+1)**0.5+1)):
+        if primesieve[i]:
+            primesieve[2*i::i]=False
+    primes=np.nonzero(primesieve)[0][2:]
+    
+    S=0
+    for i in range(len(primes)):
+        for j in range(i+1,len(primes)):
+            p,q=primes[i],primes[j]
+            prod=p*q
+            if prod&gt;limit:
+                break
+            k=0
+            while 1:
+                ul=prod*(limit//prod-k)
+                n=ul
+                while not n%p:
+                    n//=p
+                while not n%q:
+                    n//=q
+                if n==1:
+                    S+=ul
+                    break
+                k+=1
+    print(S,time.clock()-t)</code></pre>
+</div>
+<div id="problem-348-sum-of-a-square-and-a-cube" class="section level3">
+<h3>Problem 348: Sum of a square and a cube</h3>
+<p>I simply generate a set of palindromes using code from hk’s overview for problem 36, then sum pairs of squares and cubes and see if the pair sum is in that set. When I get a palindrome which can be formed in 4 ways, it is a candidate. It takes 3-3.5s.</p>
+<pre class="python"><code>import time
+#find sum of first five palindrome numbers that can be formed as the sum of a square
+#and a cub in exactly 4 ways.
+def p348(limit=10**9):
+    
+    t=time.clock()
+    
+    while 1:
+        
+        #generate list of palindrome numbers (see p125 and p36 overview)
+        pals=set()
+        for oddlength in [True,False]:
+            i,p = 0,0
+            while 1:
+                 p = makePalindrome(i,10,oddlength)
+                 if p&gt;limit: break
+                 pals.add(p)
+                 i +=1  
+                 
+        cands={}
+        
+        #lists of squares and cubes
+        sqs=[n**2 for n in range(2,int(limit**0.5)+1)]
+        cbs=[n**3 for n in range(2,int(limit**0.3333)+1)]
+        
+        for sq in sqs:
+            for cb in cbs:
+                if sq+cb in pals:
+                    cands.setdefault(sq + cb, set()).add((sq,cb))
+                    
+        solutions=sorted([k for k,v in cands.items() if len(v)==4])[:5]
+        
+        if len(solutions)&gt;4:
+            print(solutions)
+            print (sum(solutions))
+            print(time.clock()-t)
+            break
+        
+        limit*=10
+#from hk's p36 overview
+def makePalindrome(n,base,oddlength):
+    res = n
+    if oddlength:
+        n = n // base
+    while n &gt; 0:
+         res = base*res + n % base
+         n = n // base
+    return res</code></pre>
+</div>
+<div id="problem-349-langtons-ant" class="section level3">
+<h3>Problem 349: Langton’s Ant</h3>
+<p>About 200 ms, or half that if I don’t plot the trajectory.</p>
+<p>I long ago saw code on RosettaCode to plot the ant’s trajectory, so my code below looks a bit like that. By plotting the whole trajectory (using np.contourf() and also the total of black cells against step number for smaller and smaller segments of the latter stages of the ant’s journey, I could discover all the facts that we need for this problem: that after 10000 steps or so the ant bumbles along a highway, and that, once on this, the count increases by 12 for every additional 104 steps. Once we know this, we just need to know the number of black cells in any complete period after, say, 10000 steps and we can calculate the number for any step value beyond that. I would like to have coded it such that the period and rise are found by the code rather by my scrutiny of plots, but that can wait.</p>
+<pre class="python"><code>import matplotlib.pyplot as plt
+import numpy as np
+import time
+#how many squares are black after n steps?
+def p349(n,width=150,height=150):
+    
+    t=time.clock()
+    
+    dir=0  #up
+    nsteps=12000
+    
+    x=width//2
+    y=height//2
+    
+    M=[[0]*width for _ in range(height)]
+    
+    i=0
+    
+    blackSum=np.array([0])
+    
+    while i&lt;nsteps and 0 &lt;=x&lt;width and 0&lt;= y &lt;height:
+        
+        #what new direction?
+        #[0,1,2,3] mean [up,left,down,right]
+        if M[y][x]==0:
+            dir=(dir-1)%4
+        else:
+            dir=(dir+1)%4
+            
+        #what colour to make the new cell?
+        if M[y][x]==1:
+            M[y][x]=0
+            blackSum=np.append(blackSum,-1)
+        else:
+            M[y][x]=1
+            blackSum=np.append(blackSum,1)
+            
+        #what change in coordinates?
+        if dir==0:
+            y-=1
+        elif dir==1:
+            x-=1
+        elif dir==2:
+            y+=1
+        elif dir==3:
+            x+=1
+            
+        i+=1
+        
+    plt.contourf(M)
+    #bc[n] gives the number of black cells after n steps
+    bc=np.cumsum(blackSum)
+    
+    #calculate how many balck cells for any n&gt;10,000, given the value at n=10,000
+    #and given an increment of 12 every 104 steps once on the highway.
+    print(12*((n-10000)//104)+bc[10000+(n-10000)%104])
+    print(time.clock()-t)
+    
+    return bc</code></pre>
+</div>
+<div id="problem-351-hexagonal-orchards" class="section level3">
+<h3>Problem 351: Hexagonal orchards</h3>
+<p>I managed to work out that <span class="math inline">\(H(n)=6\left(n(n-1)/2-\Phi(n)\right)\)</span>, then I used code from problem p512, another totient summation problem. [s]It is the <span class="math inline">\(O(n^{3/4})\)</span> algorithm[/s] ([i]I think, not sure, yet[/i]), using recursion and a memo. About 3 s.</p>
+<pre class="python"><code>import time
+def p351(n):
+    t=time.clock()
+    print( 6*(F(n)-totientSum(n)))
+    print(time.clock()-t)
+   
+def R(n,memo={}):
+    if n==1:
+        return 0
+    try:
+        return memo[n]
+    except KeyError:
+        fsum = F(n)
+        m=2
+        while 1:
+            x = n//m
+            nxt = n//x
+            if(nxt &gt;= n):
+                result=fsum - (n-m+1)*R(n//m,memo)
+                memo[n]=result
+                return result
+            fsum -= (nxt-m+1) * R(n//m,memo)
+            m = nxt+1
+def F(n):
+    return n*(n-1)//2
+def totientSum(n):
+    return 1 + R(n)
+#from overview for pe351 by Marcus Andrews
+#used by TotientSum7 - recursive version of O((n/(log(log(n))))^(2/3)) algorithm
+def v7(n,L,sieve,memo):
+    if n&lt;=L:
+        return sieve[n]
+    else:
+        try:
+            return memo[n]
+        except KeyError:
+            
+            res=n*(n+1)//2
+            
+            for g in range(2,int(n**0.5)+1):
+                res-=v7(n//g,L,sieve,memo)
+                
+            for z in range(1,int(n**0.5)+1):
+                if n//z!=z:
+                    res-=(n//z-n//(z+1))*v7(z,L,sieve,memo)
+                    
+            memo[n]=res
+            return res
+            
+#from overview for pe351 by Marcus Andrews
+#recursive version of O((n/(log(log(n))))^(2/3)) algorithm
+#if use instead of my totientSum(), gives a x5 speed up for n=10^8
+def TotientSum7(n):    
+    L=int((n/(math.log(math.log(n))))**(2/3))
+    sieve =list(range(L+1))
+    memo={}
+    for p in range(2,L+1):
+        if p==sieve[p]:
+            k=p    
+            while k &lt;= L:
+                sieve[k]-=sieve[k]//p
+                k+=p
+        sieve[p]+=sieve[p-1]
+    return v7(n,L,sieve,memo)
+#Algorithm 8 from the p351 overview
+#iterative version of O((n/(log(log(n))))^(2/3)) algorithm
+#if use instead of my totientSum(), gives a x6 speed up for n=10^8
+def TotientSum8(n):
+    L=int((n/(math.log(math.log(n))))**(2/3))
+    sieve =list(range(L+1))
+    bigV=[0]*(n//L+1)
+    
+    for p in range(2,L+1):
+        if p==sieve[p]:
+            k=p
+            while k &lt;= L:
+                sieve[k] -= sieve[k]//p
+                k+=p
+        sieve[p] += sieve[p-1]
+        
+    for x in range(n//L,0,-1):
+        k=n//x
+        res=k*(k+1)//2
+        for g in range(2,int(k**0.5)+1):
+            if k//g&lt;=L:
+                res-=sieve[k//g]
+            else:
+                res-=bigV[x*g]
+        for z in range(1,int(k**0.5)+1):
+            if z != k//z:
+                res -= (k//z-k//(z + 1))*sieve[z]
+        
+        bigV[x]=res
+            
+    return bigV[1]</code></pre>
+<p>The analysis below and the original (in C++) of the code I use is from the very helpful post by Andy on this <a href="http://math.stackexchange.com/questions/316376/how-to-calculate-these-totient-summation-sums-efficiently">Stack Exchange page</a> on totient sums, and from the overview for problem 73.</p>
+<p>The idea is that if <span class="math display">\[F=\text{cardinality} \{a,b: 0&lt;a&lt;b\le n\}=\frac{n(n-1)}{2}\]</span> <span class="math display">\[R=\text{cardinality} \{a,b: 0&lt;a&lt;b\le n,\text{gcd}(a,b)=1\}\]</span> then the totient sum <span class="math inline">\(\Phi(n)=1+R(n)\)</span>. Moreover, <span class="math display">\[\left( \Big\lfloor\dfrac{n}{m}\Big\rfloor \right)=\text{cardinality} \{a,b: 0&lt;a&lt;b\le n,\text{gcd}(a,b)=m\}\]</span> and so <span class="math display">\[F(n)=\displaystyle\sum_{m=1}^n{ R\left(\Big\lfloor\dfrac{n}{m}\Big\rfloor\right) }\]</span> We want the first term of this summation: <span class="math display">\[R(n)=F(n)-\displaystyle\sum_{m=2}^n{ R\left(\Big\lfloor\dfrac{n}{m}\Big\rfloor\right) }\]</span> This is what the code implements, exploiting the fact that <span class="math inline">\(\lfloor \frac{n}{m}\rfloor\)</span> remains constant over wide ranges of <span class="math inline">\(m\)</span>. It is Eq 3.2.2 from Marcus Andrews’ fascinating overview for this problem. If I use the recursive version of Marcus’s <span class="math inline">\(O(n^{2/3}(n \log \log n)^{1/3})\)</span> totient summatory function (Algorithm 7 in the overview) instead of my own, then I find the answer for <span class="math inline">\(n=10^8\)</span> in about 0.6s, and about 0.5s if I use the recursive version (Algorithm 8 in the overview).</p>
+</div>
+<div id="problem-354-distances-in-a-bees-honeycomb" class="section level3">
+<h3>Problem 354: Distances in a bee’s honeycomb</h3>
+<p>About two minutes in Python, using much the same ideas and code as for problem 233, adapted for a hexagonal lattice.</p>
+<pre class="python"><code>import time
+import numpy as np
+def p354(limit):
+    t=time.clock()
+    
+    limit=int(limit)       
+    ps=candidates1(limit)+candidates2(limit)+candidates3(limit) 
+        
+    ns=[]   
+    for p in ps:
+        p*=3**0.5
+        while p&lt;=limit:           
+           ns.append(p)
+           p*=3**0.5
+    qgood=[p for p in notPrime3k1Factor(int(limit/min(ns)))] 
+    
+    nfinal=[]
+    for n in ns:
+        for q in qgood:
+            nq=n*q
+            if nq&gt;limit:
+                break
+            nfinal.append(nq)
+    
+    print (len(nfinal))
+    print(time.clock()-t)
+#case p1^2.p2^7 where p are primes=1 mod 3.
+def candidates1(limit):
+    p1lim=int((limit/7**7)**0.5)
+    p2lim=int((limit/7**2)**(1/7))
+    pfs=primeSieve(max(p1lim,p2lim))
+    pfs=pfs[pfs%3==1]
+    p1s=[int(p) for p in pfs[pfs&lt;=p1lim]]
+    p2s=[int(p) for p in pfs[pfs&lt;=p2lim]]   
+    ps=[]
+    for p1 in p1s:
+        for p2 in p2s:
+            if p2==p1:
+                continue
+            pprod=pow(p1,2)*pow(p2,7)
+            if pprod&lt;=limit:
+                ps.append(pprod)
+    return ps
+#case p1.7^12 where p is prime=1 mod 3.
+def candidates2(limit):
+    ps=[]
+    plim=int(limit/7**12)
+    pfs=[int(p) for p in primeSieve(plim) if p%3==1]    
+    for p in pfs[1:]:
+        pprod=7**12*p
+        if pprod&lt;=limit:
+            ps.append(pprod)
+    return ps
+#case p1.p2^2.p3^2, p are prime=1 mod 3    
+def candidates3(limit):
+    ps=[]
+    p1lim=int((limit/(7**2*13**2)))
+    p23lim=int((limit/(7**2*13))**(1/2))
+    pfs=primeSieve(max([p1lim,p23lim]))
+    pfs=pfs[pfs%3==1]
+    p1s=[int(p) for p in pfs[pfs&lt;=p1lim]]
+    p23s=[int(p) for p in pfs[pfs&lt;=p23lim]]
+    for p1 in p1s:
+        p2lim=(limit/(p1*7**2))**(1/2)
+        for p2 in p23s:
+            if p2==p1:
+                continue
+            if p2&gt;p2lim:
+                break
+            p3lim=(limit/(p1*p2**2))**(1/2)
+            for p3 in p23s:
+                if p3&lt;=p2 or p3==p1:
+                    continue
+                if p3&gt;p3lim:
+                    break
+                pprod=p1*p2**2*p3**2
+                if pprod&lt;=limit:
+                    ps.append(pprod)
+    return ps    
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+def notPrime3k1Factor(n):
+    &quot;&quot;&quot;return array of numbers not divisible by 3 or primes p = 1 mod 3&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    ps=primeSieve(n)
+    ps=ps[ps%3==1]
+    for i in ps:
+        if sieve[i]:
+            sieve[i::i]=False
+    ps= np.nonzero(sieve)[0]    
+    return ps[ps%3!=0].astype(int)</code></pre>
+</div>
+<div id="problem-357-prime-generating-integers" class="section level3">
+<h3>Problem 357: Prime generating integers</h3>
+<p>About 31 s in Python. In the end, my solution is almost the same as Francky’s.</p>
+<pre class="python"><code>import time
+import numpy as np
+def p357(limit):
+    t=time.clock()
+  
+    primes=np.ones(limit+1,dtype=bool)        
+    for i in range(2, int((limit+1)**0.5+1)):
+        if primes[i]:
+            primes[2*i::i]=False
+    sf=np.ones(limit+1,dtype=bool)        
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=False
+    nsum=1 
+    for n in range(2,limit,4):
+        if  primes[n+1] and primes[n//2+2] and sf[n] and all(primes[d+n//d] for d in range(3,int(n**.5)+1) if not n%d):
+            nsum+=n
+    print(nsum,time.clock()-t)</code></pre>
+</div>
+<div id="problem-358-cyclic-numbers" class="section level3">
+<h3>Problem 358: Cyclic numbers</h3>
+<p>About 2 s in Python. I don’t yet really understand why the sum of the digits is <span class="math inline">\(9(p-1)/2\)</span>, where there are <span class="math inline">\(p-1\)</span> digits in the cyclic number that corresponds to a long prime <span class="math inline">\(p\)</span>, but found that that it was so by looking at the early terms in the sequence. The rest was a nice exercise in inverse modular arithmetic.</p>
+<p>All the information I needed for this problem was nicely explained in Conway and Guy, pp 157-163.</p>
+<pre class="python"><code>import numpy as np
+import time
+def p358():
+    
+    t=time.clock()
+    
+    #condition 1
+    pmin=int(1/1.38e-9)
+    pmax=int(1/1.37e-9)
+    
+    #condition 2
+    lastDigits=str(((99999)*inverse(56789,10000))%10000)    
+    while len(lastDigits)&lt;5:
+        lastDigits='0'+lastDigits 
+    pCand=[p for p in range (pmin,pmax+1) if str(p)[-5:]==lastDigits]
+    pCand=[p for p in pCand if isPrime(p) and chainLength(p)==p-1]    
+    print (9*(pCand[0]-1)//2) 
+    print(time.clock()-t)
+    
+def inverse(a, n):
+    &quot;&quot;&quot;returns multiplicative inverse of a mod n. a and n must be-co-prime&quot;&quot;&quot;
+    t1,t2=0,1    
+    r1,r2=n,a    
+    while r2!=0:
+        q = r1 // r2
+        t1, t2 = t2, t1 - q * t2
+        r1, r2 = r2, r1 - q * r2
+    if t1 &lt; 0:
+        t1 +=n
+    return t1 
+#p is a prime
+def chainLength(p):
+    ls=sorted(divisors(p-1))    
+    for l in ls:       
+        if pow(10,l,p)==1:
+            return l
+    return 0
+def divisors(n):
+    &quot;&quot;&quot;returns the divisors of n&quot;&quot;&quot;
+    #first get the prime factors
+    i = 2
+    fs = {}
+    while i * i &lt;= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            fs[i]=fs.get(i,0)+1
+    if n &gt; 1:
+        fs[n]=fs.get(n,0)+1
+        
+    ps=[k for k,v in fs.items()] #prime factors
+    es=[v for k,v in fs.items()] #exponents 
+    
+    divs=[]
+    nfactors = len(ps)
+    f = [0] * nfactors
+    while True:
+        p=1
+        pfs=[x**y for (x,y) in zip(ps,f)]
+        for i in range(len(ps)):
+            p*=pfs[i]
+        divs.append(p)
+        i = 0
+        while True:
+            f[i] += 1
+            if f[i] &lt;= es[i]:
+                break
+            f[i] = 0
+            i += 1
+            if i &gt;= nfactors:
+                return divs 
+            
+def isPrime(n):
+    &quot;&quot;&quot;Returns True if n is prime.&quot;&quot;&quot;
+    if n==2 or n==3:
+        return True
+    if not n%2 or not n%3:
+        return False
+    i = 5
+    w = 2
+    while i * i &lt;= n:
+        if n % i == 0:
+            return False
+        i += w
+        w = 6 - w
+    return True         </code></pre>
+</div>
+<div id="problem-381-prime-k-factorial" class="section level3">
+<h3>Problem 381: (prime-k) factorial</h3>
+<p>In my first analysis, for each prime <span class="math inline">\(p\)</span> I expressed the sum over <span class="math inline">\((p-k)!\)</span> as the product of a single factorial <span class="math inline">\((p-5)!\)</span> and a polynomial in <span class="math inline">\(p\)</span>, and then used Wilson’s theorem to calculate the factorial. This works, but takes 56s in Python and involves terms up to <span class="math inline">\(p^4\)</span>. I couldn’t get it to work in C++. dawghaus’s method (above) is much neater. We can use Wilson’s theorem to factor out <span class="math inline">\((p-1)!\)</span> from each sum of factorials in <span class="math inline">\(S(p)\)</span> and show (remarkably!) that <span class="math display">\[S(p)=\left(\frac{-3}{8}\right) \mod p\]</span> With this, I get the answer in 18 s in Python and about 5.4s in C++.</p>
+<pre class="python"><code>import time
+import numpy as np
+#using sieve: 17.6 s
+def p381(limit=10**8):
+    t=time.clock()    
+    primes=primeSieve(limit)    
+    ssum=0   
+    for p in primes[2:]:         
+        ssum+=(-3*inverse(8,p))%p
+    print (ssum)
+    print(time.clock()-t)
+#returns multiplicative inverse of a mod n. a and n must be-co-prime
+def inverse(a, n):
+    t1,t2=0,1    
+    r1,r2=n,a    
+    while r2!=0:
+        q = r1 // r2
+        t1, t2 = t2, t1 - q * t2
+        r1, r2 = r2, r1 - q * r2
+    if t1 &lt; 0:
+        t1 +=n
+    return t1 
+    
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 
+    
+#Uses Wilson's theorem to return n! mod n with m-n-1 multiplications and one inverse
+def fnmWilson(n,m):
+    prod=-1
+    for i in range(n+1,m):
+        prod=(prod*i)%m
+    return inverse(prod,m)</code></pre>
+<pre><code>//inspired by dawghaus
+
+#include &lt;iostream&gt;
+using namespace std;
+typedef long long ll;
+#include &lt;ctime&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+const ll limit = 100000000;
+vector&lt;bool&gt; primes(limit+1, true);
+
+// Use this because the remainder operator % does not give the modulus
+// for negative integers
+ll mod(ll a, ll b){
+    ll r = a % b;
+    return r &lt; 0 ? r + b : r;
+}
+
+void primeSieve(vector&lt;bool&gt; &amp;p){
+    p[0]=p[1]=false;
+    for (ll i=2;i&lt;sqrt(p.size());i++){
+        if (p[i]){
+            for (ll j=i*i;j&lt;p.size();j+=i){
+                p[j]=false;
+            }
+        }
+    }
+}
+
+ll modular_inverse(ll a, ll n){
+//returns b such that ab=1 mod n
+    
+    ll t1=0,t2=1,r1=n,r2=a;
+    ll q,temp;
+    
+    while(r2 != 0){
+        q = (ll)(r1/r2);
+        temp=t1;
+        t1=t2;
+        t2=temp-q*t2;
+        temp=r1;
+        r1=r2;
+        r2=temp-q*r2;
+    }
+    if (t1&lt;0){
+        t1+=n;
+    }
+    return t1;
+}
+
+// S = (p-1)! + (p-2)! + (p-3)! + (p-4)! + (p-5)! mod p as defined in problem intro.
+// given Wilson's theorem : (p-1)! = -1 mod p we can show that
+// S = -3/8 mod p = -3 * modular inverse of 8 mod p
+// very neat
+ll S (ll p){
+    return mod((-3*modular_inverse(8,p)),p);
+}
+
+int main(){
+    time_t t = clock();
+    ll sum=0;
+    primeSieve(primes);
+    for (ll p=5;p&lt;limit;p++){
+        if (primes[p]){
+            sum+=S(p);
+        }
+    }
+    cout &lt;&lt; sum &lt;&lt; endl;
+    cout &lt;&lt; double(clock() - t) / CLOCKS_PER_SEC &lt;&lt; &quot; s&quot; &lt;&lt; endl;
+}</code></pre>
+</div>
+<div id="problem-387-harshad-numbers" class="section level3">
+<h3>Problem 387: Harshad numbers</h3>
+<p>About 120 ms in Python. I generate all the 12753 right-truncatable Harshad numbers below <span class="math inline">\(10^{14}\)</span>, then among these find the 250 that are strong, and from those find the 86 prime numbers that can be made by adding one extra digit.</p>
+<pre class="python"><code>import time
+import numpy as np
+import sympy as sp
+def p387(limit):
+    
+    t=time.clock()
+    
+    candidates=set([(n,n) for n in range(2,10,2)])
+    candidates.add((18,9))
+    finals=set()
+    for n in range(int(np.log10(limit))-2):
+        newCands=set()
+        for cand in candidates :
+            for digit in range(10):
+                newVal=10*cand[0]+digit
+                digitSum=cand[1]+digit
+                if not newVal%digitSum:
+                    newCands.add((newVal,digitSum))
+                else:
+                    finals.add(cand)
+        candidates = candidates.union(newCands) 
+        candidates=candidates.difference(finals)
+    finals=finals.union(newCands)
+    SRTcands=[n for n in finals if sp.isprime(n[0]//n[1])]
+    srtpSum=0
+    for n in SRTcands:
+        for digit in [1,3,7,9]:
+            candPrime=10*n[0]+digit
+            if sp.isprime(candPrime):
+                srtpSum+=candPrime
+        
+    print(srtpSum)
+    print(time.clock()-t)</code></pre>
+</div>
+<div id="problem-388-distinct-lines" class="section level3">
+<h3>Problem 388: Distinct Lines</h3>
+<p>About 100s with memoization, if I use numba(). I implement the Moebius transformation approach taken by Marcus at the end of his overview for p351, and I don’t know why it takes so long.</p>
+<pre class="python"><code>import math
+import numpy as np
+import numba as nb
+import time
+#solves 10^10 in 100s with numba()
+#O(n^3/4) I think
+def p388(n):
+    t0=time.clock()
+    L =int(n**0.5)
+    moebius=MoebiusSieve(L) 
+    print(time.clock()-t0)
+    res=0
+    for d in range(1,L+1):
+        res+=int(moebius[d])*t(n//d)
+    mdic={}
+    for z in range(1,L+1):
+        v0,v1=n//z,n//(z+1)
+        if z != v0:
+            if v0 in mdic:
+                temp=mdic[v0]
+            else:
+                ans=Mertens(v0)
+                temp=ans
+                mdic[v0]=ans
+            if v1 in mdic:
+                temp-=mdic[v1]
+            else:
+                ans=Mertens(v1)
+                temp-=ans
+                mdic[v1]=ans
+            res+=temp*t(z)
+    ans=str(res)
+    print(ans[:9]+ans[-9:])
+    print(time.clock()-t0)
+def t(n):
+    return (n+1)**3-1
+@nb.jit(nopython=True)
+def Mertens(n):
+    
+    L =int(n**0.5)
+    m =[0]*(L+1) # 0-indexed array containing L+1 values of 0
+    bigM = [0]*(n//L + 1) #bigV [m] will correspond to v(⌊ n/m ⌋)
+    for x in range(1,L+1):
+        res= 1
+        for g in range(2,int(x**0.5)+1):
+            res-=m[x//g]
+        for z in range(1,int(x**0.5)+1):
+            if z != x//z:
+                res -= (x//z-x//(z+1))*m[z]
+        m[x] = res
+                     
+    for x in range(n//L,0,-1):
+        k=n//x
+        res=1
+        
+        for g in range(2,int(k**0.5)+1):
+            if k//g &lt;= L:
+                res-= m[k//g]
+            else:
+                res -= bigM [x*g]
+                
+        for z in range(1,int(k**0.5)+1):
+            if z != k//z:
+                res -= (k//z-k//(z + 1))*m[z]
+        bigM[x]=res
+       
+    return int(bigM[1])
+@nb.jit(nopython=True)
+def MoebiusSieve(limit):
+    &quot;&quot;&quot;returns moebius numbers for integers from 1 to limit&quot;&quot;&quot;  
+    sieve=np.ones(limit+1,dtype=bool)
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    P= np.nonzero(sieve)[0][2:]  
+    L = np.ones(limit+1).astype(int)   
+    for p in P:
+        L[::p]    *= -1
+        L[::p**2] *=  0 
+    return L.astype(int)</code></pre>
+<p>If I implement the sub-linear algorithm for <span class="math inline">\(R(n)\)</span> given by Daniel at the end of his overview to problem 73, I get the answer in about 25s. Earlier in this forum, Peter de Rivas implements that as ‘fast_moebius’.</p>
+</div>
+<div id="problem-389-platonic-dice" class="section level3">
+<h3>Problem 389: Platonic Dice</h3>
+<p>In a first go I calculated the probability of every score for each round, using polynomial generating functions in numpy. A protracted solution, given the insights already discussed in the forum, but it got me there.</p>
+<pre class="python"><code>import time
+import numpy as np
+from numpy.polynomial import polynomial as P
+def p389(dice):
+    
+    t=time.clock()
+    
+    probs={n:1/dice[0] for n in range (1,dice[0]+1)}
+    ks=[n for n in range(1,dice[0]+1)]
+    for n in dice[1:]:
+        newWays={}
+        p0=np.array([0.]+[1. for i in range(n)])/n
+        pks=np.copy(p0)
+        for k in ks: 
+            if k&gt;1:
+                pks=P.polymul(p0,pks)
+            for s in range(k,len(pks)):
+                newWays[s]=newWays.get(s,0)+probs[k]*pks[s]
+        probs.update(newWays)
+        ks=sorted([k for k,v in probs.items()])
+    
+    EX=sum([k*prob for k,prob in probs.items()])
+    EX2=sum([k**2*prob for k,prob in probs.items()])
+    var=EX2-EX**2
+    
+    print(EX,var)
+    print(time.clock()-t)</code></pre>
+<p>The key I was missing in the above was how to calculate the expectation value and variance of of the sum <span class="math inline">\(Y\)</span> of <span class="math inline">\(N\)</span> random, iid variables <span class="math inline">\(X_i\)</span>, where the <span class="math inline">\(X_i\)</span> are the dice throws on each round, and <span class="math inline">\(N\)</span> is the total of the previous round.</p>
+<p>From earlier posts I see that this is:</p>
+<p><span class="math display">\[\begin{align*} 
+E(Y)&amp;=E(X)E(N)\\
+var(Y)&amp;=E(X_i)^2 var(N)+E(N) var(X_i)
+\end{align*}
+\]</span> Put this together with the expressions for the expectation value and variance of the result of throwing a single <span class="math inline">\(n\)</span>-sided dice: <span class="math display">\[\begin{align*}
+E(d)=\frac{n+1}{2} \\
+var(d)=\frac{n^2-1}{12}
+\end{align*}
+\]</span> and we can iterate through the dice rounds to find our answer, in about 1ms.</p>
+<pre class="python"><code>#expecation value and variance of result of throwing one n-sided dice
+def oneDie(n):
+    EX=(n+1)/2
+    varX=(n**2-1)/12
+    return EX,varX
+#summing a random number of random variables
+#In each round: Y =X1 +X2 +X3 +...+XN
+#where the xi are random iid and N is random, independent of the Xi   
+def rnrv(thisDie,EN,varN):
+    EX,varX=oneDie(thisDie)
+    EY=EX*EN 
+    varY=EX**2*varN+EN*varX
+    return EY,varY
+    
+def p389rnrv(dice):
+    t=time.clock()
+    E,v=oneDie(dice[0])    
+    for d in dice[1:]:
+        E,v=rnrv(d,E,v)    
+    print(E,round(v,4))
+    print(time.clock()-t)</code></pre>
 </div>
 <div id="problem-407-idempotents" class="section level3">
 <h3>Problem 407: Idempotents</h3>
@@ -4437,6 +6579,717 @@ def inverse(a, n):
         t1 +=n
     return t1 </code></pre>
 </div>
+<div id="problem-411-uphill-paths" class="section level3">
+<h3>Problem 411: Uphill Paths</h3>
+<p>About 2 minutes 40s in Python, including use of numba() where I could. That is about as fast as I am going to get it.</p>
+<p>Like many here, I sort on <span class="math inline">\(x\)</span>, having first found the cycle period and start points for the station coordinates, then find the longest non-decreasing sub-sequences on <span class="math inline">\(y\)</span> using the <span class="math inline">\(n\log(n\)</span>) algorithm that includes binary search. Petar Minchev’s [url=<a href="https://stackoverflow.com/questions/2631726/how-to-determine-the-longest-increasing-subsequence-using-dynamic-programming" class="uri">https://stackoverflow.com/questions/2631726/how-to-determine-the-longest-increasing-subsequence-using-dynamic-programming</a>]post[/url] on stack overflow was very helpful in coming to grips with how that worked.</p>
+<p>To use numba() I have to use a separate routine for fast modular exponentiation, rather than pow(a,b,c). It’s hard work, is numba(), trying to get round the Python features it does not support.</p>
+<p>To find the station cycle period and the initial offset <span class="math inline">\(k_0\)</span> of <span class="math inline">\(a^k\mod m\)</span>, I used that <span class="math inline">\(k_0\)</span> was the smallest <span class="math inline">\(k\)</span> for which <span class="math inline">\(\text{gcd}(a^k,m)=\text{gcd}(a^{k+1},m)\)</span>, and that the period <span class="math inline">\(d\)</span> was the smallest divisor of <span class="math inline">\(\phi(m)\)</span> for which <span class="math inline">\(a^{d}\mod m=a^{d+k_0}\mod m\)</span>. It was only just worth it to work this out, however, instead of just breaking once the stations started to repeat themselves.</p>
+<pre class="python"><code>import math
+import time
+import bisect
+import numba as nb
+def p411(N):
+    t0=time.clock()
+    total=0   
+    
+    for n in range(2,N+1):
+        t=time.clock()
+        l2,m2=cycle(2,n**5)
+        l3,m3=cycle(3,n**5)    
+        ndistinct=max(m3,m2)+l2*l3//math.gcd(l2,l3)
+        p=points(n**5,ndistinct)
+        newVal=lndss(p)
+        total += newVal
+        print(&quot;%2d %8d %6.3f %6.3f&quot; % (n,newVal,time.clock()-t,time.clock()-t0))
+    print(1+total)
+    print(time.clock()-t0)
+# find length of longest non-decreasing subsequence of list X
+def lndss(X):
+    if len(X)==0: return 0
+    S=[X[0]]
+    for i in range(1,len(X)):
+        if X[i]&gt;=S[-1]:
+            S.append(X[i])
+        else:
+            index=bisect.bisect_right(S,X[i])
+#            print(index,len(S),X[i],S)
+            S[index]=X[i]
+    return len(S)
+            
+#returns smallest k for which gcd(a^k,m)=gcd(a^(k+1),m)   
+def k0(a,m):
+    
+    dk,k=0,0
+    while 1:
+        dknew=math.gcd(a**k,m)
+        if dknew==dk:
+            return k-1
+        dk=dknew
+        k+=1
+#returns cyle period and offset of a^k mod m
+def cycle(a,m):
+    
+    k=k0(a,m)
+    for d in sorted(divisors(et(m))):
+        if pow(a,k,m)==pow(a,k+d,m):
+#        if (a**k)%m==(a**(k+d))%m:
+            return d,k
+#find the points (2^i mod n, 3^i mod n) for 0&lt;=i&lt;=2n
+@nb.jit(nopython=True)
+def points(n,ndistinct):
+    
+    pairs = [(0,0)]*ndistinct
+    for i in range(ndistinct):
+        newx=f(2,i,n)
+        newy=f(3,i,n)
+        pairs[i]=(newx,newy)
+        pairs[i]=(newx,newy)
+    return [y for x,y in sorted(pairs)]
+#modular exponentiation: find x^e mod m
+@nb.jit(nopython=True)
+def f(x,e,m):
+    X = x
+    E = e
+    Y = 1
+    while E &gt; 0:
+        if E % 2 == 0:
+            X = (X * X) % m
+            E = E/2
+        else:
+            Y = (X * Y) % m
+            E = E - 1
+    return Y
+@nb.jit(nopython=True)        
+def et(n):
+    &quot;&quot;&quot;returns Euler totient (phi) of n &quot;&quot;&quot;   
+    phi=n
+    pfs=set(prime_factors(n))
+    for pf in pfs:
+        phi*=(1-1/pf)
+    return int(phi)
+#@nb.jit(nopython=True)
+def divisors(n):
+    &quot;&quot;&quot;returns the divisors of n&quot;&quot;&quot;
+    #first get the prime factors
+    i = 2
+    fs = {}
+    while i * i &lt;= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            fs[i]=fs.get(i,0)+1
+    if n &gt; 1:
+        fs[n]=fs.get(n,0)+1
+        
+    ps=[k for k,v in fs.items()] #prime factors
+    es=[v for k,v in fs.items()] #exponents 
+    
+    divs=[]
+    nfactors = len(ps)
+    f = [0] * nfactors
+    while True:
+        p=1
+        pfs=[x**y for (x,y) in zip(ps,f)]
+        for i in range(len(ps)):
+            p*=pfs[i]
+        divs.append(p)
+#could use this from np, but is several times slower for large numbers
+#        yield ft.reduce(lambda x, y: x*y, [factors[x][0]**f[x] for x in range(nfactors)], 1)
+        i = 0
+        while True:
+            f[i] += 1
+            if f[i] &lt;= es[i]:
+                break
+            f[i] = 0
+            i += 1
+            if i &gt;= nfactors:
+                return divs 
+@nb.jit(nopython=True)
+def prime_factors(n):
+    &quot;&quot;&quot;returns the prime factors of n&quot;&quot;&quot;   
+    i = 2
+    factors = []
+    while i * i &lt;= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n &gt; 1:
+        factors.append(n)
+    return factors </code></pre>
+</div>
+<div id="problem-417-reciprocal-cycles-ii" class="section level3">
+<h3>Problem 417: Reciprocal Cycles II</h3>
+<p>I used many of the tricks mentioned above. I divided out factors of 2 and 5, to give 40 million distinct numbers for which <span class="math inline">\(L(n)\)</span> was required. For any <span class="math inline">\(n\)</span>, <span class="math inline">\(L(n)\)</span> is the smallest divisor <span class="math inline">\(d\)</span> of <span class="math inline">\(\phi(n)\)</span> for which <span class="math inline">\(10^d \equiv 1 \mod n\)</span>. To help me find that I used sieves to find primes and all the <span class="math inline">\(\phi(n)\)</span>, modular exponentiation to find the <span class="math inline">\(d\)</span>, and numba() to speed it all up. Still, it takes almost seven minutes, so I don’t even make the locally introduced 5 minute rule.</p>
+<pre class="python"><code>import numba as nb
+import time
+import numpy as np
+import math
+def p417(limit):
+    t=time.clock()
+    ps=primeSieve(limit)
+    ets=etSieve(limit,ps)
+    reduced=remove25Factors(limit)
+    
+    seen={1:0}
+    rsum=9    
+    for i,n in enumerate(reduced):
+        if i&lt;=10:
+            continue
+        if n in seen:
+            rsum+=seen[n]
+            continue
+        d=int(ets[i])
+        r=getPeriod(d,n)
+        seen[i]=r
+        rsum+=r
+    print(rsum)        
+    print(time.clock()-t)
+@nb.jit(nopython=True)
+def getPeriod(d,n):
+    pfs = prime_factors(d)
+    while True:         
+        flag = True
+        for p in pfs:
+            if pow_mod(10,d//p,n)==1:
+                d //= p
+                flag = False
+                break
+        if len(pfs)&gt;0:
+            pfs.remove(p)
+        if flag:
+            return d  
+@nb.jit(nopython=True) 
+def etSieve(n,primes):
+    &quot;&quot;&quot;return array of euler totient(x) for x from 2 to n&quot;&quot;&quot;
+    sieve=np.arange(n+1.0,)
+    for i in primes:  
+        if sieve[i]==float(i):
+            sieve[i::i]*=(1-1/float(i))
+#    print(sieve[:10])
+    return sieve  
+@nb.jit(nopython=True)
+def pow_mod(a,x,n):
+    &quot;&quot;&quot;a^x mod n&quot;&quot;&quot;
+    r=1
+    while x:
+        if x &amp; 1 == 1:
+            r = a*r % n        
+        x &gt;&gt;= 1;
+        a = a*a % n    
+    return r  
+@nb.jit(nopython=True)
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=0
+    return np.nonzero(sieve)[0][2:]  
+@nb.jit(nopython=True)
+def prime_factors(n):
+    &quot;&quot;&quot;returns the prime factors of n&quot;&quot;&quot;    
+    i = 2
+    factors = []
+    while i * i &lt;= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n &gt; 1:
+        factors.append(n)
+    return factors  
+        
+@nb.jit(nopython=True)
+def remove25Factors(limit):
+    ns=np.zeros(limit,dtype=np.int64)
+    for n in range(1,limit): 
+        n0=n
+        while not n%2:
+            n//=2
+        while not n%5:
+            n//=5
+        ns[n0]=n
+    return ns
+              </code></pre>
+</div>
+<div id="problem-429-sum-of-squares-of-unitary-divisors" class="section level3">
+<h3>Problem 429: Sum of squares of unitary divisors</h3>
+<p>About 25 s in Python. Like pretty much everyone else here, I use the fact that the sum of the squared unitary divisors of <span class="math inline">\(N\)</span> is multiplicative and is given by <span class="math display">\[\mathop{\sum {d^2_j}}_{d|n\atop{gcd(d,N/d)=1}}=\prod\left(1+p_i^{2k_i}\right)\]</span> where the <span class="math inline">\(p_i^{k_i}\)</span> are the prime factors of <span class="math inline">\(N\)</span>, each term in the product is the sum of the squared unitary divisors of <span class="math inline">\(p_i\)</span> and the Legendre method is used to find the exponents <span class="math inline">\(k_i\)</span></p>
+<pre class="python"><code>import numpy as np
+import time
+def p429(n,mod):
+    
+    t=time.clock()
+    
+    pFactors=pFacnFac(n) 
+    
+    print(time.clock()-t)
+    pProd=1
+    for p in pFactors:
+        pProd*=1+pow(int(p),2*int(pFactors[p]),mod)
+        pProd%=mod
+    print(pProd)
+    print(time.clock()-t)
+def pFacnFac(n):
+    &quot;&quot;&quot;returns prime factors of n!&quot;&quot;&quot;
+    ps=primeSieve(n)
+    factors={}
+    for p in ps:
+        exp=0
+        power=1
+        delta=10
+        while delta&gt;0:
+            delta=n//p**power
+            exp+=delta
+            power+=1
+        factors[p]=exp
+    return factors
+    
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]</code></pre>
+</div>
+<div id="problem-491-double-pandigital-number-divisible-by-11" class="section level3">
+<h3>Problem 491: Double pandigital number divisible by 11</h3>
+<p>About 1.6s in Python. I make use of bit patterns and the <a href="https://www.cl.cam.ac.uk/~am21/hakmemc.html">HAKMEM175</a> code for finding the next greatest integer with the same number of high bits as the current integer. Using this, I find all possible combinations of 10 digits from the 10 pairs we start with.</p>
+<p>If we treat each of these as the even positioned digits in a candidate double pandigital number, then the odd numbered digits in each case are determined by them. If the difference between the sum of the even digits and the sum of the odd digits is a multiple of 11, then any double pandigital numbers that could be constructed would also be a multiple of 11.</p>
+<p>For a given pair of odd and even sequences, the total of such double pandigital numbers we can form is <span class="math inline">\(n!/2^k\)</span> where <span class="math inline">\(k\)</span> is the number of digit pairs in either one of the sequences (it is the same number for each sequence).</p>
+<p>Finally, we account for numbers with leading zeros.</p>
+<pre class="python"><code>import math
+import time
+def p491(n):
+    
+    t=time.clock()
+    
+    T=n*(n+1)
+    digits=''.join([str(i)+str(i) for i in range(n+1)])
+    pattern='0'*(n+1)+'1'*(n+1)
+    maxPattern='1'*(n+1)+'0'*(n+1)
+    ns=set()
+    total=0
+    tnum=math.factorial(n+1)
+    while pattern!=maxPattern:
+        pattern='0'*(2*n+2-len(pattern))+pattern
+        ds=''.join([digits[j] for j in range(len(digits)) if pattern[j]=='1'])
+        pattern=bin(hm175(int(pattern,2)))[2:]
+        if ds in ns:
+            continue
+        ns.add(ds)  
+        if (T-2*sum([int(d) for d in ds]))%11==0: #check that we have a multiple of 11
+            total+=(tnum//2**(len(ds)-len(set(ds))))**2 #number of permutations
+            
+    print(total*(n)//(n+1))
+    print(time.clock()-t)
+#HAKMEN 175
+#https://www.cl.cam.ac.uk/~am21/hakmemc.html
+#Returns the next highest integer with the same number of high bits.
+def hm175(a):
+    c = a &amp; -a
+    r=a+c
+    return (a^r)//c&gt;&gt;2 | r </code></pre>
+</div>
+<div id="problem-493-under-the-rainbow" class="section level3">
+<h3>Problem 493: Under the Rainbow</h3>
+<p>I tried to work out the combinatoric solution (failed), tried dp ( failed) and tried a Markov chain method (it worked, but didn’t converge in a reasonable time). So I learned how to count, using the power of Python and numpy: 6.7s.</p>
+<pre class="python"><code>import itertools as it
+import numpy as np
+import scipy as sc
+import time
+#counting possibilities (the best I could do on my own)
+def p493(n=7,b=10,p=20):
+    
+    t=time.clock()
+    nCks=[sc.misc.comb(b,k) for k in range(b+1)]
+    colours={k:0 for k in range(n+1)}
+    
+    for a in it.product([x for x in range(b+1)],repeat=n):
+        if(sum(a)==p):
+            valid=np.array(a)
+            valid=valid[valid&gt;0]
+            newWays=np.prod(np.array([nCks[x] for x in valid]))
+            colours[len(valid)]+=newWays
+    meancol=sum([k*v for k,v in colours.items()])/sum([v for k,v in colours.items()])
+    print(round(meancol,9),time.clock()-t) #6.7s on a MacBook  Pro
+# the neat combinatoric way (that I didn't get on my own!)
+def p493comb(nColours=7,perColour=10,picks=20):
+    
+    t=time.clock()
+    #consider one colour after p picks:
+    #number of ways to not pick that colour:
+    nNotPickOneColour=int(sc.misc.comb((nColours-1)*perColour,picks))
+    #number of ways to pick any colour:
+    nAnyColour=int(sc.misc.comb(nColours*perColour,picks))    
+    #probability of not picking that colour
+    probNotPickoneColour=nNotPickOneColour/nAnyColour    
+    #probability that that colour is picked
+    probPickoneColour=1-probNotPickoneColour
+    
+    #so for all balls...
+    #expectation value of number of colours picked
+    expColours=nColours*probPickoneColour
+    
+    print(round(expColours,9))
+    print(time.clock()-t)  #0.1 ms</code></pre>
+<p>The same thing goes more than ten times faster in C++, which I am trying to learn, but with much more code:</p>
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+#include &lt;cmath&gt;
+#include &lt;ctime&gt;
+#include &lt;vector&gt;
+
+int64_t factorial(int64_t n)
+{
+    return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
+int64_t nCk(int64_t n, int64_t k)
+{
+    return factorial(n)/(factorial(n-k)*factorial(k));
+}
+
+void counting(int perColour,int p)
+{
+    int colours=7;
+    int a,b,c,d,e,f,g;
+    vector&lt;int64_t&gt; ncks;
+    
+    for (int k=0;k&lt;=perColour;k++){
+        ncks.push_back(nCk(perColour,k));
+    }
+    
+    vector&lt;int64_t&gt; nColours(colours+1);
+    
+    for (a=0;a&lt;=perColour;a++) for (b=0;b&lt;=perColour;b++) for (c=0;c&lt;=perColour;c++) for (d=0;d&lt;=perColour;d++) for (e=0;e&lt;=perColour;e++) for (f=0;f&lt;=perColour;f++) for (g=0;g&lt;=perColour;g++)
+    {
+        vector &lt;int64_t&gt; pick;
+        if (a+b+c+d+e+f+g==p){
+            if (a&gt;0) pick.push_back(a);
+            if (b&gt;0) pick.push_back(b);
+            if (c&gt;0) pick.push_back(c);
+            if (d&gt;0) pick.push_back(d);
+            if (e&gt;0) pick.push_back(e);
+            if (f&gt;0) pick.push_back(f);
+            if (g&gt;0) pick.push_back(g);
+        }
+        if (pick.size()==0) continue;
+        
+        int64_t newWays=1;
+        for (int i=0;i&lt;pick.size();i++)
+        {
+            newWays*=ncks[pick[i]];
+        }
+        nColours[pick.size()]+=newWays;
+    }
+
+    double num=0,den=0;
+    for (int i=0;i&lt;nColours.size();i++)
+    {
+        num+=i*nColours[i];
+        den+=nColours[i];
+    }
+    cout.precision(10);
+    cout&lt;&lt;num/den&lt;&lt;endl;
+}
+
+
+int main()
+{
+    clock_t t;
+    t = clock();
+    
+    int perColour=10,picks=20;
+    counting(perColour,picks);
+    
+    cout &lt;&lt; ((float)(clock()-t))/CLOCKS_PER_SEC&lt;&lt;&quot;\n&quot;;
+    
+    return 0;
+}</code></pre>
+</div>
+<div id="problem-500-problem-500" class="section level3">
+<h3>Problem 500: Problem 500!!!</h3>
+<p>Using PriorityQueue in python, 4.6s, with the idea that if the result <span class="math inline">\(N = 2^p3^q5^r...\)</span> has <span class="math inline">\(2^n\)</span> divisors, then each of <span class="math inline">\((p+1),(q+1)(r+1)...\)</span> must be powers of 2. I construct a queue of primes, <span class="math inline">\(2^{p=1},3^{q=1},5^{r=1},....\)</span> and <span class="math inline">\(n\)</span> times I remove from it the smallest element <span class="math inline">\(a^s\)</span> and put <span class="math inline">\({a^s}^2\)</span> back in. It is that last step that took me a while to get. If you put <span class="math inline">\(a^{s+1}\)</span> back instead then you end up with a number that does not have <span class="math inline">\(2^n\)</span> divisors.</p>
+<pre class="python"><code>import numpy as np
+import queue
+import time
+def p500(n=500500,m=500500507):
+    
+    t=time.clock()
+    
+    ps=list(primeSieve(20*n)[:n])  
+    q = queue.PriorityQueue()
+    for i,p in enumerate(ps):
+        q.put(p)
+    result=1
+    for i in range(n):        
+        p=q.get()
+        q.put(pow(p,2)) #ensures that each prime will be raised to 2^x-1
+        result=result*p%m
+        
+    print (result,time.clock()-t)</code></pre>
+</div>
+<div id="problem-501-eight-divisors" class="section level3">
+<h3>Problem 501: Eight divisors</h3>
+<p>About 5 minutes. In C++! I use Kim Walisch’s very fast <a href="http://primesieve.org">primesieve library</a>. This was my first problem written straight off in C++, so a lot my work was in getting to grips with how C++ works, coming from Python. It took me ages to successfully build and link to Walisch’s library, for example. As others do, I note that all numbers with 8 factors must be of the form <span class="math inline">\(p^7\)</span>, <span class="math inline">\(p_1^3p_2\)</span>, <span class="math inline">\(p_1p_2^3\)</span> or <span class="math inline">\(p_1p_2p_3\)</span>, with <span class="math inline">\(p1&lt;p2&lt;p3\)</span> and go from there.</p>
+<p>5 minutes! I can surely reduce this….</p>
+<pre><code>#include &lt;primesieve.hpp&gt;
+#include &lt;vector&gt;
+#include &lt;tuple&gt;
+#include &lt;stdint.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+using namespace std;
+typedef long long ll;
+
+//Sieve of Eratosthenes.didn't use this in the end. 
+//It is about 3 times slower than the same simple sieve written in Python using numpy.
+void primeSieve(vector&lt;bool&gt; &amp;p){
+    p[0]=p[1]=false;
+    for (ll i=2;i&lt;sqrt(p.size());i++){
+        if (p[i]){
+            for (ll j=i*i;j&lt;p.size();j+=i){
+                p[j]=false;
+            }
+        }
+    }
+}
+
+void primeProd(ll limit,vector&lt;tuple&lt;ll,ll&gt;&gt; &amp;pp){
+    ll p2limit=pow(limit/2,0.5);
+    vector&lt;ll&gt; ps,qs;
+    primesieve::generate_primes((ll)sqrt(limit), &amp;ps);
+    qs=ps;
+    for (ll i=0;i&lt;ps.size();i++){
+        for (ll j=i+1;j&lt;qs.size();j++){
+            ll p2 = qs[j];
+            if (p2&lt;=ps[i])
+                continue;
+            ll prod = ps[i]*qs[j];
+            if (limit/prod &lt;=p2)
+                break;
+            pp.push_back(make_tuple(p2,prod));
+        }
+    }
+    sort(pp.begin(), pp.end(), [](const std::pair&lt;ll,ll&gt; &amp;left, const std::pair&lt;ll,ll&gt; &amp;right) {
+        return left.first &lt; right.first;
+    });
+}
+
+ll sum1(ll limit){
+    return primesieve::count_primes(0, pow(limit,0.14285714285714285));
+}
+
+
+ll sum2(ll limit){
+    ll sumpf=0;
+    vector&lt;ll&gt; ps;
+    primesieve::generate_primes((ll)sqrt(limit), &amp;ps);
+    ll i=0;
+    while(pow(ps[i],3)*ps[i+1]&lt;=limit){
+        sumpf+=primesieve::count_primes(0, (ll)(limit/pow(ps[i],3)));
+        i+=1;
+    }
+    sumpf-=i+(ll)floor(i*(i-1)/2);
+    ll j=0;
+    while ((ll)(ps[j]*pow(ps[j+1],3))&lt;=limit){
+        ll count=primesieve::count_primes(0,cbrt(limit/ps[j]));
+        sumpf+=primesieve::count_primes(0,cbrt(limit/ps[j]));
+        j+=1;
+    }
+    sumpf-=j+(ll)floor(j*(j-1)/2);
+    return sumpf;
+}
+
+ll sum3 (ll limit){
+    vector&lt;tuple&lt;ll,ll&gt;&gt; pps;
+    ll sum3=0,lastp2=0,p2pc=1;
+    uint64_t count;
+    primeProd(limit,pps);
+    for (ll i=0;i&lt;pps.size();i++){
+        ll p2 = get&lt;0&gt;(pps[i]);
+        if (p2&gt;lastp2){
+            lastp2=p2;
+            p2pc+=1;
+        }
+        ll prod = (ll)get&lt;1&gt;(pps[i]);
+        count=primesieve::count_primes(0, limit/prod);
+        sum3+=count-p2pc;
+    }
+    return sum3;
+}
+
+int main(){
+    
+    clock_t t;
+    t = clock();
+    
+    ll const limit = 1e12;
+    cout&lt;&lt;limit&lt;&lt;endl;
+    ll s1 = sum1(limit);
+    ll s2 = sum2(limit);
+    ll s3 = sum3(limit);
+    cout&lt;&lt;s1&lt;&lt;endl;
+    cout&lt;&lt;s2&lt;&lt;endl;
+    cout&lt;&lt;s3&lt;&lt;endl;
+    cout&lt;&lt;s1+s2+s3&lt;&lt;endl;
+    cout &lt;&lt; ((float)(clock()-t))/CLOCKS_PER_SEC&lt;&lt;&quot;\n&quot;;
+}</code></pre>
+</div>
+<div id="problem-504-square-on-the-inside" class="section level3">
+<h3>Problem 504: Square on the Inside</h3>
+<p>Came here in search of light relief after struggling on p126 and p540…</p>
+<p>A brute force solution that only manages 80-90s, despite using pre-calculation of squares, products and gcds. What I do, I now realise, is essentially Pick’s theorem, but I arrived at it independently. I cleaned up the code after reading the forum.</p>
+<p>I tried using nested lists and numpy arrays to store the pre-calculated values, but dictionaries were quicker.</p>
+<p>I can’t (yet) see how to invoke symmetries to speed things up. Clearly, the number of interior lattice points is the same for all cyclic permutations of any set of coordinates.</p>
+<pre class="python"><code>import math
+import time
+def p504(m):
+        
+    t=time.clock()
+    
+    #pre-calculate squares, products and gcds
+    sqs={x**2 for x in range(1,4*m**2+1)}
+    prods={(a,b):a*b for a in range(1,2*m+1) for b in range(1,2*m+1)}
+    gcds={(a,b):math.gcd(a,b) for a in range(1,m+1) for b in range(1,m+1)} 
+   
+    issq=0
+    for a,b,c,d in it.product(range(1,m+1),repeat=4):
+        if (prods[(a+c),(b+d)]-gcds[(a,b)]-gcds[(b,c)]-gcds[(c,d)]-gcds[(a,d)])//2+1 in sqs:
+            issq+=1
+    print (issq)
+    print(time.clock()-t)
+# I also tried using nested lists and numpy arrays for storage of pre-calculated
+#values, but dictionaries were quicker
+#    prods= [[i*j for i in range(m+1)] for j in range(m+1)]
+#    prods= np.array([[i*j for i in range(m+1)] for j in range(m+1)])</code></pre>
+<p>The same thing in C++ takes 15.7s:</p>
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+#include &lt;time.h&gt;
+#include &lt;cmath&gt;
+
+
+int gcd(int a, int b){
+    int r = a % b;
+    while (r&gt;0){
+        a=b;
+       int tmp=b;
+        b=r;
+        r=tmp%r;
+    }
+    return b;
+}
+
+int main() {
+    
+    clock_t t;
+    t = clock();
+
+    int m =100;
+    int issq=0;
+    
+    for (int p=1;p&lt;=m;p++) for (int q=1;q&lt;=m;q++) for (int r=1;r&lt;=m;r++) for (int s=1;s&lt;=m;s++){
+        float res=sqrt(((p+r)*(q+s)-gcd(p,q)-gcd(q,r)-gcd(r,s)-gcd(p,s))/2+1);
+        if (res==int(res)) issq+=1;
+    }
+    
+    cout &lt;&lt; issq &lt;&lt; &quot;\n&quot;;
+    cout &lt;&lt; ((float)(clock()-t))/CLOCKS_PER_SEC&lt;&lt;&quot;\n&quot;;
+    return 0;
+}</code></pre>
+</div>
+<div id="problem-510-tangent-circles" class="section level3">
+<h3>Problem 510: Tangent Circles</h3>
+<p>I was able to show that if the radii are <span class="math inline">\(a,b,c=p^2,q^2,r^2\)</span>, where <span class="math inline">\(r=\frac{pq}{p+q}\)</span>, then we need to find <span class="math inline">\(p,q\)</span> such that <span class="math inline">\(p+q\)</span> divides <span class="math inline">\(pq\)</span>, with <span class="math inline">\(0&lt;p\le q\le N\)</span>. By iterating through the possible combinations of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>, and summing over multiples of fundamental trios I got the answer. But my Python code took 90s and is horrid to look at! The bit I am missing is how to quickly find the possible pairs of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>. I don’t yet see what it is that the various elegant posts above are doing. Grrr!</p>
+<pre><code>//
+//  main.cpp
+//  pe510
+//
+//
+
+#include&lt;iostream&gt;
+using namespace std;
+#include&lt;time.h&gt;
+#include&lt;cmath&gt;
+#include&lt;tuple&gt;
+#include&lt;vector&gt;
+
+int64_t gcd(int64_t a, int64_t b){
+    int64_t r = a % b;
+    while (r&gt;0){
+        a=b;
+        int64_t tmp=b;
+        b=r;
+        r=tmp%r;
+    }
+    return b;
+    }
+
+void p510 (int64_t limit){
+    clock_t t;
+    t = clock();
+    int64_t a,b,c,p,q;
+    vector&lt;tuple&lt;int64_t, int64_t, int64_t&gt;&gt; abc;
+    for (q=1;q&lt;=floor(sqrt(limit));q++){
+        for (p=1;p&lt;=q;p++){
+            if ((p*q)%(p+q)==0){
+                a=p*p;
+                b=q*q;
+                c=floor(p*q/(p+q))*floor(p*q/(p+q));//pow(floor(p*q/(p+q)),2);
+                abc.push_back( tuple&lt;int64_t, int64_t, int64_t&gt;(a,b,c) );
+            }
+        }
+    }
+    
+    vector&lt;tuple&lt;int64_t, int64_t, int64_t&gt;&gt; abcfund;
+    for (int64_t i=0;i&lt;abc.size();i++){
+        int64_t div=gcd(get&lt;0&gt;(abc[i]),gcd(get&lt;1&gt;(abc[i]),get&lt;2&gt;(abc[i])));
+        a=floor(get&lt;0&gt;(abc[i])/div);
+        b=floor(get&lt;1&gt;(abc[i])/div);
+        c=floor(get&lt;2&gt;(abc[i])/div);
+        
+        tuple&lt;int64_t,int64_t,int64_t&gt; next_abc;
+        
+        next_abc=make_tuple(a,b,c);
+        
+        if(find(abcfund.begin(), abcfund.end(), next_abc) == abcfund.end()) {
+            abcfund.push_back( next_abc );
+            }
+        }
+    cout &lt;&lt;abcfund.size() &lt;&lt; endl;
+    
+    int64_t S=0;
+    int64_t L;
+    
+    for(int64_t k=0;k&lt;abcfund.size();k++){
+        int64_t aa=get&lt;0&gt;(abcfund[k]);
+        int64_t bb=get&lt;1&gt;(abcfund[k]);
+        int64_t cc=get&lt;2&gt;(abcfund[k]);
+        L=(int64_t)floor((long double)(limit/bb));
+        S +=(int64_t)floor((long double)(aa+bb+cc)*L*(L+1)/2.0);
+        if (k%100==0){
+            cout &lt;&lt;k&lt;&lt;','&lt;&lt; aa&lt;&lt;' '&lt;&lt; bb&lt;&lt;' '&lt;&lt; cc&lt;&lt;','&lt;&lt;S&lt;&lt;','&lt;&lt;L&lt;&lt;endl;
+        }
+    }
+    cout &lt;&lt; S &lt;&lt; endl;
+    cout &lt;&lt; ((float)(clock()-t))/CLOCKS_PER_SEC&lt;&lt;endl;
+
+}
+
+ int main(){
+ p510(1000000000);
+ return 0;
+ }</code></pre>
+</div>
 <div id="problem-512-sums-of-totients-of-powers" class="section level3">
 <h3>Problem 512: Sums of totients of powers</h3>
 <p>I managed to work out that <span class="math inline">\(\displaystyle g(n) = \sum_{i=1,i \nmid 2}^n \varphi(i)\)</span> and then did the sum by brute-force sieving in 6 minutes.</p>
@@ -4508,6 +7361,53 @@ def oddTotientSum(N):
     return totientSum(N)-evenTotientSum(N)</code></pre>
 <p>The key insight I got from chsl95 is how to calculate the sum of totients of even numbers.</p>
 </div>
+<div id="problem-518-prime-triples-and-geometric-sequences" class="section level3">
+<h3>Problem 518: Prime triples and geometric sequences</h3>
+<p>5.7s in Python if I use numba(). I didn’t work out the idea myself, but got it from <a href="https://math.stackexchange.com/questions/1218821/find-all-prime-triples-a-b-c-such-a1-b1-c1-form-a-geometric-sequence">here</a>. I did work out the code to implement it, though, and having got the answer, spend four fruitless hours trying to get under that one minute barrier. I’ll try and explain it. If the first prime is <span class="math inline">\(p\)</span>, then the next two are <span class="math inline">\(k(p+1)-1\)</span> and <span class="math inline">\(k^2(p+1)-1\)</span>, where <span class="math inline">\(k=a/b\)</span> is rational. Further, <span class="math inline">\(b&lt;a&lt;b\sqrt{\frac{n+1}{p+1}}\)</span>, where <span class="math inline">\(n\)</span> is the upper limit, and <span class="math inline">\(b\)</span> is the largest integer such that <span class="math inline">\(b^2\)</span> divides <span class="math inline">\(p+1\)</span>. Hence, for each <span class="math inline">\(p\)</span>, we find <span class="math inline">\(b\)</span> and thence all the possible <span class="math inline">\(a\)</span>. That gives us a triple <span class="math inline">\(p_1,p_2,p_3\)</span> that satisfies the geometric requirement in the <span class="math inline">\(p_i+1\)</span>. We know that <span class="math inline">\(p_1\)</span> is prime, so if <span class="math inline">\(p_2\)</span> and <span class="math inline">\(p_3\)</span> are also in our list of sieved primes, we have a valid triple. Most of the time, though, one or both of them is not.</p>
+<p>I used fast sieves to find the primes (and subsequently avoid any primality testing) and <span class="math inline">\(b\)</span> values. There are <span class="math inline">\(\sqrt{n}\)</span> of these, and thus many primes share the same <span class="math inline">\(b\)</span> value. Those primes that share a given <span class="math inline">\(b\)</span> have successively fewer <span class="math inline">\(a\)</span> values as the primes increase, until there is only one. Larger primes with this <span class="math inline">\(b\)</span> need not be considered.</p>
+<p>I tried to eliminate all primes for which there are no valid <span class="math inline">\(a\)</span> values, but have not yet found a way to do so without the overheads of of building the data structures being too high.</p>
+<pre class="python"><code>import numpy as np
+import numba as nb
+import time
+def p518(limit=10**8):
+    
+    t=time.clock()    
+    primes=primeSieve(limit)
+    pset=set(primes)
+    maxSqFactors=maxSqFactor(limit)       
+    print (p518main(limit,primes,pset,maxSqFactors))
+    print(time.clock()-t)
+@nb.jit(nopython=True)
+def p518main(limit,primes,pset,maxSqFactors):
+    primeTrioSum,primeTrioCount=0,0
+    for p1 in primes:
+        b=maxSqFactors[p1+1]
+        amax=int(b*((limit+1)/(p1+1))**0.5)
+        for a in range(b+1,amax+1):
+            p2=int((p1+1)*a/b)-1
+            if p2 in pset:
+                p3=int((p2+1)*a/b)-1
+                if p3 in pset:
+                    primeTrioSum+=p1+p2+p3
+                    primeTrioCount+=1
+    return primeTrioSum
+        
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]
+    
+#returns a[i]=k where k is largest integer such that k^2 divides i
+def maxSqFactor(limit):
+    sf=np.ones(limit+1)
+    for i in range(2, int((limit+1)**0.5+1)):
+        if sf[i]:
+            sf[i**2::i**2]=i
+    return sf</code></pre>
+</div>
 <div id="problem-540-counting-primitive-pythagorean-triples" class="section level3">
 <h3>Problem 540: Counting primitive Pythagorean triples</h3>
 <p>We use parametrization of Pythagorean triples: <span class="math inline">\(a=p^2-q^2, b=2pq, c=p^2+q^2\)</span>, where <span class="math inline">\(q&lt;p\)</span>, <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> have different parity and are relatively prime. If we require that <span class="math inline">\(c\leq n\)</span> then the number of valid <span class="math inline">\(p,q\)</span> pairs, without restriction except that <span class="math inline">\(p,q&gt;0, q&lt;p\)</span>, is:</p>
@@ -4516,6 +7416,270 @@ C(n) &amp;=\sum_{\mathclap{q&lt;p, p^2+q^2\leq n} }1 \\
 &amp;=  \sum_{\mathclap{2q^2&lt;n}}{\left(\left\lfloor\sqrt{n-q^2}\right\rfloor-q\right)}
 \end{align*}\]</span>
 <p>We need to subtract from this the number of <span class="math inline">\(p,q\)</span> pairs that are either not co-prime or have the same parity.</p>
+</div>
+<div id="problem-545-faulhabers-formulas" class="section level3">
+<h3>Problem 545: Faulhaber’s Formulas</h3>
+<p>About 208s in Python. I used Von Staudt-Clausen and saw by observation that valid <span class="math inline">\(n\)</span>s had to be multiples of <span class="math inline">\(308=2^2.7.11\)</span>. I have not been nearly as clever as some here in narrowing down what those multiples could be.</p>
+<pre class="python"><code>import numpy as np
+import random as rd
+import time
+def p545(target,m):
+        
+    t=time.clock()
+    
+    n=308
+    count=0    
+    ps=[1+2*n for n in range(10**7)]
+    for p in ps:        
+        if (n*p)%3==0 or (n*p)%5==0 or (n*p)%23==0:
+            continue        
+        flag=True        
+        divs=sorted(divisors(n*p))
+        if divs[0]==-1: #found a divisor such d+1 is prime and not in {2,3,5,23,29]
+            continue
+        for d in divs:
+            if mr(d+1): #miller-rabin primality test
+                if d+1 not in [2,3,5,23,29]:
+                    flag=False
+                    break            
+        if flag:
+            count+=1
+            if count==m:
+                break
+    print(count,p,n*p)
+    print(time.clock()-t)</code></pre>
+</div>
+<div id="problem-561-divisor-pairs" class="section level3">
+<h3>Problem 561: Divisor Pairs</h3>
+<p>I managed to show that <span class="math display">\[S(p\#_m^n)=T(n+1)^m-(n+1)^m\]</span> where <span class="math inline">\(T(n)\)</span> is the nth triangular number from which we get <span class="math display">\[S(p\#_m^n)=(n+1)^m\left(\left(\frac{n+2}{2}\right)^m-1\right)\]</span> From this one can easily calculate <span class="math inline">\(E(m,n)\)</span> for small <span class="math inline">\(m,n\)</span> and hence <span class="math inline">\(Q\)</span>. On listing a few values one spots that if m%8=1, as is the case for 904961, then</p>
+<p><span class="math display">\[Q_m(10^n)=\left(\frac{10^n}{2}-(n+1)\right)\times(m+1)\]</span></p>
+</div>
+<div id="problem-581-47-smooth-triangular-numbers" class="section level3">
+<h3>Problem 581: 47-smooth triangular numbers</h3>
+<p>Well, my Python solution takes a disappointing 570s*, despite using Størmer’s method with Lehmer’s speed-up. It took me ages to get it to go even that fast. Moreover, by dogged observation and plotting, I found that no solutions to the Pell equations gave smooth (n,n+1) pairs after the first solution or two except for the smallest square-free factors. This saved a lot of time over following the Lehmer limit of (47+1)/2, but doesn’t seem very rigorous. Even less rigorous is that I dump a square free factor once solutions to the Pell equation exceed an arbitrary large value. I’d be happier if I could do without this arbitrary element.</p>
+<p>I am reusing code I wrote for earlier problems that required us to solve Pell equations, in part derived from a paper I read by <a href="http://www.jpr2718.org/pell.pdf">John Robertson</a> , and also code that implements a method described by <a href="https://www.math.leidenuniv.nl/~psh/ANTproc/09andrew.pdf">Andrew Granville</a> for testing whether a number is k-smooth. Initially, I used a binary search to find the largest possible n,n+1 pair that were k-smooth for small k, noted that the sequence was in OEIS, and from there found and used <a href="https://oeis.org/A002072/a002072.py.txt">Don Reble’s</a> generator for k-smooth square free numbers. In time, I will write my own, but it is from Don’s page that I learned about Størmer and Lehmer. I at least wrapped it up to give a priority queue of the square-free numbers.</p>
+<ul>
+<li>3s if I use numba().</li>
+</ul>
+<pre class="python"><code>import numpy as np
+import math
+import time
+import queue
+import numba as nb
+def p581(pmax):
+    t=time.clock()
+    nsum=0
+    primes=[int(x) for x in primeSieve(pmax)]
+    sfs=sfq(primes)    
+    M={False:(pmax+1)//2,True:2}
+    for i in range(sfs.qsize()):
+        sf=sfs.get()
+        pellsol = Pell1(2*sf,1)
+        for j in range(M[i&gt;1000]):
+            if i&gt;12000 and M==1:break #no smooth solutions for anything but the first Pell solution beyond the 10000ish square free factor.
+            psol=next(pellsol)
+            if psol[0]&gt;17592186044416:continue  #17592186044416=2^44. Arbitrary but necessary!
+            x=(psol[0]-1)//2
+            if isPsmooth(x,primes) and isPsmooth(x+1,primes):
+                    nsum+=x           
+    print(nsum)
+    print(time.clock()-t)
+@nb.jit(nopython=True)
+def Pell1(D,s):
+    &quot;&quot;&quot;Solves Pell equation x^2-Dy^2=s where s=+/-1&quot;&quot;&quot;
+    k=0
+    P0,P1,Q0,Q1,A1,A2,B1,B2=0,0,1,1,1,0,0,1
+    G1,G2=Q0,-P0
+    result=PQa(D,P0,P1,Q0,Q1,A1,A2,B1,B2,G1,G2)
+            
+    P,Q,a0,A,B0,G0=next(result)
+    B1,G1=B0,G0
+    
+    l=0
+    while 1:
+        l+=1
+        P,Q,a,A,B,G=next(result)
+        B0,B1=B1,B
+        G0,G1=G1,G
+        if a==2*a0:
+            break               
+            
+    if l%2: #period is odd
+    
+        if s==-1:
+            yield G0,B0
+                       
+        k=1        
+        while 1:
+            P,Q,a,A,B,G=next(result)
+            B0,B1=B1,B
+            G0,G1=G1,G
+            if s==-1 and not k%l and not (k//l)%2:
+                yield G0,B0
+            if s==1 and not k%l and (k//l)%2:
+                yield G0,B0
+            k+=1
+        
+    if not l%2: #period is even
+    
+        if s==-1:
+            print ('x^2-',D,'y^2=-1 has no solutions')
+            return
+            
+        yield G0,B0
+        
+        k=1
+        while 1:
+            P,Q,a,A,B,G=next(result)
+            B0,B1=B1,B
+            G0,G1=G1,G
+            if not k%l:
+                yield G0,B0           
+            k+=1        
+       
+    
+#this implements the PQa algorithm described by John D. Robertson
+#http://www.jpr2718.org/pell.pdf 
+@nb.jit(nopython=True)
+def PQa(D,P0,P1,Q0,Q1,A1,A2,B1,B2,G1,G2):
+            
+    a0=int((P1+D**0.5)/Q1)
+    A0=a0*A1+A2
+    B0=a0*B1+B2
+    G0=a0*G1+G2
+    
+    yield P0,Q0,a0,A0,B0,G0
+    
+    while 1:
+        
+        A1,A2=A0,A1
+        B1,B2=B0,B1
+        G1,G2=G0,G1
+        a1=a0
+        
+        P1=P0
+        Q1=Q0
+        
+        P0=int(a1*Q1-P1)
+        Q0=(D-P0**2)//Q1
+        a0=int((P0+D**0.5)/Q0)
+        A0=a0*A1+A2
+        B0=a0*B1+B2
+        G0=a0*G1+G2
+        
+        yield P0,Q0,a0,A0,B0,G0
+#returns priority queue of p-smooth squarefree numbers where p is the highest prime
+def sfq(primes):
+    sfs=queue.PriorityQueue()
+    sfgen=squareFrees(primes,primes[-1],1,0)
+    while 1:
+        try:
+            sfs.put(next(sfgen))
+        except:
+            break
+    sfs.get() #remove 1
+    sfs.get() #remove 2
+    sfs.put(1) #put 1 back
+    return sfs
+        
+#yields square free numbers that are max(primes) smooth
+#from https://oeis.org/A002072/a002072.py.txt - code by Don Reble
+def squareFrees(primes,maxpr, product, pindex):
+    pr = primes[pindex]
+    if pr &lt; maxpr:
+        for val in squareFrees(primes,maxpr, product, pindex+1):
+            yield val
+        for val in squareFrees(primes,maxpr, product*pr, pindex+1):
+            yield val
+    else:
+        yield product
+        yield product*maxpr
+#returns boolean - is x p-smooth, where p is the largest prime in primes
+#implements an also described in
+#Granville, A. (2008) ‘Smooth numbers : computational number theory and beyond’, 44, pp. 267–324. Available at: #https://www.math.leidenuniv.nl/~psh/ANTproc/09andrew.pdf.
+@nb.jit(nopython=True)
+def isPsmooth(x,primes):
+    if x==1:
+        return True
+    a=0
+    for p in primes:
+        j=1
+        while p**j&lt;=x:
+            if not x%(p**j):
+                a+=math.log(p)
+            j+=1
+    return a&gt;math.log(x-1)
+            
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:]</code></pre>
+</div>
+<div id="problem-587-concave-triangle" class="section level3">
+<h3>Problem 587: Concave triangle</h3>
+<p>Praise be! An ‘easy one’ that I can do! A welcome relief after other problems to which I have given up to three weeks of effort, some of that, up to now, fruitless. I love this site. Keep it up!</p>
+<p>About 0.4 ms in Python. Like many others I avoid integration and split the concave triangle into two parts to the left or right of the lower intersection of the left-most circle with the diagonal line. Assuming circles of unit radius, the coordinates <span class="math inline">\(x_0,y_0\)</span> of the intersection are found in terms of <span class="math inline">\(n\)</span>, as: <span class="math display">\[x_0=n\frac{n+1-\sqrt{2n}}{n^2+1}\]</span> <span class="math display">\[y_0=\frac{x_0}{n}\]</span> The area of the ‘orange’ triangle to the left of this intersection is <span class="math inline">\(x_0y_0/2\)</span>, and the area of the concave triangle to its right is given by : <span class="math display">\[A_C=\frac{(1-x_0)y_0}{2}-\frac{\theta-\sin\theta}{2}\]</span> Thus the total ‘orange’ area is <span class="math display">\[AC=\frac{y_0(n)-\theta+\sin\theta}{2}\]</span> where <span class="math display">\[\theta=\arctan{\frac{1-x_0}{1-y_0}}\]</span> The blue area <span class="math inline">\(L\)</span> is <span class="math display">\[AL=1-\frac{\pi}{4}\]</span></p>
+<p>Using binary search, I find the smallest <span class="math inline">\(n\)</span> such that <span class="math inline">\(AC/AL&lt;0.001\)</span> in about a dozen iterations.</p>
+<pre class="python"><code>import time
+import math
+import numpy as np
+def p587(target):
+    t=time.clock()
+    nmin=1
+    nmax=5000
+    n=(nmax+nmin)//2
+    r=ratio(n)
+    lastn=nmax
+    while abs(lastn-n)&gt;1:
+        lastn=n
+        if r&gt;target:
+            nmin=n
+        else:
+            nmax=n
+        n=(nmax+nmin)//2
+        r=ratio(n)
+        print(nmin,nmax,r)
+    i = 0
+    while ratio(n+i)&gt;target:
+        i+=1
+    print((n+i-1,ratio(n+i-1)),(n+i,ratio(n+i)))
+    print(time.clock()-t)
+def ratio(n):
+    &quot;&quot;&quot;analytically find orange area/blue area&quot;&quot;&quot;
+    x0,y0=xcross(n),ycross(n)
+    theta=math.atan((1-x0)/(1-y0))   
+    AC=(y0-theta+math.sin(theta))/2
+    AL=1-np.pi/4    
+    return AC/AL
+       
+def xcross(n):
+    &quot;&quot;&quot;returns lowest x value where diagonal line and leftmost circle cross&quot;&quot;&quot;
+    return n*((n+1)-(2*n)**0.5)/(n**2+1)
+    
+def ycross(n):
+    &quot;&quot;&quot;returns lowest y value where diagonal line and leftmost circle cross&quot;&quot;&quot;
+    return xcross(n)/n</code></pre>
+</div>
+<div id="problem-601-divisibility-streaks" class="section level3">
+<h3>Problem 601: Divisibility streaks</h3>
+<p>Same logic as many others, but it took me a while to get there.</p>
+<pre class="python"><code>import math
+def lcm(a):
+    
+    lcm=int(a[0]*a[1]/math.gcd(a[0],a[1]))
+    for i in range(2,len(a)):
+        lcm*=a[i]//math.gcd(lcm,a[i])
+    return lcm
+def p601(n):
+    
+    Psum=1
+    for s in range(2,n+1):
+        N=4**s
+        Psum+=(N-2)//lcm([i for i in range(1,s+1)])-(N-2)//lcm([i for i in range(1,s+2)])        
+    print(Psum)</code></pre>
 </div>
 <div id="problem-607-marsh-crossing" class="section level3">
 <h3>Problem 607: Marsh Crossing</h3>

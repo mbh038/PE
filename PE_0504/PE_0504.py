@@ -13,6 +13,7 @@ import time
 import itertools as it
 import numpy as np
 import math
+import numba as nb
 
 
 #returns the number of lattice points strictly inside the triangle
@@ -25,23 +26,22 @@ def lpsi(a,b,gcds):
 def lpsi4(a,b,c,d):       
     return (a*b+b*c+c*d+d*a-math.gcd(a,b)-math.gcd(b,c)-math.gcd(c,d)-math.gcd(d,a))//2+1
    
-
-def p504(m):
-        
+def p504(m=100):
     t=time.clock()
-    
+
     #pre-calculate squares, products and gcds
     sqs={x**2 for x in range(1,4*m**2+1)}
     prods={(a,b):a*b for a in range(1,2*m+1) for b in range(1,2*m+1)}
     gcds={(a,b):math.gcd(a,b) for a in range(1,m+1) for b in range(1,m+1)} 
-   
+
     issq=0
     for a,b,c,d in it.product(range(1,m+1),repeat=4):
         if (prods[(a+c),(b+d)]-gcds[(a,b)]-gcds[(b,c)]-gcds[(c,d)]-gcds[(a,d)])//2+1 in sqs:
             issq+=1
-    print (issq)
 
+    print (issq)
     print(time.clock()-t)
+
 
 # I also tried using nested lists and numy arrays for storage of pre-calculated
 #values, but dictionaries were quicker

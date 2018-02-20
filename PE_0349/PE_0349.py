@@ -74,7 +74,7 @@ def p349(n,width=150,height=150):
             
         i+=1
         
-    plt.contourf(M)
+#    plt.contourf(M)
 
     #bc[n] gives the number of black cells after n steps
     bc=np.cumsum(blackSum)

@@ -12,13 +12,14 @@ Created on Wed Nov  9 15:37:54 2016
 """
 import time
 import numpy as np
+import numba as nb
 
-def pe214(n,length):
+def pe214(n=40000000,length=25):
     t=time.clock()
-    primes=primesieve(n)
+    primes=primeSieve(n)
     lowprimes=primes[primes[:] <=n//2]
     highprimes=primes[primes[:] > n//2]
-    ets=etsieve(n//2,lowprimes)
+    ets=etSieve(n//2,lowprimes)
     lowprimes=lowprimes[lowprimes[:] >2**(length-2)]
     chains2={2**x:x+1 for x in range(25)}
 
@@ -41,15 +42,17 @@ def pe214(n,length):
        
     print(csum,time.clock()-t)
    
-def primesieve(n):
+#@nb.jit(nopython=True)
+def primeSieve(n):
     """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
+    sieve=np.ones(n+1)
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
-            sieve[2*i::i]=False
+            sieve[2*i::i]=0
     return np.nonzero(sieve)[0][2:]
 
-def etsieve(n,primes):
+#@nb.jit(nopython=True)
+def etSieve(n,primes):
     """return array of euler totient(x) for x from 2 to n"""
     sieve=np.array(range(n+1),dtype=float)
     for i in primes:  

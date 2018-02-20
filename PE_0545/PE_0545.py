@@ -16,7 +16,9 @@ Created on Thu Nov 16 14:58:17 2017
 
 import numpy as np
 import random as rd
+import numba as nb
 import time
+
 
 def p545(target,m):
         

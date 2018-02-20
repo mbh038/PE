@@ -5,6 +5,8 @@ PE_0512
 
 Sums of totients of powers
 
+50660591862310323
+
 Created on Sat Jan 21 08:56:22 2017
 @author: mbh
 """
@@ -12,7 +14,7 @@ Created on Sat Jan 21 08:56:22 2017
 import numpy as np
 import time
 
-def p512(n):
+def p512bf(n=5*10**8):
     t=time.clock()
     primes=primesieve(n)
     g=sum(etsieve(n,primes)[1::2])
@@ -41,7 +43,7 @@ def f(n):
 def g(n):    
     return 1+sum([f(i) for i in range(2,n+1)])
     
-def p512v2(n):
+def p512v2(n=5*10**8):
     t=time.clock()
     print(oddTotientSum(n))
     print(time.clock()-t)

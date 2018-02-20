@@ -19,23 +19,25 @@ Created on Tue Dec 13 13:27:37 2016
 
 import numpy as np
 import queue
+
 import time
 
-def p500(n,m):
+def p500(n=500500,m=500500507):
     
     t=time.clock()
     
     ps=list(primeSieve(20*n)[:n])  
 
     q = queue.PriorityQueue()
-    for i in range(len(ps)):
-        q.put(ps[i])
+    for i,p in enumerate(ps):
+        q.put(p)
 
     result=1
     for i in range(n):        
         p=q.get()
-        q.put(p**2) #ensures that each prime will be raised to 2^x-1
+        q.put(pow(p,2)) #ensures that each prime will be raised to 2^x-1
         result=result*p%m
+
         
     print (result,time.clock()-t)
         

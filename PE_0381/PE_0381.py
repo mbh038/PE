@@ -16,7 +16,7 @@ import numpy as np
 
     
 #using sieve: 17.6 s
-def p381(limit):
+def p381(limit=10**8):
 
     t=time.clock()    
     primes=primeSieve(limit)    

@@ -13,7 +13,7 @@ import time
 import numpy as np
 import sympy as sp
 
-def p387(limit):
+def p387(limit=10**14):
     
     t=time.clock()
     

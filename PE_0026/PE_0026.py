@@ -9,7 +9,12 @@ in its decimal fraction part.
 
 Created on Thu Jun 23 17:28:03 2016
 @author: Mike
-"""     
+"""
+
+import time
+import itertools as it
+import numba as nb
+     
 def ld(n,d,digits):
     """
     returns the recurring cycle and its length for n/d where n < d.
@@ -49,7 +54,7 @@ def ld(n,d,digits):
     return st,len(ns)-ns.index(lastn)-1
     
 def main(denominators):
-    """#returns the value d<1000 for which has the longest recrringing cycle 
+    """#returns the value d<1000 for which has the longest recurring cycle 
     for 1/d, its length and  the cycle itself
     """
     import time
@@ -67,7 +72,7 @@ def main(denominators):
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
-main(range(1,1000))
+#main(range(1,1000))
 
 def testcases():
     """
@@ -95,3 +100,22 @@ def testmyld():
             
         print ('n: ',i,'repeat: ',repeat,result)
   
+    
+#@nb.jit(nopython=True)
+def recur_len(n):
+    # digits for unit fraction 1/n
+    r = 10 # initial remainder (10/n)/10
+    seen = {} # remainder -> first pos
+    for i in it.count(0):
+        if r == 0:
+            return 0  # divides evenly.
+        elif r in seen:
+            return i-seen[r] # curpos - firstpos
+        seen[r] = i
+        r= 10*(r % n)
+
+def brian():
+    t=time.clock()
+    l,i = max((recur_len(i),i) for i in range(2,1000))
+    print (i)
+    print(time.clock()-t)

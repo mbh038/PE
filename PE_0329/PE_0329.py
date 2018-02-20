@@ -20,6 +20,7 @@ import time
 import numpy as np
 import itertools as it
 import math
+import numba as nb
 
 #brute force solution - takes 549s
 def p329(squares=500,croakString='PPPPNNPPPNPPNPN'):
@@ -107,7 +108,7 @@ def epm(states):
     return B
 
 #using Hidden Markov Model expressing answer as rational number
-def p329hmmf(N,y):
+def p329hmmf(N=500,y=[0,0,0,0,1,1,0,0,0,1,0,0,1,0,1]):
     
     t0=time.clock()
     

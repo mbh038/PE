@@ -180,6 +180,8 @@ def ts2(a,p):
         b = (b * g) % p
         r = m
 
+
+
 # * Written (in C++) by Christian Stigen Larsen, 2012-01-10
 # * http://csl.sublevel3.org        
 #/*
@@ -193,6 +195,7 @@ def ts2(a,p):
 # */
 
 def pow_mod(a,x,n):
+    """a^x mod n"""
     r=1
     while x:
         if x & 1 == 1:
@@ -201,3 +204,14 @@ def pow_mod(a,x,n):
         a = a*a % n    
     return r
     
+#implements the algorithm described in Bach & Shallit, Algorithmic Number Theory I,§5.4,p102
+def power (a,e,n):
+    """a^e mod n"""
+    if e==0:
+        return 1
+    elif not e%2:
+        t=power(a,e//2,n)
+        return (t**2)%n
+    else:
+        t=power(a,e-1,n)
+        return (a*t)%n
