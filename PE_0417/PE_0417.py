@@ -8,6 +8,8 @@ Reciprocal cycles II
 
 446572970925740
 
+See http://mathforum.org/library/drmath/view/67018.html
+
 Created on Tue Feb 13 22:11:19 2018
 @author: mbh
 """

@@ -13,32 +13,91 @@ import time
 import numpy as np
 import numba as nb
 
-def bf(limit):
+def bf(limit,mod):
     
-    
-    SIGMA=1
+    t=time.clock()
+    SIGMA2=1
     for n in range(2,limit+1):
         divs=np.array(divisors(n),dtype=int)
-        sigma=sum(divs**2)
-        SIGMA+=sigma
-        print(n,SIGMA)
-        
+        divs=divs%mod
+        dsq=divs**2
+        dsq=dsq%mod
+        sigma2=sum(divs**2)
+        if sigma2**0.5==int(sigma2**0.5):
+            print(n,pfdic(n),sigma2)
+#        print(n,sigma)
+        SIGMA2+=sigma2
+    print(n,SIGMA2)
+    print(time.clock()-t) 
+    
 
+def p401(limit,mod):
+    
+    t=time.clock()
+    
+    SIGMA2=1
+    sqsum=1
+#    for n in ps:
+    for n in range(2,limit+1):
+        s2=sigma2(n,mod)
+        SIGMA2+=s2
+        if s2**0.5==int(s2**0.5):
+            sqsum+=s2
+            print(n,s2)
+    print(SIGMA2,sqsum)
+
+    print(time.clock()-t)        
 
 @nb.jit(nopython=True)
-def prime_factors(n):
+def sigma2(n,mod):
+    ps,es=pfjit(n)
+    s=1
+    for i,p in enumerate(ps):
+        ksum=0
+        for k in range(es[i]+1):
+            ksum+=pow_mod(p,2*k,mod)
+        s*=ksum
+#        s*=np.sum([pow_mod(p,2*k,mod) for k in range(es[i]+1)])
+    s%=mod 
+    return s
+
+#@nb.jit(nopython=True)
+def pfdic(n):
     """returns the prime factors of n"""    
     i = 2
-    factors = []
+    factors = {}
     while i * i <= n:
         if n % i:
             i += 1
         else:
             n //= i
-            factors.append(i)
+            factors[i]=factors.get(i,0)+1
     if n > 1:
-        factors.append(n)
+        factors[n]=factors.get(n,0)+1
     return factors
+
+@nb.jit(nopython=True)
+def pfjit(n):
+    i = 2
+#    fs = {}
+    fs=np.zeros(n+1,dtype=np.int64)
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+#            fs[i]=fs.get(i,0)+1
+            fs[i]+=1
+    if n > 1:
+#        fs[n]=fs.get(n,0)+1
+        fs[n]+=1
+        
+#    ps=[k for k,v in fs.items()] #prime factors
+    ps=np.where(fs>0)[0]
+#    return ps
+#    es=[v for k,v in fs.items()] #exponents 
+    es=fs[fs>0].astype(np.int64)
+    return ps,es
 
 @nb.jit(nopython=True)                
 def divisors(n):
@@ -100,6 +159,17 @@ def power (a,e,n):
     else:
         t=power(a,e-1,n)
         return (a*t)%n
+    
+@nb.jit(nopython=True)
+def pow_mod(a,x,n):
+    """a^x mod n"""
+    r=1
+    while x:
+        if x & 1 == 1:
+            r = a*r % n        
+        x >>= 1;
+        a = a*a % n    
+    return r
 
 @nb.jit(nopython=True)    
 def et(n):
@@ -109,3 +179,11 @@ def et(n):
     for pf in pfs:
         phi*=(1-1/pf)
     return int(phi)
+
+def primeSieve(n):
+    """return array of primes 2<=p<=n"""
+    sieve=np.ones(n+1,dtype=bool)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=False
+    return np.nonzero(sieve)[0][2:] 

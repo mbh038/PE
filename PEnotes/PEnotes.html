@@ -4431,6 +4431,76 @@ def p206():
                 
     print(xs[0],time.clock()-t)</code></pre>
 </div>
+<div id="problem-211-divisor-square-sum" class="section level3">
+<h3>Problem 211: Divisor Square Sum</h3>
+<p>About 6s in Python, using <code>numba()</code>.</p>
+<p>I use the following properties of <span class="math inline">\(\sigma_2(n)\)</span>:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\sigma_2(p)=1+p^2\)</span> where <span class="math inline">\(p\)</span> is prime<br />
+</li>
+<li><span class="math inline">\(\sigma_2(p^a)=p^2\sigma_2(p^{a-1})+1\)</span> for <span class="math inline">\(a&gt;1\)</span><br />
+</li>
+<li><span class="math inline">\(\sigma_2(n)\)</span> is multiplicative ie <span class="math inline">\(\sigma_2(p^aq^b)=\sigma_2(p^a)\sigma_2(q^b)\)</span> if <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> are co-prime.</li>
+</ol>
+<p>Given this, I find <span class="math inline">\(\sigma_2(n)\)</span> for all primes and powers of primes, then sieve my way to the answer. In this way I avoid having to find the prime factors, let alone the divisors, of any number.</p>
+<pre class="python"><code>import time
+import numpy as np
+import numba as nb
+def p211 (limit):
+    
+    t=time.clock()    
+    dsq=getDsqSum(limit)
+    answer=getPerfectSquareSum(dsq)
+    print(answer)   
+    print(time.clock()-t)
+   
+@nb.jit(nopython=True)
+def getDsqSum(limit):
+    
+    ps=primeSieve(limit)        
+    dsq=np.ones(limit,dtype=np.int64)
+    dsq[0]=0
+    for p in ps: 
+        psq=p**2
+        dsq[p]=1+psq
+                
+        for m in range(2,limit):
+            if m*p&gt;limit:
+                break
+            if not m%p:
+                continue
+            dsq[m*p]*=dsq[p]
+                
+        k=2
+        while pow(p,k)&lt;limit:
+            pk=pow(p,k)
+            dsq[pk]=psq*dsq[pow(p,k-1)]+1 
+            k+=1
+            for m in range(2,limit):
+                if m*pk&gt;limit:
+                    break
+                if not m%p:
+                    continue
+                dsq[m*pk]*=dsq[pk]        
+    return dsq
+@nb.jit(nopython=True)
+def getPerfectSquareSum(dsqArray):
+    validSum=0
+    for i,d in enumerate(dsqArray):
+        droot=d**0.5
+        if droot==int(droot):
+            validSum+=i
+    return validSum
+            
+@nb.jit(nopython=True)
+def primeSieve(n):
+    &quot;&quot;&quot;return array of primes 2&lt;=p&lt;=n&quot;&quot;&quot;
+    sieve=np.ones(n+1,dtype=np.int64)
+    for i in range(2, int((n+1)**0.5+1)):
+        if sieve[i]:
+            sieve[2*i::i]=0
+    return np.nonzero(sieve)[0][2:]</code></pre>
+</div>
 <div id="problem-213-flea-circus" class="section level3">
 <h3>Problem 213: Flea Circus</h3>
 <p>About 550ms in Python, without taking any symmetries into account..</p>
