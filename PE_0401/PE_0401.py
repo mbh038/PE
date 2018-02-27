@@ -29,24 +29,77 @@ def bf(limit,mod):
         SIGMA2+=sigma2
     print(n,SIGMA2)
     print(time.clock()-t) 
+
+#returns sum of squares of divisors for n<limit
+@nb.jit(nopython=True)
+def getDsqSum(limit):
     
+    ps=primeSieve(limit)        
+    dsq=np.ones(limit,dtype=np.int64)
+    dsq[0]=0
+    for p in ps: 
+        psq=p**2
+        dsq[p]=1+psq
+                
+        for m in range(2,limit):
+            if m*p>limit:
+                break
+            if not m%p:
+                continue
+            dsq[m*p]*=dsq[p]
+                
+        k=2
+        while pow(p,k)<limit:
+            pk=pow(p,k)
+            dsq[pk]=psq*dsq[pow(p,k-1)]+1 
+            k+=1
+
+            for m in range(2,limit):
+                if m*pk>limit:
+                    break
+                if not m%p:
+                    continue
+                dsq[m*pk]*=dsq[pk]        
+    return dsq    
+
+@nb.jit(nopython=True)
+def getDsqMod(limit,mod):
+    
+    ps=primeSieve(limit)        
+    dsq=np.ones(limit,dtype=np.int64)
+    dsq[0]=0
+    for p in ps: 
+        psq=p**2
+        dsq[p]=1+psq
+                
+        for m in range(2,limit):
+            if m*p>limit:
+                break
+            if not m%p:
+                continue
+            dsq[m*p]*=dsq[p]
+                
+        k=2
+        while pow(p,k)<limit:
+            pk=pow(p,k)
+            dsq[pk]=psq*dsq[pow(p,k-1)]+1 
+            k+=1
+
+            for m in range(2,limit):
+                if m*pk>limit:
+                    break
+                if not m%p:
+                    continue
+                dsq[m*pk]*=dsq[pk]        
+    return dsq 
 
 def p401(limit,mod):
     
     t=time.clock()
-    
-    SIGMA2=1
-    sqsum=1
-#    for n in ps:
-    for n in range(2,limit+1):
-        s2=sigma2(n,mod)
-        SIGMA2+=s2
-        if s2**0.5==int(s2**0.5):
-            sqsum+=s2
-            print(n,s2)
-    print(SIGMA2,sqsum)
-
-    print(time.clock()-t)        
+    dsq=getDsqSum(limit)
+    print (sum(dsq))
+    print(time.clock()-t) 
+    return dsq       
 
 @nb.jit(nopython=True)
 def sigma2(n,mod):
@@ -180,10 +233,13 @@ def et(n):
         phi*=(1-1/pf)
     return int(phi)
 
+@nb.jit(nopython=True) 
 def primeSieve(n):
     """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=bool)
+    sieve=np.ones(n+1,dtype=np.int64)
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
-            sieve[2*i::i]=False
+            sieve[2*i::i]=0
     return np.nonzero(sieve)[0][2:] 
+
+
