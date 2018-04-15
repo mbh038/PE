@@ -278,6 +278,20 @@ def primeSieve(n):
             sieve[2*i::i]=False
     return np.nonzero(sieve)[0][2:] 
 
+#pure python sieve - 100 times slower than primeSieve
+def sieve(n):
+    numbers = list(range(0, n))
+    for prime in numbers:
+        if prime < 2:
+            continue
+        elif prime > n ** 0.5:
+            break
+
+        for i in range(prime ** 2, n, prime):
+            numbers[i] = 0
+
+    return {x for x in numbers if x > 1}
+
 #Legendre's theorem
 def facpfac(n):
     """returns prime factors of n!"""
@@ -581,7 +595,9 @@ def test(n):
     t=time.clock()
     ps=primeSieve(n)
     print(len(ps),time.clock()-t)
-
+    t=time.clock()
+    ps=sieve(n)
+    print(len(ps),time.clock()-t)
 
 
         
