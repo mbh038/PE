@@ -8,6 +8,65 @@ Created on Thu Feb  1 14:37:56 2018
 @author: mbh
 """
 
+import numpy as np
+from sympy import factorint
+import time as t
+
+
+def p618(n):
+    mod=10**9
+    fibs=[fastFib(k) for k in range(2,n+1)] 
+    print(fibs)
+    primes=primeSieve(fibs[-1]+100)
+    v={}
+    for j,p in enumerate (primes):
+        #print (j,p)
+        v[(0,j)]=1
+        v[(1,j)]=0
+        v[(2,j)]=2
+        v[(3,j)]=3
+        for k in range(p, fibs[-1]+1):
+            #print(p,j,k)
+            v[(k,-1)]=0
+            try:
+                ans=v[(k,j)]
+                print('Hello')
+            except:
+                try:
+                    ans =v[(k,j-1)]%mod+(p%mod*v[(k-p,j)]%mod)%mod # <REMOVED>
+                except:
+                    print("Exception")
+                    v[(k-p,j)]=v[(k-p,j-1)]
+                    ans =v[(k,j-1)]%mod+(p%mod*v[(k-p,j)]%mod)%mod
+            v[(k,j)]=ans
+            print(k,p,v[(k,j)])
+    #print(len(v))
+           
+def findcn(cn):
+
+    count=0
+    v={}
+    vc={}
+    nmax=0
+    for n in range (cn,2*int(3**(cn/3))+1): 
+        pe=factorint(n)
+        maxp=max(pe)       
+        if sum(p*e for p,e in pe.items())==cn:
+#            print(n,pe,sum(p*e for p,e in pe.items()))
+            v[maxp] = v.get(maxp, 0) + n
+            vc[maxp]= vc.get(maxp, 0) + 1
+            count+=1
+            if n>nmax:
+                nmax=n
+#            print(n)
+    print(cn,v,sum(v for k,v in v.items()))
+    return(sum(v for k,v in v.items()))
+    
+     
+
+def A001414(n):
+    return sum(p*e for p, e in factorint(n).items())
+
 def partitions(n):
     count=0
     a=mckay(n)

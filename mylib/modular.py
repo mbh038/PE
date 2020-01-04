@@ -41,6 +41,8 @@ def egcd(aa, bb):
         y, lasty = lasty - quotient*y, y
     return lastremainder, lastx * (-1 if aa < 0 else 1), lasty * (-1 if bb < 0 else 1)
 
+# # Multiplcative modular inverses 
+    
 def inv(a, m):
     g, x, y = egcd(a, m)
     return x % m    
@@ -69,6 +71,14 @@ def mul_inv(a, b):
         x0, x1 = x1 - q * x0, x0
     if x1 < 0: x1 += b0
     return x1
+
+# from PE user fakesson
+def invmod(b, n):    #modinv
+  x0, x1 = 1, 0
+  while n:
+    (q, n), b = divmod(b,n), n
+    x0, x1 = x1, x0 - q * x1
+  return x0
     
 #from Rosetta code
 def chinese_remainder(n, a):
@@ -97,7 +107,7 @@ def ts(n,p):
     Tonnelli-Shanks algorithm. returns R: R^2=n mod p
     Implements Wikipedia description of the algorithm
     https://en.wikipedia.org/wiki/Tonelli–Shanks_algorithm
-    (as also described in the p216 overview)
+    (as also described in the pe216 overview)
     """ 
     
     #check first that a solution exists. Return 0 if not.
@@ -181,6 +191,9 @@ def ts2(a,p):
         r = m
 
 
+## Modular exponentiation
+
+# Python's native pow(a,x,m) will find a^x mod m, but cannot be used with numba.
 
 # * Written (in C++) by Christian Stigen Larsen, 2012-01-10
 # * http://csl.sublevel3.org        

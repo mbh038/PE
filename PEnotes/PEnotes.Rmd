@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo =TRUE,eval=FALSE)
+knitr::opts_chunk$set(echo =TRUE,eval=FALSE,python.reticulate=FALSE)
 ```
 
 ### Problem 50: Consecutive prime sum
@@ -8731,3 +8731,104 @@ which, with Mathematica's help, I find integrates to:
 $$\frac{1}{2}+\frac{-25\log{5}+9\log{3}+32\log{2}}{24\pi}$$
 
 where we use the fact that the two smaller angles of the triangle sum to $\pi/2$.
+
+### Problem 622: Riffle Shuffles
+
+Python, 1.2s
+
+```{python, p622}
+import copy
+import time
+
+def p622(n):
+    
+    t=time.clock()    
+    divs=sorted(divisors(2**n-1))[1:]    
+    okdivs=copy.deepcopy(divs)
+    for power in sorted(divisors(n))[1:-1]:
+        for d in divs:
+            if d not in okdivs:
+                continue
+            if pow(2,power,d)==1:
+                okdivs.remove(d) 
+    print (sum(okdivs)+len(okdivs))
+    print('t2: ',time.clock()-t)
+
+
+def divisors(n):
+    """returns the divisors of n"""
+    #first get the prime factors
+    i = 2
+    fs = {}
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            fs[i]=fs.get(i,0)+1
+    if n > 1:
+        fs[n]=fs.get(n,0)+1
+        
+    ps=[k for k,v in fs.items()] #prime factors
+    es=[v for k,v in fs.items()] #exponents 
+    
+    divs=[]
+    nfactors = len(ps)
+    f = [0] * nfactors
+    while True:
+        p=1
+        pfs=[x**y for (x,y) in zip(ps,f)]
+        for i in range(len(ps)):
+            p*=pfs[i]
+        divs.append(p)
+#could use this from np, but is several times slower for large numbers
+#        yield ft.reduce(lambda x, y: x*y, [factors[x][0]**f[x] for x in range(nfactors)], 1)
+        i = 0
+        while True:
+            f[i] += 1
+            if f[i] <= es[i]:
+                break
+            f[i] = 0
+            i += 1
+            if i >= nfactors:
+                return divs 
+```
+
+### Problem 577: Counting Hexagons
+
+Python, 20 ms
+
+A nice little recursion problem that invokes inclusion/exclusion.
+I had to up the recursion limit, however.
+
+20 ms in Python the fist time I run the code, then 3-4 ms for all subsequent runs. I have seen that happen before in Python. I don't understand it.
+
+```{python, p577}
+# use recursion, with inclusion exclusion to find number of inscribed regular
+# hexagons in triangle of side n
+
+import sys
+import time
+sys.setrecursionlimit(10000) # reset to 30000 afterwards
+
+def H(n,memo={}):
+      
+    if n<3:
+        return 0
+    if n==3:
+        return 1
+    try:
+        return memo[n]
+    except KeyError:
+        result =3*H(n-1,memo)-3*H(n-2,memo)+H(n-3,memo)+(n%3==0)*((n//3-1)+1)
+        memo[n]=result
+        return result
+              
+ 
+def p577(L):
+    t0=time.perf_counter()
+    hsum=sum(H(m) for m in range(1,L+1))
+    print(hsum)
+    print(time.perf_counter()-t0)
+```
+    

@@ -5,42 +5,39 @@ PE_577
 Counting hexagons
 
 Created on Tue Jan 17 18:03:04 2017
+
+Completed 22/12/2019
+
 @author: mbh
 """
-  
-def p577(L):
-    hsum=0
-    for m in range(1,L+1):
-        print(m,typeA(L,m),typeB(L,m))
-        hsum+=typeA(L,m)+typeB(L,m)
-    print(hsum)
-    
-def typeA(n,m,memoA={}):
-    if m<1:
+
+
+
+
+# use recursion, with inclusion exclusion to find number of inscribed regular
+# hexagons in triangle of side n
+
+import sys
+import time
+sys.setrecursionlimit(10000) # reset to 30000 afterwards
+
+def H(n,memo={}):
+      
+    if n<3:
         return 0
-    if n<3*m:
-        return 0
-    if n==3*m:
+    if n==3:
         return 1
     try:
-        return memoA[(n,m)]
+        return memo[n]
     except KeyError:
-        result=typeA(n-1,m,memoA)+n-3*m+1
-        memoA[(n,m)]=result
+        result =3*H(n-1,memo)-3*H(n-2,memo)+H(n-3,memo)+(n%3==0)*((n//3-1)+1)
+        memo[n]=result
         return result
+              
+ 
+def p577(L):
+    t0=time.perf_counter()
+    hsum=sum(H(m) for m in range(1,L+1))
+    print(hsum)
+    print(time.perf_counter()-t0)
     
-def typeB(n,m,memoB={}):
-    if m<2:
-        return 0
-    if m%2:
-        return 0
-    if n<3*m:
-        return 0
-    if n==3*m:
-        return 1
-    try:
-        return memoB[(n,m)]
-    except KeyError:
-        result=typeB(n-1,m,memoB)+n-3*m+1
-        memoB[(n,m)]=result
-        return result    

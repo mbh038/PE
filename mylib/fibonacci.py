@@ -54,12 +54,48 @@ def dijkFib(n,memo={}):
         return memo[n]
     except KeyError:
         if n%2:
+
             result=dijkFib((n-1)//2,memo)**2+dijkFib((n+1)//2,memo)**2
         if not n%2:
             result=(2*dijkFib((n-1)//2,memo)+dijkFib((n+1)//2,memo))*dijkFib((n+1)//2)
         memo[n]=result
         return result
+    
+from functools import lru_cache
+@lru_cache(maxsize=None)
+def fibMod(n,m):
+    """
+    returns nth Fibonacci term mod m
+    Based on Dijkstra's algorithm
+    """
+    if n==0 or n==1:
+        return n % m
 
+    elif n % 2:
+        a=fibMod((n-1)//2,m)
+        b=fibMod((n+1)//2,m)
+        result=a*a+b*b % m
+    else:
+        a=fibMod((n-1)//2,m)
+        b=fibMod((n+1)//2,m)
+        result=(2*a+b)*b %m
+    return result
+
+#https://codereview.stackexchange.com/questions/189526/huge-fibonacci-modulo-m-optimization-in-python-3
+from functools import lru_cache
+@lru_cache(maxsize=None)
+def fibonacci_modulo(n, m):
+    """Return the nth Fibonacci number modulo m."""
+    if n <= 1:
+        return n % m
+    elif n % 2:
+        a = fibonacci_modulo(n // 2, m)
+        b = fibonacci_modulo(n // 2 + 1, m)
+        return (a * a + b * b) % m
+    else:
+        a = fibonacci_modulo(n // 2 - 1, m)
+        b = fibonacci_modulo(n // 2, m)
+        return (2 * a + b) * b % m
 
 #using a  decorator to implement memoization
 #as fast as FastFib
@@ -143,18 +179,18 @@ def Tribmod(n,m,a=(0,0,1), memo = {}):
         return result
         
 
-
+from functools import lru_cache
+@lru_cache(maxsize=None)
 
 def test(n):
-    t=time.clock()
+    t0=time.perf_counter()
+    m=1307674368000
     for i in range(n):
-        fastFib(300)
-    print(time.clock()-t)
-    t=time.clock()
+        fibMod(10**15,m)
+    print(time.perf_counter()-t0)
+    t0=time.perf_counter()
     for i in range(n):
-        fib_decorator(300)
-    print(time.clock()-t)
-    for i in range(n):
-        dijkFib(300)
-    print(time.clock()-t)    
+        fibonacci_modulo(10**15,m)
+    print(time.perf_counter()-t0)
+   
 

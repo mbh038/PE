@@ -621,7 +621,6 @@ def pow_mod(a,x,n):
         a = a*a % n    
     return r
 
-#Miller-Rabin
 def mr(n,k):
     #n must be odd and greater than three  
     if  n==2 or n==3:  return True

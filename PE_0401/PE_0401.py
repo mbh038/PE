@@ -13,6 +13,11 @@ import time
 import numpy as np
 import numba as nb
 
+
+def p401v2(limit):
+    pass
+    
+    
 def bf(limit,mod):
     
     t=time.clock()
@@ -96,10 +101,10 @@ def getDsqMod(limit,mod):
 def p401(limit,mod):
     
     t=time.clock()
-    dsq=getDsqSum(limit)
+    dsq=getDsqMod(limit,mod)
     print (sum(dsq))
     print(time.clock()-t) 
-    return dsq       
+    #return dsq       
 
 @nb.jit(nopython=True)
 def sigma2(n,mod):

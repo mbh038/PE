@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jun 22 04:25:27 2016
 
+PE_0067
+
+Maximum path sum II
+
+Created on Wed Jun 22 04:25:27 2016
 @author: Mike
 """
 import time
@@ -14,7 +18,7 @@ def p67(filename="PE_0067.txt"):
     with open(filename, 'r') as fh:
         for line in fh:
             triangle.append([int(x) for x in line.split(',')] )  
-    
+    print (len(triangle))
     frontier=triangle[-1]
     for line in range(len(triangle)-2,-1,-1):
         newFrontier=[]
