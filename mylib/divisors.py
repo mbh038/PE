@@ -219,7 +219,7 @@ def etsieve(n,primes):
             sieve[i::i]*=(1-1/i)
     return sieve.astype(int)
     
-#Euler sigma is sum of divisors of n, inclusing 1 and n
+#Euler sigma is sum of divisors of n, including 1 and n
 #fastest
 def eulersigma(n):
     

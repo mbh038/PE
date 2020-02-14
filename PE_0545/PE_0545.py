@@ -22,7 +22,7 @@ import time
 
 def p545(target,m):
         
-    t=time.clock()
+    t=time.perf_counter()
     
     n=308
     count=0    
@@ -45,8 +45,9 @@ def p545(target,m):
                 break
 
     print(count,p,n*p)
-    print(time.clock()-t)
-        
+    print(time.perf_counter()-t)
+
+      
 #miller-rabin primality check
 def mr(n,k=5):
     #n must be odd and greater than three  
@@ -80,6 +81,7 @@ def mr(n,k=5):
     # n is *probably* prime
     return True
 
+
 def divisors(n):
     """returns the divisors of n"""
     #first get the prime factors
@@ -96,6 +98,7 @@ def divisors(n):
         
     ps=[k for k,v in fs.items()] #prime factors
     es=[v for k,v in fs.items()] #exponents 
+    
     
     divs=[]
     nfactors = len(ps)

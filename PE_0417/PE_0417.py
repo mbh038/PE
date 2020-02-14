@@ -19,11 +19,16 @@ import time
 import numpy as np
 import math
 
+def main(n=10**8):
+    p417(10)
+    t0=time.perf_counter()
+    result=p417(n)
+    print (result)
+    print(time.perf_counter()-t0)
 
-def p417(limit=10**8):
-    
-    t=time.clock()
-    
+@nb.njit
+def p417(limit):
+        
     ps=primeSieve(limit)
     ets=etSieve(limit,ps)
     reduced=remove25Factors(limit)
@@ -41,8 +46,8 @@ def p417(limit=10**8):
         seen[i]=r
         rsum+=r
         
-    print(rsum)        
-    print(time.clock()-t)
+    return rsum       
+
 
 @nb.jit(nopython=True)
 def getPeriod(d,n):

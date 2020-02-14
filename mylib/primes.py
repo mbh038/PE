@@ -292,6 +292,34 @@ def sieve(n):
 
     return {x for x in numbers if x > 1}
 
+
+# Legendre theorem
+def power_in_factorial(p, n):
+    """Return the exponent of the prime p in the factorization of n!"""
+    result = 0
+    while True:
+        n //= p
+        if not n:
+            break
+        result += n
+    return result 
+
+def sum_factorial_factors(primes, n):
+    """Return the sum of terms in the prime factorization of n!"""
+    p = primes
+    n = np.full_like(p, n)
+    result = r = np.zeros_like(p)
+    while True:
+        n //= p
+        if n[-1] == 0:       # some primes not contributing any more?
+            l = n.argmin()   # number of primes still contributing
+            if l == 0:
+                break
+            n, r, p = n[:l], r[:l], p[:l]
+        r += n
+    result *= primes
+    return result.sum()
+
 #Legendre's theorem
 def facpfac(n):
     """returns prime factors of n!"""
@@ -744,3 +772,18 @@ def pSum(n):
                 if v < p2: break
                 S[v] -= p*(S[v//p] - sp)                
     print (S[n])
+
+#fakesson pe 417
+def smallestPrimeFactors(n):
+  np1 = n+1
+  v = np.ones(np1,dtype=np.int32)
+  v[0] = 0
+  v[1:np1:2] = 1
+  v[2:np1:2] = 2
+  for p in range(3, np1, 2):
+    if v[p] == 1:
+      v[p] = p
+      for i in range(p*p, np1, 2*p):
+        if v[i] == 1:
+          v[i] = p
+  return v  

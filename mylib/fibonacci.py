@@ -53,34 +53,56 @@ def dijkFib(n,memo={}):
     try:
         return memo[n]
     except KeyError:
+        
+        a=dijkFib((n-1)//2,memo)
+        b=dijkFib((n+1)//2,memo)
+        
         if n%2:
-
-            result=dijkFib((n-1)//2,memo)**2+dijkFib((n+1)//2,memo)**2
-        if not n%2:
-            result=(2*dijkFib((n-1)//2,memo)+dijkFib((n+1)//2,memo))*dijkFib((n+1)//2)
+            result=a**2+b**2
+        else:
+            result=(2*a+b)*b
         memo[n]=result
         return result
     
+
+def dijkFibMod(n,m,memo={}):
+    """returns nth Fibonacci term mod m"""
+    if n <=1:
+        return n %m
+    
+    try:
+        return memo[n]
+        
+    except KeyError:
+        
+        a=dijkFibMod((n-1)//2,m,memo)
+        b=dijkFibMod((n+1)//2,m,memo)
+        
+        if n%2:
+            result=(a*a+b*b)%m
+        else:
+            result=((2 * a + b) * b) % m
+        memo[n]=result
+        return result
+
 from functools import lru_cache
 @lru_cache(maxsize=None)
-def fibMod(n,m):
-    """
-    returns nth Fibonacci term mod m
-    Based on Dijkstra's algorithm
-    """
-    if n==0 or n==1:
-        return n % m
-
-    elif n % 2:
-        a=fibMod((n-1)//2,m)
-        b=fibMod((n+1)//2,m)
-        result=a*a+b*b % m
+def dijkFibMod2(n,m):
+    """returns nth Fibonacci term mod m"""
+    if n <=1:
+        return n %m
+       
+    a=dijkFibMod2((n-1)//2,m)
+    b=dijkFibMod2((n+1)//2,m)
+    
+    if n%2:
+        return (a*a+b*b)%m
     else:
-        a=fibMod((n-1)//2,m)
-        b=fibMod((n+1)//2,m)
-        result=(2*a+b)*b %m
-    return result
+        return ((2 * a + b) * b) % m
 
+    
+
+# 30-50% faster than dijkFibMod   
 #https://codereview.stackexchange.com/questions/189526/huge-fibonacci-modulo-m-optimization-in-python-3
 from functools import lru_cache
 @lru_cache(maxsize=None)
@@ -97,42 +119,42 @@ def fibonacci_modulo(n, m):
         b = fibonacci_modulo(n // 2, m)
         return (2 * a + b) * b % m
 
-#using a  decorator to implement memoization
-#as fast as FastFib
-from functools import wraps
-
-def memo(func):
-    cache = {}
-    @wraps(func)
-    def wrap(*args):
-        if args not in cache:
-            cache[args] = func(*args)
-        return cache[args]
-    return wrap
-
-@memo
-def fib_decorator(n):
-    if n<2: return 1
-    return fib_decorator(n-1) + fib_decorator(n-2)
-
-def fibonacci_doubling(n):
-    """ Calculate the Nth Fibonacci number using the doubling method. """
-    return _fibonacci_doubling(n)[0]
-
-
-def _fibonacci_doubling(n):
-    """ Calculate Nth Fibonacci number using the doubling method. Return the
-    tuple (F(n), F(n+1))."""
-    if n == 0:
-        return (0, 1)
-    else:
-        a, b = _fibonacci_doubling(n >> 1)
-        c = a * ((b << 1) - a)
-        d = a * a + b * b
-        if n & 1:
-            return (d, c + d)
-        else:
-            return (c, d)
+##using a  decorator to implement memoization
+##as fast as FastFib
+#from functools import wraps
+#
+#def memo(func):
+#    cache = {}
+#    @wraps(func)
+#    def wrap(*args):
+#        if args not in cache:
+#            cache[args] = func(*args)
+#        return cache[args]
+#    return wrap
+#
+#@memo
+#def fib_decorator(n):
+#    if n<2: return 1
+#    return fib_decorator(n-1) + fib_decorator(n-2)
+#
+#def fibonacci_doubling(n):
+#    """ Calculate the Nth Fibonacci number using the doubling method. """
+#    return _fibonacci_doubling(n)[0]
+#
+#
+#def _fibonacci_doubling(n):
+#    """ Calculate Nth Fibonacci number using the doubling method. Return the
+#    tuple (F(n), F(n+1))."""
+#    if n == 0:
+#        return (0, 1)
+#    else:
+#        a, b = _fibonacci_doubling(n >> 1)
+#        c = a * ((b << 1) - a)
+#        d = a * a + b * b
+#        if n & 1:
+#            return (d, c + d)
+#        else:
+#            return (c, d)
 
 
         
@@ -179,18 +201,25 @@ def Tribmod(n,m,a=(0,0,1), memo = {}):
         return result
         
 
-from functools import lru_cache
-@lru_cache(maxsize=None)
 
-def test(n):
+
+def test(n,N=1000):
+    
+    m=10**9+7
+
     t0=time.perf_counter()
-    m=1307674368000
-    for i in range(n):
-        fibMod(10**15,m)
-    print(time.perf_counter()-t0)
-    t0=time.perf_counter()
-    for i in range(n):
-        fibonacci_modulo(10**15,m)
-    print(time.perf_counter()-t0)
-   
+    for i in range(N):
+        dijkFibMod(n,m)
+    print((time.perf_counter()-t0)/N)
+    
+    # t0=time.perf_counter()
+    # for i in range(N):
+    #     dijkFibMod(n,m)
+    # print(time.perf_counter()-t0)
+    
+    # t0=time.perf_counter()
+    # for i in range(N):
+    #     fibonacci_modulo(n,m)
+    # print(time.perf_counter()-t0)
+  
 

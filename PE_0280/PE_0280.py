@@ -14,6 +14,8 @@ Elect. Comm. in Probab. 5 (2000) 85–90
 http://www.emis.de/journals/EJP-ECP/_ejpecp/ECP/include/getdocbfb7.pdf
 
 Grinstead, C. M. and Snell, J. L. (2010) ‘Markov Chains’, Introduction to Probability, pp. 1–66.
+http://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html
+
 
 430.088247
 
@@ -28,7 +30,7 @@ import matplotlib.pyplot as plt
 
 def p280(N,start):
 
-    t=time.clock()
+    t=time.perf_counter()
     count=0
     
     topEdge=[n for n in range(N)]
@@ -67,7 +69,7 @@ def p280(N,start):
                 
 def p280v2(N,start):
     
-    t=time.clock()
+    # t=time.clock()
     
     P=tpm(N)
     
@@ -97,7 +99,7 @@ def p280v2(N,start):
         steps+=2*np.mean(newSteps)
         
     print (round(steps,6))
-    print(time.clock()-t)
+    # print(time.clock()-t)
     
     
     
@@ -109,7 +111,7 @@ def p280v2(N,start):
 
 def p280v1(N,start):
     
-    t=time.clock()
+    # t=time.clock()
     
     P=tpm(N)
     
@@ -144,7 +146,7 @@ def p280v1(N,start):
     print(len(stepList),ct)
     plt.plot(stepList)
     print( round(sum(stepList)/len(stepList),6) )   
-    print(time.clock()-t)
+    # print(time.clock()-t)
     return stepList       
 
 def countSteps(s,absorbingStates,P):

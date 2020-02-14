@@ -1,72 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Created on Sun Jan 12 08:41:55 2020
 
-PE_0354
-
-Distances in a bee's honeycomb
-
-See p233
-
-58065134
-
-Created on Fri Oct 13 09:41:49 2017
-
-@author: mbh
+@author: root
 """
 
 import time
 import numpy as np
 
 def p354(limit):
+
     t=time.perf_counter()
     
-    limit=int(limit)
-       
+    limit=int(limit)       
     ps=candidates1(limit)+candidates2(limit)+candidates3(limit) 
-    
-#    psa=np.array(ps)
-    
-    print(time.perf_counter()-t)
-
-#    ns=[]
-#    
-#    lLog=np.log(limit)
-#    log3root=np.log(3**0.5)        
-#    mults=(lLog-np.log(psa))//log3root       
-#    print('mults:',len(mults),sum(mults))    
-#    print(time.clock()-t)
-#    
-#    return mults
-    
-    ns=[]
-    
+        
+    ns=[]   
     for p in ps:
         p*=3**0.5
         while p<=limit:           
            ns.append(p)
            p*=3**0.5
-   
-    print('ns:',time.perf_counter()-t)
-    
-    print(len(ns),min(ns),limit//min(ns))
-    
-    qgood=[p for p in notPrime3k1Factor(np.int64(limit/min(ns)))] 
-    
-    print(time.perf_counter()-t)
+
+    qgood=[p for p in notPrime3k1Factor(int(limit/min(ns)))] 
     
     nfinal=[]
-#    count=0
-#    lLog=np.log(limit)
-#    qLogs=[np.log(q) for q in qgood]
-#    
-#    print(time.clock()-t)
-#    
-#    for n in ns:
-#        for ql in qLogs:
-#            k=(lLog-np.log(3**0.5*n))//ql
-#            total=(k+1)*sumFrac(min(m,k+1))
-
     for n in ns:
         for q in qgood:
             nq=n*q
@@ -74,10 +33,8 @@ def p354(limit):
                 break
             nfinal.append(nq)
     
-    print ('nfinal',len(nfinal))
+    print (len(nfinal))
     print(time.perf_counter()-t)
-    
-    # return nfinal
 
 #case p1^2.p2^7 where p are primes=1 mod 3.
 def candidates1(limit):
@@ -141,7 +98,7 @@ def candidates3(limit):
 
 def primeSieve(n):
     """return array of primes 2<=p<=n"""
-    sieve=np.ones(n+1,dtype=np.bool)
+    sieve=np.ones(n+1,dtype=bool)
     for i in range(2, int((n+1)**0.5+1)):
         if sieve[i]:
             sieve[2*i::i]=False
@@ -149,17 +106,11 @@ def primeSieve(n):
 
 def notPrime3k1Factor(n):
     """return array of numbers not divisible by 3 or primes p = 1 mod 3"""
-    sieve=np.ones(n+1,dtype=np.bool)
+    sieve=np.ones(n+1,dtype=bool)
     ps=primeSieve(n)
     ps=ps[ps%3==1]
     for i in ps:
         if sieve[i]:
             sieve[i::i]=False
     ps= np.nonzero(sieve)[0]    
-    return ps[ps%3!=0].astype(np.int64)
-
-def sumFrac(k,nMax):
-    sums={1:1}
-    for n in range(2,nMax+1):
-        sums[n]=sums[n-1]+k//n
-    return sums
+    return ps[ps%3!=0].astype(int)

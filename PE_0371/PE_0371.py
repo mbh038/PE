@@ -23,7 +23,8 @@ import random as rd
 import matplotlib.pyplot as plt
 import time
 
-def p371sim(maxVal,trials=10000):
+def p371sim(maxVal,trials=100000):
+    t0=time.perf_counter()
     
     cars=0
     for _i in range(trials):
@@ -37,6 +38,7 @@ def p371sim(maxVal,trials=10000):
                     break
             Seen[plate]=True
     print(cars/trials)
+    print(time.perf_counter()-t0)
     
 #    return (carSum/trials)
 #    print(carVals)
@@ -147,7 +149,7 @@ def p371t(n,precision):
         
     
 def trinket(t=1000):
-    t0=time.clock()
+    t0=time.perf_counter()
     E0,E1= 0, 0
 
     for i in range((t//4), -1, -1):
@@ -156,11 +158,11 @@ def trinket(t=1000):
 #        print(i,E1,E0)
     
     print ("Expected number of plates %.8f" % E0)
-    print(time.clock()-t0)
+    print(time.perf_counter()-t0)
     
 def rhoosephu(n=1000) :
     
-    t=time.clock()
+    t=time.perf_counter()
     
     n=n//2
 
@@ -172,7 +174,7 @@ def rhoosephu(n=1000) :
 
     print("%.8f\n",g[0])
     
-    print(time.clock()-t)
+    print(time.perf_counter()-t)
 
 
 

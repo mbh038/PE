@@ -11,19 +11,24 @@ Created on Tue Jan 10 04:49:44 2017
 
 import itertools as it
 import time
+import numba as nb
+import numpy as np
+from numba.typed import List
 
+def main(limit=10**7):
+    t0=time.perf_counter()
+    p407(limit)
+    print(time.perf_counter()-t0)
+
+# @nb.njit    
 def p407(limit):
-    t=time.clock()
     misum=0
     for n in range(2,limit+1):
-#        print ("n = ",n)
         nsum=max_idempotent(n)
         misum+=nsum
-#        print(nsum,misum)
-#        print()
     print(misum)
-    print(time.clock()-t)
-    
+
+# @nb.njit  
 def max_idempotent(n):
     """returns maximum idempotent a < n: a^2=a mod n"""    
     pfs=pflist(n)
@@ -40,22 +45,23 @@ def max_idempotent(n):
             Ni=n//allButOnePfs[i]
             xsum+=inverse(Ni,allButOnePfs[i])*Ni        
         idems.append(xsum % n)
-#    print("base idems",idems)
+
     #generate all other idempotents from these, and return the maximum
     maxval=max(idems)
     for i in range(2,len(idems)):
         for a in it.combinations(idems, i):
-#            print(a)
+        # combs=comb2([],idems, i,[])
+        # print(combs)
+        # for a in combs:
             aprod=1
             for x in a:
-                aprod*=x
-#                print(aprod)
-                aprod=aprod%n
-#                print(aprod)
+                aprod = (aprod * x) % n
             if aprod>maxval:
                 maxval=aprod
-    return maxval
-   
+    # return maxval
+    return np.int64(maxval)
+
+@nb.njit   
 def pflist(n):
     """returns the distinct prime factors of n as [2^a,3^b.....]"""   
     i = 2
@@ -71,7 +77,8 @@ def pflist(n):
     if n > 1:
         factors.append(n)
     return factors            
-    
+
+@nb.njit    
 def inverse(a, n):
     """returns multiplicative inverse of a mod n. a and n must be-co-prime"""
     t1,t2=0,1    
@@ -96,3 +103,38 @@ def maxIdem(s,n):
             if aprod>maxval:
                 maxval=aprod
     return maxval
+
+
+
+
+def comb(sofar, rest, n):
+    if n == 0:
+        print(sofar)
+    else:
+        for i in range(len(rest)):
+            comb(sofar + rest[i], rest[i+1:], n-1)
+
+# @nb.njit
+def comb2(sofar, rest, n,results):
+    if n == 0:
+        results.append(sofar)
+    else:
+        for i in range(len(rest)):
+            comb2(sofar+[rest[i]], rest[i+1:], n-1,results)
+    return results
+
+            
+def comb3(list_of_values,n):
+    sofar=[]
+    
+    while n>=0:
+        pass
+        
+
+
+
+            
+def test():
+    
+    for a in comb2([],[1,2,3],2):
+        print(a)

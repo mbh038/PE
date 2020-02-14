@@ -19,10 +19,19 @@ Created on Sat May  18 08:43:00 2019
 
 import copy
 import time
+import numba as nb
+
+def main(n=60):
+    p622(2)
+    t0=time.perf_counter()
+    result=p622(n)
+    print(result)
+    print(time.perf_counter()-t0)
+    
+
 
 def p622(n):
-    
-    t=time.clock()    
+       
     divs=sorted(divisors(2**n-1))[1:]    
     okdivs=copy.deepcopy(divs)
     for power in sorted(divisors(n))[1:-1]:
@@ -31,9 +40,9 @@ def p622(n):
                 continue
             if pow(2,power,d)==1:
                 okdivs.remove(d) 
-                print(d)
-    print (sum(okdivs)+len(okdivs))
-    print('t2: ',time.clock()-t)
+                # print(d)
+    return sum(okdivs)+len(okdivs)
+
 
 
 def divisors(n):
