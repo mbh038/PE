@@ -3,6 +3,7 @@
 # PE_0371
 
 # License plates
+
 function qtot(d)
 total=0
 for x=1:100

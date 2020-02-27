@@ -1,7 +1,11 @@
 # Michael Hunt
 # 05-02-2020
 # PE_0692
+
 # Siegbert and Jo
+
+# This is Fibonacci Nim
+# See Ferguson (2014)
 
 using Memoize
 
