@@ -12,6 +12,7 @@ Created on Thu Feb 20 16:30:12 2020
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 # find maximum excludant (mex) of a set
 def mex(Set):
@@ -75,18 +76,20 @@ def p665(M):
     count=0
     total=2193
     
-    ah,bh=2.2476,0.7486
-    al,bl=1.47813  ,0.07693
+    ah,bh=2.248793,0
+    al,bl=1.478231 ,0
+    
+    dd=0.01
     print(int((M-bh)/(ah+1))+1)
     for n in range(50,int((M-bh)/(ah+1))+1):
-        for m in range(int(0.99*(bh+ah*n)),int(1.01*(bh+ah*n))):
+        for m in range(int((1-dd)*(bh+ah*n)),int((1+dd)*(bh+ah*n))):
             if grundyPropNim(n,m)==0:
                 print(n,m)
                 total+=n+m
                 count+=1
     print(int((M-bl)/(al+1))+1)
     for n in range(50,int((M-bl)/(al+1))+1):                  
-        for m in range(int(0.99*(bl+al*n)),int(1.01*(bl+al*n))):
+        for m in range(int((1-dd)*(bl+al*n)),int((1+dd)*(bl+al*n))):
             if grundyPropNim(n,m)==0:
                 print(n,m)
                 total+=n+m
@@ -94,9 +97,31 @@ def p665(M):
     print(total)
 
                 
-            
+def printGrid(M):
+    grid=np.zeros((M,M),dtype=np.int64)
+    ns=np.zeros(M)
+    ms=np.zeros(M)
+    for n in range(M):
+        for m in range(M):
+            grid[n,m]=grundyPropNim(n,m)
+            if grid[n,m]==0 and n<=m:
+                print(n,m,m-n)
+                ns[n]=n
+                ms[m]=m
+    # print(np.transpose(grid))
+    # for n in range(M):
+    #     for m in range(M):
+    #         grid[n,m]=grundyWythoff(n,m)
+    #         if grid[n,m]==0 and n<=m:
+    #             print(n,m)
+    # print(np.transpose(grid))         
                 
-        
+
+def WythoffZeros(M):
+    gr=(1+np.sqrt(5))/2
+    for n in range(M):
+        print(int(gr*n),int(gr**2*n))
+       
         
 def grundyPropNim(n,m,memo={}):
     if n==0 and m==0:
@@ -139,6 +164,33 @@ def grundyPropNim(n,m,memo={}):
 
         return mex(gset)
 
-  
-2
+def grundyWythoff(n,m,memo={}):
 
+    if n==0 and m==0:
+        return 0
+    if n==0 and m==1:
+        return 1
+    if n==1 and m==0:
+        return 1
+
+    try:
+        return memo[n,m]
+    except KeyError:
+        gset=set()
+        for k in range(1,n+1):
+            result=grundyWythoff(n-k,m,memo)
+            gset.add(result)
+            memo[n,m]=mex(gset)
+        for k in range(1,m+1):
+            result=grundyWythoff(n,m-k,memo)
+            gset.add(result)
+            memo[n,m]=mex(gset)
+
+        nm_min=min(n,m)
+        nm_diff=abs(n-m)
+        for k in range(1,nm_min+1):
+            result=grundyWythoff(nm_min-k,nm_min+nm_diff-k,memo)
+            gset.add(result)
+            memo[n,m]=mex(gset)
+
+        return mex(gset)

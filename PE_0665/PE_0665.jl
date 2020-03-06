@@ -1,80 +1,122 @@
-function test(N)
-    count=0
-    for i=1:N
-        for j=1:N
-            count+=1
-        end
+# Michael Hunt
+# 01-March -2020
+# Proportionate Nim
+
+# gradient_low=1.4777997752722001205
+
+
+# 11541685709674 correct for M=10^7! in 4s
+
+
+function mex(Set,minval)
+    mexval = minval
+    while Set[mexval+1] >=0
+        mexval += 1
     end
-    println(count)
+    return mexval
 end
 
 function p665(M)
 
-    losers=[(0,0),(1,3),(2,6),(4,5)]#,[2,6],[4,5],[3,1],[6,2],[5,4]]
-    count=0
+    losers=[(1,3),(2,6),(4,5),(7,10),(8,14),(9,17),(11,25),(12,28),(13,18),(15,35),(16,23),(19,31)]
+    total=Int64(sum([k[1]+k[2] for k in losers]))
+    nms=zeros(Int64,M).-1
+    deltas=zeros(Bool,M)
+    dhalfs=zeros(Bool,2*M)
+    ddoubles=zeros(Bool,M)
 
-    ah,bh=2.2476,0.7486
-    al,bl=1.47813,0.07693
-    # for m=1:M
-    for n=1:div((M-bh),(ah+1))
-        # for n=1:min(m,M-m)#min(m,M-m)
-        for m=floor(Int,0.95*(bh+ah*n)):floor(Int,1.05*(bh+ah*n))
-            winner=false
-            for loser in losers
-                    # println((n,m,loser))
-                if n in loser
-                    winner=true
-                    # println("Hello A: ",(loser,n,m))
-                    break
-                end
-                if m in loser
-                    winner=true
-                    # println("Hello B: ",(loser,n,m))
-                    break
-                end
-                if n - loser[1]==abs(m - loser[2])
-                    winner=true
-                    # println("Hello C: ",(loser,n,m))
-                    break
-                end
-                # println((n,loser,n .- loser,abs.((m .- loser)/2)))
-                if n - loser[1]==abs((m - loser[2])/2)
-                    winner=true
-                    # println("Hello D: ",(loser,n,m))
-                    break
-                end
-                if n - loser[2]==abs((m - loser[1])/2)
-                    winner=true
-                    # println("Hello D: ",(loser,n,m))
-                    break
-                end
-                if n - loser[1]==abs(2*(m - loser[2]))
-                    winner=true
-                    # println("Hello E: ",(loser,n,m))
-                    break
-                end
-                if n - loser[2]==abs(2*(m - loser[1]))
-                    winner=true
-                    # println("Hello E: ",(loser,n,m))
-                    break
-                end
+    for i=1:length(losers)
+
+        nms[losers[i][1]+1]=losers[i][1]
+        nms[losers[i][2]+1]=losers[i][2]
+        deltas[abs(losers[i][2]-losers[i][1])+1]=true
+        dhalfs[abs(losers[i][1]-2*losers[i][2])+1]=true
+        ddoubles[abs(2*losers[i][1]-losers[i][2])+1]=true
+    end
+
+    n=maximum(loser[1] for loser in losers)
+    counthigh=5
+
+    margin=200
+
+    while 1>0
+
+        n=mex(nms,n)
+        nms[n+1]=n
+        mcount=0
+
+        gradient_low=1.4778
+        m=max(1,floor(Int64,gradient_low*n)-margin)
+        if n+m>M
+            break
+        end
+
+        flag=false
+        while flag==false
+            mcount+=1
+            if n+m>M || mcount>2*margin || m/n>1.56
+                break
             end
-            if winner==false
-                count+=1
-                push!(losers,(n,m))
-                # println((n,m))
+
+            check=nms[m+1]>=0 ||
+                + deltas[abs(m-n)+1]==true ||
+                + dhalfs[abs(n-2*m)+1]==true ||
+                + dhalfs[abs(m-2*n)+1]==true ||
+                + ddoubles[abs(2*n-m)+1]==true
+            if check==true
+                m+=1
+                continue
+            end
+
+            total+=n+m
+            nms[m+1]=m
+            deltas[abs(m-n)+1]=true
+            dhalfs[abs(n-2*m)+1]=true
+            ddoubles[abs(2*n-m)+1]=true
+            flag=true
+            break
+        end
+
+        if flag==true
+            continue
+        end
+
+        counthigh+=1
+        m=2*n+counthigh
+
+        if n+m>M
+            continue
+        end
+
+        total+=n+m
+        nms[m+1]=m
+        deltas[abs(m-n)+1]=true
+        dhalfs[abs(n-2*m)+1]=true
+        ddoubles[abs(2*n-m)+1]=true
+    end
+    println((M,total))
+end
+
+
+function test(M)
+
+# s=Set(1:M)
+# if a in s
+#     i=1
+# end
+# s=Set()
+s=zeros(M)
+for a = 1:M
+    # push!(s,a)
+    s[a]=a
+end
+
+a=0
+    for i=1:M
+        for j=1:280
+            if div(M,2) in s
+                a=1
             end
         end
     end
-
-
-    total=0
-    for loser in losers
-        println(loser)
-        total+=sum(loser)
-    end
-
-    println((M,total))
-    println(count)
-
 end
